@@ -1,0 +1,4 @@
+Fonts in this folder are subsets (Basic Latin and common punctuation) of:
+- Inter (Regular, SemiBold): SIL Open Font License 1.1, https://rsms.me/inter/
+- TeX Gyre Heros Cn (Bold): GUST Font License, https://www.gust.org.pl/projects/e-foundry/tex-gyre
+Both licences permit redistribution and modification of the fonts.

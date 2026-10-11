@@ -1,0 +1,9 @@
+Copyright (c) 2026 Flinn Ginder-Poulsen. All rights reserved.
+
+This source code is published so it can be viewed and evaluated. No licence is granted to
+copy, modify, distribute or use it without the copyright holder's written permission.
+(GitHub's terms of service additionally allow viewing and forking of public repositories
+on GitHub itself.)
+
+Third-party libraries in the vendor/ folder remain under their own licences; see the
+LICENSE files in that folder.

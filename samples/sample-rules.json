@@ -1,0 +1,43 @@
+{
+  "app": "plandot",
+  "version": 1,
+  "settings": {
+    "roomPattern": "\\d-\\d{3}",
+    "roomDistance": 10
+  },
+  "rules": [
+    {
+      "name": "Socket outlet",
+      "tags": "A1, A2, A3",
+      "usePattern": false,
+      "title": "Install socket outlet {tag} {room_label}",
+      "pinAt": "dot",
+      "columns": {
+        "Category": "Electrical",
+        "Zone": "Ground floor"
+      }
+    },
+    {
+      "name": "TV point",
+      "tags": "B1",
+      "usePattern": false,
+      "title": "Install TV point {room_label}",
+      "pinAt": "dot",
+      "columns": {
+        "Category": "Electrical",
+        "Zone": "Ground floor"
+      }
+    },
+    {
+      "name": "Cavity barrier",
+      "tags": "C1, C2, C3",
+      "usePattern": false,
+      "title": "Install cavity barrier {tag} {room_label}",
+      "pinAt": "dot",
+      "columns": {
+        "Category": "Carpentry",
+        "Zone": "Ground floor"
+      }
+    }
+  ]
+}

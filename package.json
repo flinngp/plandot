@@ -1,0 +1,22 @@
+{
+  "name": "plandot",
+  "version": "0.2.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "description": "Turn callouts on a drawing PDF into a task import file, each task pinned on the dot at the end of its leader line. Runs entirely in the browser.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "vendor": "node scripts/vendor.mjs",
+    "test": "node --test test/*.test.mjs",
+    "serve": "python3 -m http.server 8080"
+  },
+  "devDependencies": {
+    "jszip": "3.10.1",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "6.2.108",
+    "playwright": "1.56.0"
+  }
+}

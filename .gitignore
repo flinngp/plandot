@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Computer clutter
+.DS_Store
+Thumbs.db
+
+# Secrets: never commit these
+.env
+.env.*
+
+# Real drawings and import templates can be confidential or carry personal details.
+# Only the two made-up files in samples/ are allowed into the repo.
+*.pdf
+*.xlsx
+*.xls
+~$*
+!samples/sample-drawing.pdf
+!samples/sample-import-template.xlsx
