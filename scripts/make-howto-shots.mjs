@@ -142,11 +142,11 @@ await sym.mouse.move(5, 5);
 await sym.waitForTimeout(900);
 
 // result: pins on every door, none on the windows
-await markAt(sym, 200, 150, 1, { r: 40, dx: -52, dy: -56 });
-await markAt(sym, 900, 450, 1, { r: 40, dx: -52, dy: -56, ring: true });
-await markAt(sym, 1000, 150, 2, { r: 36, dx: -48, dy: -50 });
-await markAt(sym, 150, 420, 2, { r: 36, dx: -48, dy: -50 });
-await markAt(sym, 500, 400, 2, { r: 36, dx: -48, dy: -50 });
+await markAt(sym, 200, 150, 1, { r: 40, dx: -52, dy: -50 });
+await markAt(sym, 1140, 560, 1, { r: 40, dx: -62, dy: -58 });
+await markAt(sym, 1000, 150, 2, { r: 36, dx: -48, dy: -42 });
+await markAt(sym, 60, 560, 2, { r: 36, dx: 24, dy: -62 });
+await markAt(sym, 500, 700, 2, { r: 36, dx: -48, dy: 16 });
 await sym.screenshot({ path: OUT + "symbols-3-found.png", clip: symPane });
 await sym.evaluate(() => document.querySelectorAll(".ann").forEach((e) => e.remove()));
 

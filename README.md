@@ -1,5 +1,7 @@
 # Plandot
 
+Live at **https://plandot.uk**
+
 Turn callouts and symbols on a plan into pins, ready to import, with every pin placed where it belongs.
 
 **Live app:** the link is in the *About* box at the top right of this page. No install, no sign-in.

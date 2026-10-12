@@ -45,9 +45,9 @@ test("boxing one patio door pins every patio door, turned or mirrored, and no wi
   assert.equal(found.length, 5);
   assert.ok(found.every((p) => p.anchor === "symbol"));
   // none of the pins sits on a window
-  for (const [wx, wy] of [[1000, 150], [150, 420], [500, 400]]) assert.ok(found.every((p) => Math.hypot(p.x - wx, p.y - wy) > 40));
+  for (const [wx, wy] of [[1000, 150], [60, 560], [500, 700]]) assert.ok(found.every((p) => Math.hypot(p.x - wx, p.y - wy) > 40));
   // the doors are at these spots (give or take the swing)
-  for (const [dx, dy] of [[200, 150], [600, 150], [900, 450], [300, 600], [700, 620]]) assert.ok(found.some((p) => Math.hypot(p.x - dx, p.y - dy) < 40), `door ${dx},${dy}`);
+  for (const [dx, dy] of [[200, 150], [600, 150], [1140, 560], [300, 700], [700, 700]]) assert.ok(found.some((p) => Math.hypot(p.x - dx, p.y - dy) < 40), `door ${dx},${dy}`);
   assert.match(await page.textContent(".rule-status"), /5 found/);
   assert.equal(await page.$eval("#tb-pins", (e) => e.textContent), "5 / 5");
   await page.close();
