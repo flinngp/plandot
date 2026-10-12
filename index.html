@@ -4,27 +4,32 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Plandot</title>
-<meta name="description" content="Find callouts on a construction drawing and turn them into a task import file. Everything runs in your browser; drawings are never uploaded.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231c2630'/%3E%3Ccircle cx='21' cy='11' r='5' fill='%23cc2f2b'/%3E%3Cpath d='M6 26V6M6 26h20' stroke='%23fbfbfa' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+<meta name="description" content="Turn callouts and symbols on a plan into a task import file. Everything runs in your browser; drawings are never uploaded.">
+<meta name="theme-color" content="#eef1f6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%233355ff'/%3E%3Cpath d='M9 24V8M9 24h14' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='21' cy='11' r='4.4' fill='%23ffd24a'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/app.css">
 <script src="vendor/jszip.min.js"></script>
 <script src="vendor/pdf-lib.min.js"></script>
 <script type="module" src="js/app.js"></script>
 </head>
 <body>
+<a class="skip" href="#viewport" data-i18n>Skip to the drawing</a>
 <header class="masthead">
   <div class="brand">
-    <h1>Plandot</h1>
-    <p data-i18n>Turn callouts on a drawing into a task import file.</p>
+    <svg class="mark" viewBox="0 0 38 38" aria-hidden="true"><rect width="38" height="38" rx="11" fill="currentColor"/><path d="M11 28V10M11 28h17" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/><circle cx="24.5" cy="13.5" r="4.6" fill="#ffd24a"/></svg>
+    <div>
+      <h1>Plandot</h1>
+      <p data-i18n>Turn callouts and symbols on a plan into a task import file.</p>
+    </div>
   </div>
   <div class="masthead-right">
-    <dl class="titleblock" aria-label="Current drawing">
+    <dl class="titleblock" aria-label="Current drawing" data-i18n-aria>
       <div class="tb-name"><dt data-i18n>Drawing</dt><dd id="tb-name">None loaded</dd></div>
       <div><dt data-i18n>Sheet</dt><dd id="tb-size">–</dd></div>
       <div><dt data-i18n>Pins</dt><dd id="tb-pins">0</dd></div>
     </dl>
     <label class="lang"><span class="sr" data-i18n>Language</span><select id="lang" aria-label="Language"></select></label>
-    <button type="button" class="btn start-over" id="start-over" data-i18n>Start over</button>
+    <button type="button" class="btn dark start-over" id="start-over" data-i18n>Start over</button>
   </div>
 </header>
 
@@ -38,6 +43,10 @@
         <label for="file-pdf" data-i18n>Drawing PDF</label>
         <input id="file-pdf" type="file" accept=".pdf,application/pdf">
         <p class="hint" id="pdf-info">Callouts must be real text in the PDF, not part of a scanned image.</p>
+        <div class="alert" id="pdf-alert" role="alert" hidden>
+          <strong data-i18n>This page has no selectable text.</strong>
+          <span data-i18n>It is probably a scan or a photo of a drawing, so callouts can't be found on it. Ask for the PDF exported straight from the design software. Symbols can still be found if the lines are real vector lines.</span>
+        </div>
       </div>
       <div class="field" id="page-field" hidden>
         <label for="page-select" data-i18n>Page</label>
@@ -61,15 +70,22 @@
     </section>
 
     <section class="step" id="step-rules">
-      <h2><span class="num">3</span> <span data-i18n>Rules</span></h2>
-      <p class="hint lead" data-i18n>A rule turns every callout with a matching tag into one task.</p>
+      <div class="step-head">
+        <h2><span class="num">3</span> <span data-i18n>Rules</span></h2>
+        <div class="step-tools">
+          <button type="button" class="btn link" id="undo" disabled data-i18n>Undo</button>
+          <button type="button" class="btn link" id="redo" disabled data-i18n>Redo</button>
+        </div>
+      </div>
+      <p class="hint lead" data-i18n>A rule turns every callout or symbol it finds into one task.</p>
       <div id="rules"></div>
       <div class="row">
         <button type="button" class="btn quiet" id="add-rule" data-i18n>Add rule</button>
-        <button type="button" class="btn quiet" id="save-rules" data-i18n>Save rules</button>
-        <button type="button" class="btn quiet" id="load-rules-btn" data-i18n>Load rules</button>
-        <input id="load-rules" type="file" accept=".json,application/json" hidden>
+        <button type="button" class="btn quiet" id="save-rules" data-i18n>Save setup</button>
+        <button type="button" class="btn quiet" id="load-rules-btn" data-i18n>Open setup</button>
+        <input id="load-rules" type="file" accept=".json,application/json" hidden aria-label="Open setup" data-i18n-aria>
       </div>
+      <p class="hint" data-i18n>A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.</p>
 
       <details class="settings">
         <summary data-i18n>Search area and room labels</summary>
@@ -96,6 +112,11 @@
     <section class="step" id="step-export">
       <h2><span class="num">4</span> <span data-i18n>Download</span></h2>
       <div class="stack">
+        <p class="export-summary" id="export-summary" role="status"></p>
+        <details class="settings flat" id="export-preview">
+          <summary data-i18n>Preview what will be exported</summary>
+          <div class="preview-wrap" id="preview-table"></div>
+        </details>
         <button type="button" class="btn primary" id="dl-import" disabled data-i18n>Download import file</button>
         <p class="hint" id="import-why"></p>
         <button type="button" class="btn" id="dl-pdf" disabled data-i18n>Download marked-up PDF</button>
@@ -110,25 +131,34 @@
     </section>
   </aside>
 
-  <section class="sheetpane" aria-label="Drawing preview">
+  <section class="sheetpane" aria-label="Drawing preview" data-i18n-aria>
     <div class="toolbar">
       <label class="check"><input type="checkbox" id="show-grid"> <span data-i18n>10% grid</span></label>
+      <span class="tip" data-i18n>Scroll to pan · Ctrl + scroll to zoom</span>
       <span class="readout" id="readout" aria-live="off">X – &nbsp; Y –</span>
     </div>
-    <div class="sheet" id="sheet" hidden>
-      <div class="corner"></div>
-      <div class="ruler ruler-x" id="ruler-x"><i class="marker" id="marker-x"></i></div>
-      <div class="ruler ruler-y" id="ruler-y"><i class="marker" id="marker-y"></i></div>
-      <div class="stage" id="stage">
-        <canvas id="pdf-canvas"></canvas>
-        <svg id="overlay" aria-label="Pins on the drawing"></svg>
+    <div class="viewport" id="viewport" tabindex="0" role="region" aria-label="Drawing. Scroll to pan; plus, minus and 0 keys zoom." data-i18n-aria hidden>
+      <div class="sheet" id="sheet">
+        <div class="corner"></div>
+        <div class="ruler ruler-x" id="ruler-x"><i class="marker" id="marker-x"></i></div>
+        <div class="ruler ruler-y" id="ruler-y"><i class="marker" id="marker-y"></i></div>
+        <div class="stage" id="stage">
+          <canvas id="pdf-canvas"></canvas>
+          <svg id="overlay" aria-label="Pins on the drawing" data-i18n-aria></svg>
+        </div>
       </div>
+    </div>
+    <div class="zoombar" id="zoombar" role="group" aria-label="Zoom" data-i18n-aria hidden>
+      <button type="button" id="zoom-out" aria-label="Zoom out" data-i18n-aria>−</button>
+      <output id="zoom-level" aria-live="polite">100%</output>
+      <button type="button" id="zoom-in" aria-label="Zoom in" data-i18n-aria>+</button>
+      <button type="button" id="zoom-fit" class="fit" data-i18n>Fit</button>
     </div>
     <div class="dropzone" id="dropzone">
       <p class="dz-title" data-i18n>Drop the drawing PDF here</p>
       <p data-i18n>You can drop the import template too. Nothing leaves your computer.</p>
+      <button type="button" class="btn quiet" id="try-sample" data-i18n>Try with a sample drawing</button>
     </div>
-
   </section>
 </div>
 

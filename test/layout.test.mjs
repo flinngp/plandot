@@ -26,9 +26,8 @@ async function loadSample(page) {
   await page.waitForTimeout(400);
 }
 
-// The sheet follows you down the page while you set up rules. It used to keep floating down and
-// cover the task list. Scroll the whole page and make sure that never happens, at laptop, big
-// monitor, tablet and phone sizes.
+// The sheet and the setup panel are one block, with the pin list below. Scroll the whole page and
+// make sure the sheet never covers the pin list, at laptop, big monitor, tablet and phone sizes.
 for (const [w, h] of [[1440, 780], [1280, 720], [1920, 1080], [820, 1100], [390, 800]]) {
   test(`the sheet never covers the task list while scrolling (${w} x ${h})`, async () => {
     const page = await env.browser.newPage({ viewport: { width: w, height: h } });
@@ -36,7 +35,7 @@ for (const [w, h] of [[1440, 780], [1280, 720], [1920, 1080], [820, 1100], [390,
     const res = await page.evaluate(async () => {
       const pane = document.querySelector(".sheetpane"), list = document.querySelector("#pinlist");
       const total = document.documentElement.scrollHeight;
-      let covered = 0, stuckAndCut = 0;
+      let covered = 0, stuckAndCut = 0; // stuckAndCut stays 0: nothing sticks any more
       for (let y = 0; y <= total; y += 80) {
         scrollTo(0, y);
         await new Promise((r) => setTimeout(r, 12));
@@ -44,29 +43,13 @@ for (const [w, h] of [[1440, 780], [1280, 720], [1920, 1080], [820, 1100], [390,
         const overlapY = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
         const overlapX = Math.min(a.right, b.right) - Math.max(a.left, b.left);
         if (overlapY > 1 && overlapX > 1) covered++;
-        // once it is really stuck to the top of the window, all of it must be on screen
-        if (getComputedStyle(pane).position === "sticky" && Math.abs(a.top - 14) < 1 && a.bottom > innerHeight + 1) stuckAndCut++;
       }
       return { covered, stuckAndCut };
     });
     await page.close();
     assert.equal(res.covered, 0, "the sheet overlapped the task list");
-    assert.equal(res.stuckAndCut, 0, "a stuck sheet had its bottom cut off");
   });
 }
-
-test("a sheet taller than the window scrolls normally instead of sticking", async () => {
-  const page = await env.browser.newPage({ viewport: { width: 1440, height: 600 } }); // the sheet is ~685px tall here
-  await loadSample(page);
-  const info = await page.evaluate(() => {
-    const pane = document.querySelector(".sheetpane");
-    return { stick: pane.classList.contains("stick"), position: getComputedStyle(pane).position, h: pane.offsetHeight };
-  });
-  await page.close();
-  assert.ok(info.h > 600 - 28);
-  assert.equal(info.stick, false);
-  assert.equal(info.position, "static");
-});
 
 test("the pin list sits below both columns, outside the workspace", async () => {
   const page = await env.browser.newPage({ viewport: { width: 1440, height: 780 } });

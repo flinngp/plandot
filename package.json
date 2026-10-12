@@ -1,10 +1,10 @@
 {
   "name": "plandot",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
-  "description": "Turn callouts on a drawing PDF into a task import file, each task pinned on the dot at the end of its leader line. Runs entirely in the browser.",
+  "description": "Turn callouts and symbols on a plan into a task import file. Runs entirely in the browser.",
   "engines": {
     "node": ">=20"
   },

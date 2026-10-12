@@ -16,6 +16,9 @@ async function englishTexts() {
   for (const m of app.matchAll(/\btr\(("(?:[^"\\]|\\.)*")/g)) out.add(JSON.parse(m[1]));
   const html = await readFile(`${root}index.html`, "utf8");
   for (const m of html.matchAll(/<([a-z0-9]+)[^>]*data-i18n(?!-)[^>]*>([\s\S]*?)<\/\1>/g)) { const t = m[2].replace(/<[^>]+>/g, "").trim(); if (t) out.add(t.replaceAll("&amp;", "&")); }
+  // labels set through data-i18n-aria and placeholders through data-i18n-ph
+  for (const m of html.matchAll(/<[^>]*data-i18n-aria[^>]*>/g)) { const a = m[0].match(/aria-label="([^"]*)"/); if (a) out.add(a[1]); }
+  for (const m of html.matchAll(/<[^>]*data-i18n-ph[^>]*>/g)) { const a = m[0].match(/placeholder="([^"]*)"/); if (a) out.add(a[1]); }
   // the hints shown before anything is loaded come from the HTML but are set from code
   const first = (id) => html.match(new RegExp(`id="${id}">([^<]*)<`))[1].trim();
   out.add(first("pdf-info")); out.add(first("tpl-info").replace("&#39;", "'"));

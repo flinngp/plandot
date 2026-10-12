@@ -1,4 +1,3 @@
-Fonts in this folder are subsets (Basic Latin and common punctuation) of:
-- Inter (Regular, SemiBold): SIL Open Font License 1.1, https://rsms.me/inter/
-- TeX Gyre Heros Cn (Bold): GUST Font License, https://www.gust.org.pl/projects/e-foundry/tex-gyre
-Both licences permit redistribution and modification of the fonts.
+Fonts in this folder are subsets (Latin, Latin Extended-A and common punctuation, enough for all
+the languages Plandot offers) of Inter (Regular, SemiBold, Bold, ExtraBold):
+SIL Open Font License 1.1, https://rsms.me/inter/ . The licence permits redistribution and modification.

@@ -1,13 +1,13 @@
 // Plandot: drawing PDF + rules + import template -> task import workbook.
 // Everything happens in the browser. Nothing is uploaded.
-import { detect, newRule, round2, chunk, IMPORT_LIMIT, pinMode, ruleKind } from "./core.js";
-import { openPdf, readPage, readShapes, readGeometry, anchorFinder, renderInto } from "./pdfsource.js";
+import { detect, newRule, round2, chunk, IMPORT_LIMIT, pinMode, ruleKind, renderTemplate } from "./core.js";
+import { openPdf, readPage, readShapes, readGeometry, anchorFinder, renderRegion, renderFull, MAX_SIDE } from "./pdfsource.js";
 import { captureSymbol, findSymbols, sanitizeTemplate } from "./symbols.js";
 import { readTemplate, writeImport, buildRows, buildCalibrationRows, extraColumns, orphanedColumns, applyMapping, TemplateError } from "./template.js";
 import { markedUpPdf, pinsPng, download } from "./markup.js";
 import { tr, LANGUAGES, initialLanguage, setLanguage, currentLanguage } from "./i18n.js";
 
-const COLORS = ["#1f6fb4", "#d98200", "#2a9d6a", "#7a56c2", "#14a3b5", "#c23f7f", "#8a8d1e", "#5b6b7a"];
+const COLORS = ["#3355ff", "#e08a00", "#1f9d6b", "#8a4fff", "#0fa3b8", "#d6336c", "#7a8a14", "#5b6b7a"];
 const colorOf = (i) => COLORS[i % COLORS.length];
 const STANDARD = new Set(["id", "title", "priority", "category", "assignee", "start date", "end date", "plan", "x pos (%)", "y pos (%)", "tier 1", "tier 2", "tier 3", "tier 4", "tier 5", "manpower", "cost", "description / hashtags", "related task name", "checklist", "existing file"]);
 const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -30,6 +30,7 @@ const state = {
   boxDraft: null,
   animate: false,
   busy: false, // reading the drawing's lines
+  zoom: 1, // 1 = the whole sheet fits the window
 };
 window.planTasks = { state }; // handy when poking around in the console
 
@@ -53,6 +54,7 @@ function h(tag, props = {}, ...kids) {
 
 // ---------------------------------------------------------------- persistence
 function save() {
+  recordSoon();
   try {
     const { planName, roomPattern, roomDistance, showGrid } = state.settings;
     localStorage.setItem(STORE_KEY, JSON.stringify({ rules: state.rules, settings: { planName, roomPattern, roomDistance, showGrid } }));
@@ -68,6 +70,54 @@ function restore() {
 }
 const saveSoon = debounce(save, 300);
 
+// ---------------------------------------------------------------- undo and redo (rules only)
+const symbolIds = new WeakMap();
+let symbolCount = 0;
+const symId = (sym) => { if (!symbolIds.has(sym)) symbolIds.set(sym, ++symbolCount); return symbolIds.get(sym); };
+const snapshot = () => state.rules.map((r) => ({ ...r, columns: { ...(r.columns || {}) } })); // symbols are never edited in place, so they can be shared
+const snapKey = (snap) => JSON.stringify(snap.map((r) => ({ ...r, symbol: r.symbol ? symId(r.symbol) : null })));
+const history = { past: [], future: [], last: null, key: "" };
+function resetHistory() {
+  history.past = []; history.future = [];
+  history.last = snapshot(); history.key = snapKey(history.last);
+  updateUndoButtons();
+}
+/** Called after every change to the rules; typing in a box counts as one step. */
+function recordNow() {
+  const snap = snapshot(), key = snapKey(snap);
+  if (key === history.key) return;
+  history.past.push(history.last);
+  if (history.past.length > 60) history.past.shift();
+  history.future = [];
+  history.last = snap; history.key = key;
+  updateUndoButtons();
+}
+const recordSoon = debounce(recordNow, 500);
+function applySnapshot(snap) {
+  state.rules = snap.map((r) => ({ ...r, columns: { ...(r.columns || {}) } }));
+  history.last = snapshot(); history.key = snapKey(history.last);
+  try { localStorage.setItem(STORE_KEY, JSON.stringify({ rules: state.rules, settings: { planName: state.settings.planName, roomPattern: state.settings.roomPattern, roomDistance: state.settings.roomDistance, showGrid: state.settings.showGrid } })); } catch { /* ignore */ }
+  cancelSymbolBox(true);
+  renderRules(); renderTemplateInfo(); runDetect(); updateUndoButtons();
+}
+function undo() {
+  recordNow(); // fold in anything typed in the last half second
+  if (!history.past.length) return;
+  history.future.push(history.last);
+  applySnapshot(history.past.pop());
+  say(tr("Undone."), "ok");
+}
+function redo() {
+  if (!history.future.length) return;
+  history.past.push(history.last);
+  applySnapshot(history.future.pop());
+  say(tr("Redone."), "ok");
+}
+function updateUndoButtons() {
+  $("#undo").disabled = !history.past.length && history.key === snapKey(snapshot());
+  $("#redo").disabled = !history.future.length;
+}
+
 // ---------------------------------------------------------------- status line
 function say(msg, kind = "") {
   const s = $("#status");
@@ -76,6 +126,7 @@ function say(msg, kind = "") {
 }
 
 // ---------------------------------------------------------------- file loading
+let keyboardActivated = false;
 let loadRun = 0; // bumped by every new drawing and by Start over, so a slow read can tell it was overtaken
 async function loadPdfFile(file) {
   const mine = ++loadRun;
@@ -84,8 +135,8 @@ async function loadPdfFile(file) {
   try {
     bytes = await file.arrayBuffer();
     doc = await openPdf(bytes);
-  } catch {
-    if (mine === loadRun) say(tr("That file couldn't be read as a PDF."), "err");
+  } catch (err) {
+    if (mine === loadRun) say(err?.name === "PasswordException" ? tr("This PDF is password protected. Save a copy without the password and try again.") : tr("That file couldn't be read as a PDF."), "err");
     return;
   }
   if (mine !== loadRun) { try { doc.destroy?.(); } catch { /* ignore */ } return; }
@@ -107,24 +158,22 @@ async function loadPage(n, mine = loadRun) {
   state.areaMode = false;
   state.boxFor = null;
   state.boxDraft = null;
+  state.zoom = 1;
   $("#stage").classList.remove("drawing");
-  $("#sheet").hidden = false;
-  $("#dropzone").hidden = true;
+  showSheet(true);
   $("#draw-area").disabled = false;
-  const words = info.tokens.length;
   renderPdfInfo();
   await drawSheet();
   state.animate = true;
-  runDetect();
+  await runDetect();
 }
 function renderPdfInfo() {
   const el = $("#pdf-info");
-  if (!state.pdf?.tokens) { el.textContent = tr(DEFAULT_PDF_INFO); el.classList.remove("warn"); return; }
+  if (!state.pdf?.tokens) { el.textContent = tr(DEFAULT_PDF_INFO); el.hidden = false; $("#pdf-alert").hidden = true; return; }
   const words = state.pdf.tokens.length;
-  el.textContent = words
-    ? tr("{name} · {n} words of text found on this page.", { name: file(state.pdf.name), n: words.toLocaleString() })
-    : tr("This page has no selectable text, so it is probably a scan. Callouts can't be found on it yet.");
-  el.classList.toggle("warn", !words);
+  el.textContent = tr("{name} · {n} words of text found on this page.", { name: file(state.pdf.name), n: words.toLocaleString() });
+  el.hidden = !words;
+  $("#pdf-alert").hidden = words > 0;
 }
 function renderTplInfo() {
   const el = $("#tpl-info");
@@ -207,6 +256,7 @@ function ruleCard(rule, index) {
   const filled = () => Object.values(rule.columns || {}).filter(hasText).length;
   const moreSummary = h("summary", { text: tr("Other columns") });
   const refreshSummary = () => { moreSummary.textContent = filled() ? tr("Other columns ({n} set)", { n: filled() }) : tr("Other columns"); };
+  const isSymbol = ruleKind(rule) === "symbol";
 
   const grid = h("div", { class: "more-grid" });
   if (!cols.length) grid.append(h("p", { class: "hint", text: tr("Load the import template to set category, assignee, dates and custom attributes.") }));
@@ -219,24 +269,44 @@ function ruleCard(rule, index) {
   refreshSummary();
 
   const name = h("input", { type: "text", value: rule.name, "aria-label": tr("Rule name"), autocomplete: "off" });
-  name.addEventListener("input", () => set({ name: name.value }));
+  name.addEventListener("input", () => { set({ name: name.value }); updatePreviews(); });
   const tags = h("input", { type: "text", id: `${rule.id}-tags`, value: rule.tags, placeholder: rule.usePattern ? "A[1-3]" : "A1, A2, A3", autocomplete: "off" });
   tags.addEventListener("input", () => set({ tags: tags.value }));
   const pattern = h("input", { type: "checkbox", checked: !!rule.usePattern });
   pattern.addEventListener("change", () => { tags.placeholder = pattern.checked ? "A[1-3]" : "A1, A2, A3"; set({ usePattern: pattern.checked }); });
-  const title = h("input", { type: "text", id: `${rule.id}-title`, value: rule.title, autocomplete: "off" });
-  title.addEventListener("input", () => set({ title: title.value }));
   const pinAt = h("select", { id: `${rule.id}-pin` },
-    h("option", { value: "dot", text: tr("On the dot at the end of the leader line") }),
-    h("option", { value: "text", text: tr("On the callout itself") }));
+    h("option", { value: "dot", text: tr("On the location") }),
+    h("option", { value: "text", text: tr("On the callout") }));
   pinAt.value = pinMode(rule);
   pinAt.addEventListener("change", () => set({ pinAt: pinAt.value }));
 
   const kind = h("select", { id: `${rule.id}-kind` },
-    h("option", { value: "text", text: tr("A callout tag, like A1 or B2") }),
-    h("option", { value: "symbol", text: tr("A symbol I draw a box around") }));
+    h("option", { value: "text", text: tr("Text callout") }),
+    h("option", { value: "symbol", text: tr("Draw box") }));
   kind.value = ruleKind(rule);
   kind.addEventListener("change", () => { rule.kind = kind.value; if (state.boxFor === rule.id) cancelSymbolBox(); afterRulesChange(); });
+
+  // Task title: type it, or click a button to drop a detail into it. A live example shows the result.
+  const title = h("input", { type: "text", id: `${rule.id}-title`, value: rule.title, autocomplete: "off", "aria-describedby": `${rule.id}-becomes` });
+  title.addEventListener("input", () => { set({ title: title.value }); updatePreviews(); });
+  const token = (label, code, tip) => h("button", { type: "button", class: "token", text: label, title: tip, onclick: () => {
+    const at = title.selectionStart ?? title.value.length, to = title.selectionEnd ?? at;
+    const before = title.value.slice(0, at);
+    const lead = before && !/\s$/.test(before) ? " " : "";
+    title.setRangeText(`${lead}${code}`, at, to, "end");
+    title.dispatchEvent(new Event("input", { bubbles: true }));
+    title.focus();
+  } });
+  const becomes = h("p", { class: "becomes", id: `${rule.id}-becomes`, "data-preview": rule.id });
+  const titleField = h("div", { class: "field" },
+    h("label", { for: `${rule.id}-title`, text: tr("Task title") }), title,
+    h("div", { class: "insert", role: "group", "aria-label": tr("Add to the title") },
+      h("span", { class: "lbl", text: tr("Add") }),
+      isSymbol ? token(tr("Symbol name"), "{rule}", tr("The name of this rule")) : token(tr("Callout text"), "{tag}", tr("The text of the callout, for example A1")),
+      token(tr("Room"), "{room}", tr("The nearest room label, for example 1-101")),
+      token(tr("Room in brackets"), "{room_label}", tr("The nearest room label in brackets, for example (Room 1-101)")),
+      token(tr("Number"), "{n}", tr("Counts 1, 2, 3 for each task from this rule"))),
+    becomes);
 
   const symbolFields = () => {
     const drawing = state.boxFor === rule.id;
@@ -246,6 +316,8 @@ function ruleCard(rule, index) {
     level.addEventListener("change", () => set({ strict: Number(level.value) }));
     const rotate = h("input", { type: "checkbox", checked: rule.rotate !== false });
     rotate.addEventListener("change", () => set({ rotate: rotate.checked }));
+    const sizes = h("input", { type: "checkbox", checked: !!rule.sizes });
+    sizes.addEventListener("change", () => set({ sizes: sizes.checked }));
     return [
       h("div", { class: "field" }, h("span", { class: "label", text: tr("Symbol") }),
         rule.symbol ? symbolPreview(rule, set) : null,
@@ -253,17 +325,19 @@ function ruleCard(rule, index) {
         h("p", { class: "hint", text: rule.symbol ? tr("Click the picture to move where the pin goes. Every copy of this symbol on the sheet gets one pin.") : tr("Draw a box that fully contains one example, such as a single patio door. Lines that stick out of the box are left out.") })),
       rule.symbol ? h("div", { class: "field" }, h("label", { for: `${rule.id}-strict`, text: tr("How closely a copy must match") }), h("div", { class: "slider" }, level, levelText),
         h("label", { class: "check" }, rotate, tr("Also find copies that are turned or mirrored")),
-        h("p", { class: "hint", text: tr("Copies must be the same size as the one you boxed. If some are missed, move the slider towards Loose; if wrong things are picked up, towards Exact.") })) : null,
-      h("div", { class: "field" }, h("label", { for: `${rule.id}-title`, text: tr("Task title") }), title,
-        h("p", { class: "hint", text: tr("Fill-ins: {tag} (the rule name) {room} {room_label} {n}") })),
+        h("label", { class: "check" }, sizes, tr("Also find copies drawn bigger or smaller")),
+        h("p", { class: "hint", text: tr("If some are missed, move the slider towards Loose; if wrong things are picked up, towards Exact. Searching other sizes takes longer.") })) : null,
+      titleField,
     ];
   };
 
-  if (ruleKind(rule) === "symbol") {
+  const head = h("div", { class: "rule-head" }, name,
+    h("button", { type: "button", class: "icon-btn", text: tr("Duplicate"), "aria-label": `${tr("Duplicate")} ${rule.name}`, onclick: () => { state.rules.splice(index + 1, 0, { ...structuredClone(rule), id: newRule().id, name: `${rule.name} ${tr("copy")}` }); afterRulesChange(); } }),
+    h("button", { type: "button", class: "icon-btn", text: tr("Remove"), "aria-label": `${tr("Remove")} ${rule.name}`, onclick: () => { state.rules.splice(index, 1); if (!state.rules.length) state.rules.push(newRule(1)); afterRulesChange(); } }));
+
+  if (isSymbol) {
     return h("div", { class: "rule", "data-id": rule.id, style: `--pin:${colorOf(index)}` },
-      h("div", { class: "rule-head" }, name,
-        h("button", { type: "button", class: "icon-btn", text: tr("Duplicate"), "aria-label": `${tr("Duplicate")} ${rule.name}`, onclick: () => { state.rules.splice(index + 1, 0, { ...structuredClone(rule), id: newRule().id, name: `${rule.name} ${tr("copy")}` }); afterRulesChange(); } }),
-        h("button", { type: "button", class: "icon-btn", text: tr("Remove"), "aria-label": `${tr("Remove")} ${rule.name}`, onclick: () => { state.rules.splice(index, 1); if (!state.rules.length) state.rules.push(newRule(1)); afterRulesChange(); } })),
+      head,
       h("div", { class: "field" }, h("label", { for: `${rule.id}-kind`, text: tr("Look for") }), kind),
       ...symbolFields(),
       h("details", { class: "more" }, moreSummary, grid),
@@ -271,21 +345,37 @@ function ruleCard(rule, index) {
   }
 
   return h("div", { class: "rule", "data-id": rule.id, style: `--pin:${colorOf(index)}` },
-    h("div", { class: "rule-head" }, name,
-      h("button", { type: "button", class: "icon-btn", text: tr("Duplicate"), "aria-label": `${tr("Duplicate")} ${rule.name}`, onclick: () => { state.rules.splice(index + 1, 0, { ...structuredClone(rule), id: newRule().id, name: `${rule.name} ${tr("copy")}` }); afterRulesChange(); } }),
-      h("button", { type: "button", class: "icon-btn", text: tr("Remove"), "aria-label": `${tr("Remove")} ${rule.name}`, onclick: () => { state.rules.splice(index, 1); if (!state.rules.length) state.rules.push(newRule(1)); afterRulesChange(); } })),
-    h("div", { class: "field" }, h("label", { for: `${rule.id}-kind`, text: tr("Look for") }), kind),
-    h("div", { class: "field" }, h("label", { for: `${rule.id}-tags`, text: tr("Tags to find") }), tags,
-      h("label", { class: "check" }, pattern, tr("Match with a pattern instead (regular expression)"))),
-    h("div", { class: "field" }, h("label", { for: `${rule.id}-title`, text: tr("Task title") }), title,
-      h("p", { class: "hint", text: tr("Fill-ins: {tag} {room} {room_label} {n}") })),
-    h("div", { class: "field" }, h("label", { for: `${rule.id}-pin`, text: tr("Pin goes") }), pinAt,
+    head,
+    h("div", { class: "pair" },
+      h("div", { class: "field" }, h("label", { for: `${rule.id}-kind`, text: tr("Look for") }), kind),
+      h("div", { class: "field" }, h("label", { for: `${rule.id}-tags`, text: tr("Text to find") }), tags)),
+    h("label", { class: "check" }, pattern, tr("Match with a pattern instead (regular expression)")),
+    titleField,
+    h("div", { class: "field" }, h("label", { for: `${rule.id}-pin`, text: tr("Task pinned on") }), pinAt,
       h("p", { class: "hint", text: tr("A callout with no leader line keeps its pin on the callout. One with two leaders gets two pins.") })),
     h("details", { class: "more" }, moreSummary, grid),
     h("p", { class: "rule-status", "data-status": rule.id }));
 }
 
+/** The "Becomes:" line under each task title: the first real task from the rule, or an example. */
+function updatePreviews() {
+  const hasRoomPattern = hasText(state.settings.roomPattern);
+  for (const rule of state.rules) {
+    const el = document.querySelector(`[data-preview="${rule.id}"]`);
+    if (!el) continue;
+    const real = state.pins.find((p) => p.ruleId === rule.id);
+    const example = { tag: "A1", room: "1-101", room_label: "(Room 1-101)", n: 1, rule: rule.name };
+    const result = renderTemplate(rule.title, real ? real.vars : example) || "…";
+    el.replaceChildren(real ? tr("First task:") : tr("Example:"), " ", h("b", { text: result }));
+    if (/\{room(_label)?\}/.test(rule.title || "")) {
+      if (!hasRoomPattern) el.append(h("span", { class: "note", text: tr("Room stays empty until you set a room label pattern under \"Search area and room labels\".") }));
+      else if (real && !real.room) el.append(h("span", { class: "note", text: tr("No room label was found near this one. Try a larger distance under \"Search area and room labels\".") }));
+    }
+  }
+}
+
 function afterRulesChange() {
+  recordNow(); // adding, removing or changing the kind of a rule is a step of its own
   save();
   renderRules();
   renderTemplateInfo();
@@ -293,6 +383,7 @@ function afterRulesChange() {
 }
 
 function updateRuleStatus() {
+  updatePreviews();
   for (const rule of state.rules) {
     const p = document.querySelector(`[data-status="${rule.id}"]`);
     if (!p) continue;
@@ -310,9 +401,10 @@ function updateRuleStatus() {
         if (state.symbolNotes?.[rule.id]) p.append(h("span", { class: "warn", text: ` ${tr(state.symbolNotes[rule.id])}` }));
       }
     }
-    else if (!hasText(rule.tags)) p.textContent = tr("Add the tags to look for.");
+    else if (!hasText(rule.tags)) p.textContent = tr("Add the text to look for.");
     else if (!state.pdf) p.textContent = tr("Load a drawing to see matches.");
-    else if (!n) p.textContent = tr("No callouts found with those tags.");
+    else if (!state.pdf.tokens?.length) p.textContent = tr("This page has no selectable text.");
+    else if (!n) p.textContent = tr("No callouts found with that text.");
     else {
       const mine = state.pins.filter((x) => x.ruleId === rule.id);
       const callouts = mine.filter((x) => x.anchorIndex === 1).length;
@@ -367,10 +459,22 @@ function loadAnchors(pdf) {
 }
 
 let detectRun = 0;
-const runDetect = debounce(async () => {
+/** Work out the pins shortly after the last change. Returns a promise that settles when that run is done. */
+const runDetect = (() => {
+  let timer, waiting = [];
+  return () => new Promise((resolve) => {
+    waiting.push(resolve);
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      const mine = waiting; waiting = [];
+      try { await detectNow(); } finally { mine.forEach((r) => r()); }
+    }, 120);
+  });
+})();
+async function detectNow() {
   const run = ++detectRun;
   const pdf = state.pdf;
-  if (!pdf) { state.pins = []; state.errors = {}; refresh(); return; }
+  if (!pdf?.tokens) { state.pins = []; state.errors = {}; refresh(); return; } // no drawing, or still being read: loadPage runs this again when done
   if (wantsDots() && !pdf.geoFailed) {
     await loadAnchors(pdf);
     if (run !== detectRun || state.pdf !== pdf) return; // a newer run (or a new drawing) took over
@@ -386,7 +490,7 @@ const runDetect = debounce(async () => {
   state.pins = pins;
   state.errors = errors;
   refresh();
-}, 120);
+}
 
 /** Look for each symbol rule's symbol on this page. Results are remembered until the symbol or its settings change. */
 async function findAllSymbols(pdf) {
@@ -401,14 +505,14 @@ async function findAllSymbols(pdf) {
     return out;
   }
   for (const rule of rules) {
-    const params = `${rule.strict ?? 3}|${rule.rotate === false ? 0 : 1}`;
+    const params = `${rule.strict ?? 3}|${rule.rotate === false ? 0 : 1}|${rule.sizes ? 1 : 0}`;
     let perTemplate = pdf.symbolCache.get(rule.symbol);
     if (!perTemplate) pdf.symbolCache.set(rule.symbol, (perTemplate = new Map()));
     let res = perTemplate.get(params);
     if (!res) {
       say(tr("Looking for \"{name}\" on the drawing…", { name: rule.name }));
       await new Promise((r) => setTimeout(r, 20)); // let the message paint before the search starts
-      res = findSymbols(shapes.paths, rule.symbol, { level: rule.strict ?? 3, rotate: rule.rotate !== false });
+      res = findSymbols(shapes.paths, rule.symbol, { level: rule.strict ?? 3, rotate: rule.rotate !== false, sizes: !!rule.sizes });
       perTemplate.set(params, res);
       say("");
     }
@@ -431,35 +535,157 @@ function refresh() {
 }
 
 // ---------------------------------------------------------------- sheet viewer
-let rulersBuilt = false;
+// The drawing sits in a scrolling viewport. Zoom 1 fits the whole sheet in the window; zooming in makes
+// the sheet bigger inside the viewport (the left panel never changes). Only the part you can see is
+// drawn at full sharpness, so lines stay clear however far you zoom.
+const RW = 24; // ruler width in CSS pixels
+const MIN_ZOOM = 1, MAX_ZOOM = 16;
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+function showSheet(on) {
+  $("#viewport").hidden = !on;
+  $("#zoombar").hidden = !on;
+  $("#sheet").hidden = !on;
+  $("#dropzone").hidden = on;
+}
+
+/** The sheet's size on screen at the current zoom, in CSS pixels. */
+function stageSize() {
+  const vp = $("#viewport"), pdf = state.pdf;
+  const outer = vp.getBoundingClientRect(); // not clientWidth: that changes when scroll bars appear and would make the sheet jump
+  const availW = Math.max(120, outer.width - RW - 14), availH = Math.max(120, outer.height - RW - 14);
+  const ratio = pdf.width / pdf.height;
+  const w = Math.min(availW, availH * ratio) * state.zoom;
+  return [w, w / ratio];
+}
+
+function layoutSheet() {
+  if (!state.pdf) return;
+  const [w, h] = stageSize();
+  const sheet = $("#sheet");
+  sheet.style.setProperty("--stage-w", `${w}px`);
+  sheet.style.setProperty("--stage-h", `${h}px`);
+  $("#stage").classList.toggle("zoomed", state.zoom > 1.001);
+  $("#viewport").classList.toggle("fitted", state.zoom <= 1.001);
+  $("#zoom-level").textContent = `${Math.round(state.zoom * 100)}%`;
+  $("#zoom-out").disabled = state.zoom <= MIN_ZOOM + 1e-6;
+  $("#zoom-in").disabled = state.zoom >= MAX_ZOOM - 1e-6;
+}
+
+const trimNum = (v) => String(Math.round(v * 1000) / 1000);
+/** Percentage rulers: finer ticks the further you zoom in. */
 function buildRulers() {
-  if (rulersBuilt) return;
-  rulersBuilt = true;
-  const rx = $("#ruler-x"), ry = $("#ruler-y");
-  for (let i = 0; i <= 100; i += 5) {
-    const major = i % 10 === 0;
-    if (major && i > 0 && i < 100) {
-      rx.append(h("span", { class: "tick", style: `left:${i}%`, text: String(i) }));
-      ry.append(h("span", { class: "tick", style: `top:${i}%`, text: String(i) }));
-    } else if (!major) {
-      rx.append(h("span", { class: "minor", style: `left:${i}%` }));
-      ry.append(h("span", { class: "minor", style: `top:${i}%` }));
+  if (!state.pdf) return;
+  const [sw, sh] = stageSize();
+  const steps = [10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05];
+  for (const [ruler, size] of [[$("#ruler-x"), sw], [$("#ruler-y"), sh]]) {
+    ruler.querySelectorAll(".tick, .minor").forEach((e) => e.remove());
+    const horizontal = ruler.id === "ruler-x";
+    const major = steps.filter((st) => (size * st) / 100 >= 56).pop() ?? 10;
+    const at = (pct) => (horizontal ? `left:${pct}%` : `top:${pct}%`);
+    for (let i = 1; i * (major / 2) < 100 - 1e-9; i++) {
+      const pct = i * (major / 2);
+      const isMajor = i % 2 === 0;
+      ruler.append(isMajor ? h("span", { class: "tick", style: at(pct), text: trimNum(pct) }) : h("span", { class: "minor", style: at(pct) }));
     }
   }
 }
 
+let tile = null; // the part of the sheet currently drawn, as fractions [x0, y0, x1, y1]; null = all of it
+let drawRun = 0;
+async function drawCanvas() {
+  const pdf = state.pdf;
+  if (!pdf || $("#viewport").hidden) return;
+  const run = ++drawRun;
+  const [sw, sh] = stageSize();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const maxCss = MAX_SIDE / dpr;
+  let region = [0, 0, 1, 1];
+  if (sw > maxCss || sh > maxCss) {
+    const vr = $("#viewport").getBoundingClientRect(), sr = $("#stage").getBoundingClientRect();
+    const cx = clamp((vr.left + vr.right) / 2 - sr.left, 0, sw), cy = clamp((vr.top + vr.bottom) / 2 - sr.top, 0, sh);
+    const tw = Math.min(sw, maxCss), th = Math.min(sh, maxCss);
+    const x0 = clamp(cx - tw / 2, 0, sw - tw), y0 = clamp(cy - th / 2, 0, sh - th);
+    region = [x0 / sw, y0 / sh, (x0 + tw) / sw, (y0 + th) / sh];
+  }
+  const off = document.createElement("canvas");
+  const done = await renderRegion(pdf.page, off, sw, region);
+  if (!done || run !== drawRun || state.pdf !== pdf) return;
+  const canvas = $("#pdf-canvas");
+  canvas.width = off.width;
+  canvas.height = off.height;
+  canvas.getContext("2d").drawImage(off, 0, 0);
+  // sized as fractions of the sheet, so it stretches with the sheet while a sharper one is being drawn
+  Object.assign(canvas.style, { left: `${region[0] * 100}%`, top: `${region[1] * 100}%`, width: `${(region[2] - region[0]) * 100}%`, height: `${(region[3] - region[1]) * 100}%` });
+  tile = region[2] - region[0] < 0.9999 || region[3] - region[1] < 0.9999 ? region : null;
+}
+const drawCanvasSoon = debounce(drawCanvas, 140);
+
+/** After scrolling: if the visible part has left the drawn tile, draw a new one. */
+const checkTile = debounce(() => {
+  if (!tile || !state.pdf) return;
+  const vr = $("#viewport").getBoundingClientRect(), sr = $("#stage").getBoundingClientRect();
+  const [x0, y0, x1, y1] = [tile[0] * sr.width + sr.left, tile[1] * sr.height + sr.top, tile[2] * sr.width + sr.left, tile[3] * sr.height + sr.top];
+  const left = Math.max(vr.left, sr.left), top = Math.max(vr.top, sr.top), right = Math.min(vr.right, sr.right), bottom = Math.min(vr.bottom, sr.bottom);
+  if (left < x0 - 1 && x0 > sr.left + 1 || right > x1 + 1 && x1 < sr.right - 1 || top < y0 - 1 && y0 > sr.top + 1 || bottom > y1 + 1 && y1 < sr.bottom - 1) drawCanvas();
+}, 180);
+
 async function drawSheet() {
+  layoutSheet();
   buildRulers();
-  const stage = $("#stage");
-  await renderInto(state.pdf.page, $("#pdf-canvas"), stage.clientWidth);
   renderOverlay();
-  updateStick();
+  await drawCanvas();
 }
 
-/** The sheet follows you down the page only when all of it fits in the window. */
-function updateStick() {
-  const pane = $(".sheetpane");
-  pane.classList.toggle("stick", pane.offsetHeight <= window.innerHeight - 28);
+let overlayQueued = false;
+function afterZoom() {
+  layoutSheet();
+  if (!overlayQueued) {
+    overlayQueued = true;
+    requestAnimationFrame(() => { overlayQueued = false; buildRulers(); renderOverlay(); });
+  }
+  drawCanvasSoon();
+}
+
+/** Zoom to `z`, keeping the point under (clientX, clientY) where it is. */
+function setZoom(z, at) {
+  if (!state.pdf) return;
+  z = clamp(z, MIN_ZOOM, MAX_ZOOM);
+  if (Math.abs(z - state.zoom) < 1e-4) return;
+  const vp = $("#viewport"), stage = $("#stage");
+  const vr = vp.getBoundingClientRect();
+  const cx = at?.clientX ?? (vr.left + vr.right) / 2, cy = at?.clientY ?? (vr.top + vr.bottom) / 2;
+  const r = stage.getBoundingClientRect();
+  const fx = clamp((cx - r.left) / r.width, 0, 1), fy = clamp((cy - r.top) / r.height, 0, 1);
+  state.zoom = z;
+  layoutSheet();
+  const r2 = stage.getBoundingClientRect();
+  vp.scrollLeft += r2.left + fx * r2.width - cx;
+  vp.scrollTop += r2.top + fy * r2.height - cy;
+  afterZoom();
+}
+const stepZoom = (dir, at) => setZoom(state.zoom * (dir > 0 ? 1.4 : 1 / 1.4), at);
+function fitZoom() {
+  state.zoom = 1;
+  $("#viewport").scrollTo(0, 0);
+  afterZoom();
+}
+
+/** Bring a pin into the middle of the view, zooming in if the sheet is shown whole. */
+function showPin(key) {
+  const p = state.pins.find((x) => x.key === key);
+  if (!p || !state.pdf) return;
+  const stage = $("#stage"), vp = $("#viewport");
+  const fx = p.px / 100, fy = p.py / 100;
+  if (state.zoom < 3) {
+    const r = stage.getBoundingClientRect();
+    setZoom(3, { clientX: r.left + fx * r.width, clientY: r.top + fy * r.height });
+  }
+  const r = stage.getBoundingClientRect(), vr = vp.getBoundingClientRect();
+  vp.scrollLeft += r.left + fx * r.width - (vr.left + vr.width / 2);
+  vp.scrollTop += r.top + fy * r.height - (vr.top + vr.height / 2);
+  const g = document.querySelector(`.pin[data-key="${CSS.escape(key)}"]`);
+  if (g) { g.classList.add("hot"); setTimeout(() => g.classList.remove("hot"), 1200); }
 }
 
 const pxToUnits = () => state.pdf.width / $("#stage").clientWidth;
@@ -468,7 +694,7 @@ function renderOverlay() {
   const o = $("#overlay");
   o.replaceChildren();
   const pdf = state.pdf;
-  if (!pdf) return;
+  if (!pdf?.width) return;
   const { width: W, height: H } = pdf;
   o.setAttribute("viewBox", `0 0 ${W} ${H}`);
   o.setAttribute("preserveAspectRatio", "none");
@@ -501,14 +727,16 @@ function renderOverlay() {
   o.append(tethers);
 
   const pins = svg("g");
-  const r = 11 * k;
+  const rpx = clamp($("#stage").clientWidth / 60, 7, 11); // pins are 11 px on a big view, a little smaller when the whole sheet is tiny
+  const u = rpx / 11;
+  const r = 11 * u * k;
   state.pins.forEach((p, i) => {
     const g = svg("g", { class: `pin${p.include ? "" : " off"}${state.animate ? " enter" : ""}`, "data-key": p.key, tabindex: 0, role: "button", "aria-pressed": String(p.include), "aria-label": `${tr("Pin")} ${p.n}, ${p.title || p.tag}, ${p.include ? tr("included") : tr("excluded")}` });
     if (state.animate) g.style.setProperty("--i", Math.min(i, 60));
-    g.append(svg("circle", { class: "halo", cx: p.x, cy: p.y, r: r + 2.2 * k }));
+    g.append(svg("circle", { class: "halo", cx: p.x, cy: p.y, r: r + 2.2 * u * k }));
     const dot = svg("circle", { class: "dot", cx: p.x, cy: p.y, r, fill: colorOf(p.ruleIndex) });
     g.append(dot);
-    const t = svg("text", { x: p.x, y: p.y, "font-size": `${(p.n > 99 ? 9 : 12) * k}px` });
+    const t = svg("text", { x: p.x, y: p.y, "font-size": `${(p.n > 99 ? 9 : 12) * u * k}px` });
     t.textContent = String(p.n);
     g.append(t);
     const tip = svg("title");
@@ -544,62 +772,149 @@ function togglePin(key, to) {
   updateTitleBlock(); updateExport(); updateTableHead();
 }
 
-// pointer: readout, crosshair, rulers, and drawing the search area
+// pointer: readout, crosshair, rulers, panning, and drawing the search area or a symbol box
 function stagePoint(ev) {
   const r = $("#stage").getBoundingClientRect();
-  return [Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width)), Math.min(1, Math.max(0, (ev.clientY - r.top) / r.height))];
+  return [clamp((ev.clientX - r.left) / r.width, 0, 1), clamp((ev.clientY - r.top) / r.height, 0, 1)];
 }
-function setupStage() {
+const drawing = () => state.areaMode || !!state.boxFor;
+
+/** Show the crosshair, the ruler markers and the readout at (fx, fy), fractions of the sheet. */
+function pointAt(fx, fy) {
+  if (!state.pdf?.width) return;
+  $("#readout").textContent = `X ${(fx * 100).toFixed(1)}%   Y ${(fy * 100).toFixed(1)}%`;
+  const cross = $("#cross");
+  if (cross) {
+    cross.setAttribute("visibility", "visible");
+    const v = $("#cross-v"), hl = $("#cross-h");
+    v.setAttribute("x1", fx * state.pdf.width); v.setAttribute("x2", fx * state.pdf.width);
+    hl.setAttribute("y1", fy * state.pdf.height); hl.setAttribute("y2", fy * state.pdf.height);
+  }
+  const mx = $("#marker-x"), my = $("#marker-y");
+  mx.style.display = my.style.display = "block";
+  mx.style.left = `${fx * 100}%`; my.style.top = `${fy * 100}%`;
+  if (state.areaStart) {
+    const [sx, sy] = state.areaStart;
+    const box = [Math.min(sx, fx), Math.min(sy, fy), Math.max(sx, fx), Math.max(sy, fy)];
+    if (state.boxFor) state.boxDraft = box; else state.areaDraft = box;
+    renderOverlay();
+    $("#cross")?.setAttribute("visibility", "visible");
+  }
+}
+
+function finishDraw() {
   const stage = $("#stage");
+  if (state.boxFor && state.areaStart) { finishSymbolBox(); return; }
+  if (!state.areaMode || !state.areaStart) return;
+  const a = state.areaDraft;
+  state.areaStart = null; state.areaDraft = null;
+  state.areaMode = false;
+  stage.classList.remove("drawing");
+  $("#draw-area").textContent = tr("Draw on sheet");
+  if (a && a[2] - a[0] > 0.01 && a[3] - a[1] > 0.01) state.settings.area = a;
+  runDetect();
+  refresh();
+}
+
+/** Keyboard drawing: arrows move a cursor over the sheet, Enter sets the first and then the second corner, Escape cancels. */
+const kb = { x: 0.5, y: 0.5, on: false };
+function kbDraw(ev) {
+  const move = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[ev.key];
+  if (move) {
+    if (!kb.on) { // start in the middle of what is on screen
+      const vr = $("#viewport").getBoundingClientRect(), sr = $("#stage").getBoundingClientRect();
+      kb.x = clamp(((vr.left + vr.right) / 2 - sr.left) / sr.width, 0, 1);
+      kb.y = clamp(((vr.top + vr.bottom) / 2 - sr.top) / sr.height, 0, 1);
+      kb.on = true;
+    }
+    const step = ev.shiftKey ? 0.05 : ev.altKey ? 0.002 : 0.01;
+    kb.x = clamp(kb.x + move[0] * step / Math.max(1, state.zoom), 0, 1);
+    kb.y = clamp(kb.y + move[1] * step / Math.max(1, state.zoom), 0, 1);
+    ev.preventDefault();
+    pointAt(kb.x, kb.y);
+    // keep the cursor on screen when zoomed in
+    const vp = $("#viewport"), sr = $("#stage").getBoundingClientRect(), vr = vp.getBoundingClientRect();
+    const px = sr.left + kb.x * sr.width, py = sr.top + kb.y * sr.height;
+    if (px < vr.left + RW + 30) vp.scrollLeft -= vr.left + RW + 30 - px; else if (px > vr.right - 30) vp.scrollLeft += px - (vr.right - 30);
+    if (py < vr.top + RW + 30) vp.scrollTop -= vr.top + RW + 30 - py; else if (py > vr.bottom - 30) vp.scrollTop += py - (vr.bottom - 30);
+    return true;
+  }
+  if (ev.key === "Enter" || ev.key === " ") {
+    ev.preventDefault();
+    if (!kb.on) { kbDraw({ key: "ArrowLeft", preventDefault() {}, shiftKey: false }); kb.x += 0.01; }
+    if (!state.areaStart) { state.areaStart = [kb.x, kb.y]; state.areaDraft = null; state.boxDraft = null; say(tr("First corner set. Move to the opposite corner and press Enter.")); }
+    else { pointAt(kb.x, kb.y); finishDraw(); kb.on = false; }
+    return true;
+  }
+  if (ev.key === "Escape") {
+    ev.preventDefault();
+    if (state.boxFor) cancelSymbolBox();
+    else { state.areaMode = false; state.areaStart = null; state.areaDraft = null; $("#stage").classList.remove("drawing"); $("#draw-area").textContent = tr("Draw on sheet"); updateAreaInfo(); renderOverlay(); say(""); }
+    kb.on = false;
+    return true;
+  }
+  return false;
+}
+
+function setupStage() {
+  const stage = $("#stage"), vp = $("#viewport");
+  let pan = null;
   stage.addEventListener("pointermove", (ev) => {
     if (!state.pdf) return;
+    if (pan) {
+      vp.scrollLeft = pan.sl - (ev.clientX - pan.x);
+      vp.scrollTop = pan.st - (ev.clientY - pan.y);
+      return;
+    }
     const [fx, fy] = stagePoint(ev);
-    $("#readout").textContent = `X ${(fx * 100).toFixed(1)}%   Y ${(fy * 100).toFixed(1)}%`;
-    const cross = $("#cross");
-    if (cross) {
-      cross.setAttribute("visibility", "visible");
-      const v = $("#cross-v"), hl = $("#cross-h");
-      v.setAttribute("x1", fx * state.pdf.width); v.setAttribute("x2", fx * state.pdf.width);
-      hl.setAttribute("y1", fy * state.pdf.height); hl.setAttribute("y2", fy * state.pdf.height);
-    }
-    const mx = $("#marker-x"), my = $("#marker-y");
-    mx.style.display = my.style.display = "block";
-    mx.style.left = `${fx * 100}%`; my.style.top = `${fy * 100}%`;
-    if (state.areaStart) {
-      const [sx, sy] = state.areaStart;
-      const box = [Math.min(sx, fx), Math.min(sy, fy), Math.max(sx, fx), Math.max(sy, fy)];
-      if (state.boxFor) state.boxDraft = box; else state.areaDraft = box;
-      renderOverlay();
-      $("#cross")?.setAttribute("visibility", "visible");
-    }
+    pointAt(fx, fy);
   });
   stage.addEventListener("pointerleave", () => {
+    if (kb.on && drawing()) return;
     $("#readout").innerHTML = "X –&nbsp; Y –";
     $("#cross")?.setAttribute("visibility", "hidden");
     $("#marker-x").style.display = $("#marker-y").style.display = "none";
   });
   stage.addEventListener("pointerdown", (ev) => {
-    if (!state.areaMode && !state.boxFor) return;
-    ev.preventDefault();
+    if (drawing()) {
+      ev.preventDefault();
+      stage.setPointerCapture(ev.pointerId);
+      state.areaStart = stagePoint(ev);
+      state.areaDraft = null;
+      state.boxDraft = null;
+      return;
+    }
+    // drag the sheet around when it is bigger than the window
+    if (ev.button !== 0 || ev.target.closest?.(".pin") || (vp.scrollWidth <= vp.clientWidth && vp.scrollHeight <= vp.clientHeight)) return;
+    pan = { x: ev.clientX, y: ev.clientY, sl: vp.scrollLeft, st: vp.scrollTop };
     stage.setPointerCapture(ev.pointerId);
-    state.areaStart = stagePoint(ev);
-    state.areaDraft = null;
-    state.boxDraft = null;
+    stage.classList.add("panning");
   });
-  stage.addEventListener("pointerup", () => {
-    if (state.boxFor && state.areaStart) { finishSymbolBox(); return; }
-    if (!state.areaMode || !state.areaStart) return;
-    const a = state.areaDraft;
-    state.areaStart = null; state.areaDraft = null;
-    state.areaMode = false;
-    stage.classList.remove("drawing");
-    $("#draw-area").textContent = tr("Draw on sheet");
-    if (a && a[2] - a[0] > 0.01 && a[3] - a[1] > 0.01) state.settings.area = a;
-    runDetect();
-    refresh();
+  const endPan = () => { if (pan) { pan = null; stage.classList.remove("panning"); } };
+  stage.addEventListener("pointercancel", endPan);
+  stage.addEventListener("pointerup", () => { if (pan) { endPan(); return; } finishDraw(); });
+
+  // zoom: Ctrl/Cmd + scroll (this is also what a trackpad pinch sends), the buttons, and + - 0 on the keyboard
+  vp.addEventListener("wheel", (ev) => {
+    if (!(ev.ctrlKey || ev.metaKey) || !state.pdf) return;
+    ev.preventDefault();
+    setZoom(state.zoom * Math.exp(-ev.deltaY * (ev.deltaMode === 1 ? 0.05 : 0.0022)), ev);
+  }, { passive: false });
+  vp.addEventListener("keydown", (ev) => {
+    if (!state.pdf || ev.target !== vp) return;
+    if (drawing() && kbDraw(ev)) return;
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    if (ev.key === "+" || ev.key === "=") { ev.preventDefault(); stepZoom(1); }
+    else if (ev.key === "-" || ev.key === "_") { ev.preventDefault(); stepZoom(-1); }
+    else if (ev.key === "0") { ev.preventDefault(); fitZoom(); }
   });
-  new ResizeObserver(debounce(() => { if (state.pdf && !$("#sheet").hidden) drawSheet(); }, 150)).observe(stage);
-  window.addEventListener("resize", debounce(updateStick, 100));
+  vp.addEventListener("scroll", checkTile, { passive: true });
+  $("#zoom-in").addEventListener("click", () => stepZoom(1));
+  $("#zoom-out").addEventListener("click", () => stepZoom(-1));
+  $("#zoom-fit").addEventListener("click", fitZoom);
+
+  // the window or the panel layout changed: keep the same zoom, redraw
+  new ResizeObserver(debounce(() => { if (state.pdf && !$("#viewport").hidden) { layoutSheet(); buildRulers(); renderOverlay(); drawCanvas(); } }, 120)).observe(vp);
 }
 
 // ---------------------------------------------------------------- symbols
@@ -610,14 +925,14 @@ function startSymbolBox(rule) {
   $("#draw-area").textContent = tr("Draw on sheet");
   state.boxFor = rule.id;
   $("#stage").classList.add("drawing");
-  say(tr("Drag a box on the sheet that fully contains the symbol."));
+  say(tr("Drag a box on the sheet that fully contains the symbol. Without a mouse: use the arrow keys, Enter for each corner, Escape to cancel."));
   renderRules();
-  $("#stage").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  if (keyboardActivated) $("#viewport").focus();
 }
-function cancelSymbolBox() {
-  state.boxFor = null; state.boxDraft = null; state.areaStart = null;
+function cancelSymbolBox(silent = false) {
+  state.boxFor = null; state.boxDraft = null; state.areaStart = null; kb.on = false;
   $("#stage").classList.remove("drawing");
-  say("");
+  if (!silent) say("");
   renderRules();
   renderOverlay();
 }
@@ -697,7 +1012,7 @@ function renderTable() {
   body.replaceChildren();
   if (!state.pdf) return;
   if (!state.pins.length) {
-    body.append(h("tr", {}, h("td", { colspan: 9, class: "empty", text: tr("No pins yet. Add the tags to look for in a rule and they appear here and on the sheet.") })));
+    body.append(h("tr", {}, h("td", { colspan: 9, class: "empty", text: tr("No pins yet. Add the text to look for in a rule and they appear here and on the sheet.") })));
   }
   const LIMIT = 1000;
   state.pins.slice(0, LIMIT).forEach((p) => {
@@ -712,6 +1027,8 @@ function renderTable() {
       h("td", { class: "num-col", text: round2(p.px).toFixed(2) }), h("td", { class: "num-col", text: round2(p.py).toFixed(2) }));
     row.addEventListener("pointerenter", () => hot(p.key, true));
     row.addEventListener("pointerleave", () => hot(p.key, false));
+    row.addEventListener("click", (ev) => { if (!ev.target.closest("input, button")) showPin(p.key); });
+    row.title = tr("Click to find this pin on the drawing");
     body.append(row);
   });
   if (state.pins.length > LIMIT) body.append(h("tr", {}, h("td", { colspan: 9, class: "empty", text: tr("Showing the first {limit} of {n} pins. All of them are still exported.", { limit: LIMIT, n: state.pins.length }) })));
@@ -748,9 +1065,32 @@ function updateExport() {
     : parts > 1
       ? tr("Fieldwire imports up to {limit} tasks at a time, so this downloads {parts} files. Import them one after another.", { limit: IMPORT_LIMIT, parts })
       : tr("Tasks import with a blank ID, so they are created as new tasks.");
+  renderExportPreview(need.length === 0);
   $("#dl-pdf").disabled = !(state.pdf && inc) || state.busy;
   $("#dl-png").disabled = !(state.pdf && inc) || state.busy;
   $("#dl-calibration").disabled = !(t && !t.missing.length && plan);
+}
+
+/** What the import file will hold: a sentence, and a small table of the first few tasks. */
+const PREVIEW_ROWS = 6;
+function renderExportPreview(ready) {
+  const t = state.tpl?.parsed, box = $("#preview-table"), summary = $("#export-summary");
+  const inc = included();
+  const details = $("#export-preview");
+  details.hidden = !(t && !t.missing.length && inc.length);
+  if (!ready) { summary.textContent = ""; box.replaceChildren(); return; }
+  const plan = state.settings.planName.trim();
+  const files = Math.ceil(inc.length / IMPORT_LIMIT);
+  const skipped = state.pins.length - inc.length;
+  summary.textContent = (inc.length === 1 ? tr("1 task will go onto plan \"{plan}\".", { plan }) : tr("{n} tasks will go onto plan \"{plan}\".", { n: inc.length, plan })) + (skipped ? ` ${skipped === 1 ? tr("1 pin is left out.") : tr("{n} pins are left out.", { n: skipped })}` : "") + (files > 1 ? ` ${tr("Split over {files} files.", { files })}` : "");
+  if (!details.open) return; // the table is only built while it is open
+  const rulesById = Object.fromEntries(state.rules.map((r) => [r.id, r]));
+  const rows = buildRows(t, inc.slice(0, PREVIEW_ROWS).map((p) => ({ ...p, title: hasText(p.title) ? p.title : p.tag })), { planName: plan, rulesById });
+  const heads = t.columns.filter((c) => c.role !== "id" && rows.some((r) => r[c.header] != null && r[c.header] !== "")).map((c) => c.header);
+  box.replaceChildren(h("table", {},
+    h("thead", {}, h("tr", {}, heads.map((x) => h("th", { scope: "col", text: x })))),
+    h("tbody", {}, rows.map((r) => h("tr", {}, heads.map((x) => h("td", { text: r[x] == null ? "" : String(r[x]), title: r[x] == null ? "" : String(r[x]) })))))),
+    inc.length > PREVIEW_ROWS ? h("p", { class: "more-rows", text: tr("…and {n} more.", { n: inc.length - PREVIEW_ROWS }) }) : null);
 }
 
 async function exportImport() {
@@ -777,7 +1117,8 @@ async function exportPdf() {
 }
 
 async function exportPng() {
-  const blob = await pinsPng($("#pdf-canvas"), state.pdf.width, included(), state.rules, colorOf);
+  const full = await renderFull(state.pdf.page, 3000);
+  const blob = await pinsPng(full, state.pdf.width, included(), state.rules, colorOf);
   download(blob, `${baseName(state.pdf.name)} - pins.png`, "image/png");
   say(tr("Downloaded the pin image."), "ok");
 }
@@ -787,6 +1128,31 @@ async function exportCalibration() {
   const bytes = await writeImport(t, buildCalibrationRows(t, state.settings.planName.trim()));
   download(bytes, "calibration tasks.xlsx", XLSX_MIME);
   say(tr("Downloaded 9 calibration tasks at 10%, 50% and 90%."), "ok");
+}
+
+// ---------------------------------------------------------------- sample drawing
+async function trySample() {
+  if (state.rules.some((r) => hasText(r.tags) || r.symbol) && !window.confirm(tr("Load the sample? It replaces your current rules."))) return;
+  say(tr("Loading the sample…"));
+  const get = async (name) => {
+    const res = await fetch(new URL(`samples/${name}`, document.baseURI));
+    if (!res.ok) throw new Error(name);
+    return res;
+  };
+  let pdf, xlsx, rules;
+  try {
+    [pdf, xlsx, rules] = await Promise.all([get("sample-drawing.pdf").then((r) => r.blob()), get("sample-import-template.xlsx").then((r) => r.blob()), get("sample-rules.json").then((r) => r.blob())]);
+  } catch {
+    say(tr("The sample couldn't be loaded. It needs the page to be opened from its web address, not as a file on your computer."), "err");
+    return;
+  }
+  state.settings.planName = "Ground floor plan";
+  $("#plan-name").value = state.settings.planName;
+  await loadTemplateFile(new File([xlsx], "sample-import-template.xlsx"));
+  await loadRules(new File([rules], "sample-rules.json"));
+  await loadPdfFile(new File([pdf], "sample-drawing.pdf", { type: "application/pdf" }));
+  save();
+  say(tr("This is a made-up sample. Try the rules on the left, then download the import file."), "ok");
 }
 
 // ---------------------------------------------------------------- start over
@@ -799,11 +1165,13 @@ function hasWork() {
 }
 
 function startOver() {
-  if (hasWork() && !window.confirm(tr("Start over? This clears the drawing, the import template, your rules and the pins, and takes you back to the beginning.\n\nSaved rules files on your computer are not touched. Choose Save rules first if you want to keep these rules."))) return;
+  if (hasWork() && !window.confirm(tr("Start over? This clears the drawing, the import template, your rules and the pins, and takes you back to the beginning.\n\nSetup files saved on your computer are not touched. Choose Save setup first if you want to keep these rules."))) return;
   loadRun++;
   detectRun++; // anything still being worked out for the old drawing is thrown away
   try { state.pdf?.doc?.destroy?.(); } catch { /* already gone */ }
-  Object.assign(state, { pdf: null, tpl: null, rules: [newRule(1)], settings: { ...DEFAULT_SETTINGS }, edits: {}, pins: [], errors: {}, areaMode: false, areaStart: null, areaDraft: null, boxFor: null, boxDraft: null, animate: false, busy: false });
+  Object.assign(state, { pdf: null, tpl: null, rules: [newRule(1)], settings: { ...DEFAULT_SETTINGS }, edits: {}, pins: [], errors: {}, areaMode: false, areaStart: null, areaDraft: null, boxFor: null, boxDraft: null, animate: false, busy: false, zoom: 1 });
+  kb.on = false;
+  resetHistory();
   try { localStorage.removeItem(STORE_KEY); } catch { /* storage blocked: nothing to clear */ }
 
   for (const id of ["#file-pdf", "#file-xlsx", "#load-rules"]) $(id).value = ""; // so choosing the same file again still counts
@@ -822,14 +1190,12 @@ function startOver() {
   const canvas = $("#pdf-canvas");
   canvas.width = 0;
   canvas.height = 0;
-  $("#sheet").hidden = true;
-  $("#dropzone").hidden = false;
+  showSheet(false);
   $("#readout").innerHTML = "X –&nbsp; Y –";
 
   renderTemplateInfo();
   renderRules();
   refresh();
-  updateStick();
   window.scrollTo({ top: 0 });
   say(tr("Everything is cleared. Drop a drawing to begin again."), "ok");
 }
@@ -840,29 +1206,31 @@ const guarded = (fn) => async () => {
 
 // ---------------------------------------------------------------- rule files
 function saveRules() {
-  const payload = { app: "plandot", version: 1, settings: { roomPattern: state.settings.roomPattern, roomDistance: state.settings.roomDistance }, rules: state.rules.map((r) => {
+  const payload = { app: "plandot", version: 2, settings: { planName: state.settings.planName, roomPattern: state.settings.roomPattern, roomDistance: state.settings.roomDistance }, rules: state.rules.map((r) => {
     const { name, tags, usePattern, title, columns, pinAt } = r;
     const base = { name, tags, usePattern: !!usePattern, title, pinAt: pinMode({ pinAt }), columns: columns || {} };
-    return ruleKind(r) === "symbol" ? { ...base, kind: "symbol", symbol: r.symbol || null, strict: r.strict ?? 3, rotate: r.rotate !== false } : base;
+    return ruleKind(r) === "symbol" ? { ...base, kind: "symbol", symbol: r.symbol || null, strict: r.strict ?? 3, rotate: r.rotate !== false, sizes: !!r.sizes } : base;
   }) };
-  download(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }), "plandot rules.json", "application/json");
+  download(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }), "plandot setup.json", "application/json");
   say(payload.rules.length === 1 ? tr("Saved 1 rule.") : tr("Saved {n} rules.", { n: payload.rules.length }), "ok");
 }
 async function loadRules(f) {
   try {
     const data = JSON.parse(await f.text());
-    if (!["plandot", "plan-tasks"].includes(data.app) || !Array.isArray(data.rules)) throw new Error("not a Plandot rules file");
-    state.rules = data.rules.map((r, i) => ({ ...newRule(i + 1), name: String(r.name ?? `Rule ${i + 1}`), tags: String(r.tags ?? ""), usePattern: !!r.usePattern, title: String(r.title ?? "{tag}"), pinAt: r.pinAt === "text" ? "text" : "dot", columns: typeof r.columns === "object" && r.columns ? r.columns : {}, ...(r.kind === "symbol" ? { kind: "symbol", symbol: sanitizeTemplate(r.symbol), strict: [1, 2, 3, 4, 5].includes(r.strict) ? r.strict : 3, rotate: r.rotate !== false } : {}) }));
+    if (!["plandot", "plan-tasks"].includes(data.app) || !Array.isArray(data.rules)) throw new Error("not a Plandot setup file");
+    state.rules = data.rules.map((r, i) => ({ ...newRule(i + 1), name: String(r.name ?? `Rule ${i + 1}`), tags: String(r.tags ?? ""), usePattern: !!r.usePattern, title: String(r.title ?? "{tag}"), pinAt: r.pinAt === "text" ? "text" : "dot", columns: typeof r.columns === "object" && r.columns ? r.columns : {}, ...(r.kind === "symbol" ? { kind: "symbol", symbol: sanitizeTemplate(r.symbol), strict: [1, 2, 3, 4, 5].includes(r.strict) ? r.strict : 3, rotate: r.rotate !== false, sizes: !!r.sizes } : {}) }));
     if (data.settings) {
+      if (hasText(data.settings.planName)) { state.settings.planName = String(data.settings.planName); $("#plan-name").value = state.settings.planName; }
       state.settings.roomPattern = String(data.settings.roomPattern ?? "");
       state.settings.roomDistance = Number(data.settings.roomDistance) || 10;
       $("#room-pattern").value = state.settings.roomPattern;
       $("#room-distance").value = state.settings.roomDistance;
     }
     afterRulesChange();
+    updateExport();
     say(state.rules.length === 1 ? tr("Loaded 1 rule.") : tr("Loaded {n} rules.", { n: state.rules.length }), "ok");
   } catch (err) {
-    say(tr("That isn't a Plandot rules file ({err}).", { err: err.message }), "err");
+    say(tr("That isn't a Plandot setup file ({err}).", { err: err.message }), "err");
   }
 }
 
@@ -881,9 +1249,13 @@ function wire() {
   $("#load-rules").addEventListener("change", (e) => { if (e.target.files[0]) loadRules(e.target.files[0]); e.target.value = ""; });
   $("#draw-area").addEventListener("click", () => {
     state.areaMode = !state.areaMode;
+    state.areaStart = null; state.areaDraft = null; kb.on = false;
     $("#stage").classList.toggle("drawing", state.areaMode);
     $("#draw-area").textContent = state.areaMode ? tr("Cancel") : tr("Draw on sheet");
     updateAreaInfo();
+    if (state.areaMode) say(tr("Without a mouse: use the arrow keys, Enter for each corner, Escape to cancel."));
+    else renderOverlay();
+    if (state.areaMode && keyboardActivated) $("#viewport").focus();
   });
   $("#reset-area").addEventListener("click", () => { state.settings.area = null; runDetect(); refresh(); });
   $("#all-on").addEventListener("click", () => { state.pins.forEach((p) => (state.edits[p.key] = { ...(state.edits[p.key] || {}), include: true })); runDetect(); });
@@ -893,6 +1265,21 @@ function wire() {
   $("#dl-png").addEventListener("click", guarded(exportPng));
   $("#dl-calibration").addEventListener("click", guarded(exportCalibration));
   $("#start-over").addEventListener("click", startOver);
+  $("#undo").addEventListener("click", undo);
+  $("#redo").addEventListener("click", redo);
+  $("#try-sample").addEventListener("click", guarded(trySample));
+  $("#export-preview").addEventListener("toggle", updateExport);
+  // Was the last click made with the keyboard (Enter or Space on a button)? Then moving focus to the drawing helps.
+  document.addEventListener("click", (e) => { keyboardActivated = e.detail === 0; }, true);
+  document.addEventListener("keydown", (e) => {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || e.key.toLowerCase() !== "z") return;
+    const t = e.target;
+    if (t instanceof HTMLElement && (t.isContentEditable || (t.tagName === "INPUT" && !["checkbox", "radio", "range", "button"].includes(t.type)) || t.tagName === "TEXTAREA")) return; // typing boxes keep their own undo
+    e.preventDefault();
+    if (e.shiftKey) redo(); else undo();
+  });
+  window.addEventListener("error", (e) => { if (!/ResizeObserver/.test(e.message || "")) say(tr("Something went wrong: {err}", { err: e.message || "unknown" }), "err"); });
+  window.addEventListener("unhandledrejection", (e) => { say(tr("Something went wrong: {err}", { err: e.reason?.message || e.reason || "unknown" }), "err"); });
 
   // Drop files anywhere: a .pdf is the drawing, a .xlsx is the template, a .json is a rules file.
   let depth = 0;
@@ -906,12 +1293,13 @@ function wire() {
       if (n.endsWith(".pdf")) await loadPdfFile(f);
       else if (n.endsWith(".xlsx")) await loadTemplateFile(f);
       else if (n.endsWith(".json")) await loadRules(f);
-      else say(tr("\"{name}\" isn't a PDF drawing, an .xlsx template or a rules file.", { name: f.name }), "err");
+      else say(tr("\"{name}\" isn't a PDF drawing, an .xlsx template or a setup file.", { name: f.name }), "err");
     }
   });
 }
 
 restore();
+resetHistory();
 $("#plan-name").value = state.settings.planName || "";
 $("#room-pattern").value = state.settings.roomPattern || "";
 $("#room-distance").value = state.settings.roomDistance || 10;

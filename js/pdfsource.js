@@ -47,21 +47,43 @@ export function anchorFinder(geometry, viewport) {
 
 let running = null;
 
-/** Draw the page into a canvas so it is `cssWidth` CSS pixels wide, sharp on high-DPI screens. */
-export async function renderInto(page, canvas, cssWidth) {
+/** Largest side, in device pixels, of the picture drawn at once. */
+export const MAX_SIDE = 4096;
+
+/**
+ * Draw the page so the whole sheet would be `cssWidth` CSS pixels wide, but only the part inside
+ * `region` ([x0, y0, x1, y1] as fractions of the sheet). Zoomed in far, only what you can see (plus
+ * a margin) is drawn, so the lines stay sharp at any zoom without a huge picture.
+ */
+export async function renderRegion(page, canvas, cssWidth, region = [0, 0, 1, 1]) {
   if (running) running.cancel();
   const base = page.getViewport({ scale: 1 });
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  let scale = (cssWidth * dpr) / base.width;
-  if (base.width * scale > 5000) scale = 5000 / base.width;
+  const scale = (cssWidth * dpr) / base.width;
   const viewport = page.getViewport({ scale });
-  canvas.width = Math.floor(viewport.width);
-  canvas.height = Math.floor(viewport.height);
-  const task = page.render({ canvas, canvasContext: canvas.getContext("2d"), viewport });
+  const [x0, y0, x1, y1] = region;
+  canvas.width = Math.max(1, Math.round((x1 - x0) * viewport.width));
+  canvas.height = Math.max(1, Math.round((y1 - y0) * viewport.height));
+  const task = page.render({ canvas, canvasContext: canvas.getContext("2d"), viewport, transform: [1, 0, 0, 1, -x0 * viewport.width, -y0 * viewport.height] });
   running = task;
   try {
     await task.promise;
+    return true;
   } catch (err) {
     if (err?.name !== "RenderingCancelledException") throw err;
+    return false;
+  } finally {
+    if (running === task) running = null;
   }
+}
+
+/** The whole page in a fresh canvas, `pxWidth` device pixels wide (for the pin image). Independent of the on-screen view. */
+export async function renderFull(page, pxWidth) {
+  const base = page.getViewport({ scale: 1 });
+  const viewport = page.getViewport({ scale: Math.min(pxWidth, 6000) / base.width });
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(viewport.width);
+  canvas.height = Math.round(viewport.height);
+  await page.render({ canvas, canvasContext: canvas.getContext("2d"), viewport }).promise;
+  return canvas;
 }

@@ -13,6 +13,7 @@ export const MAX_TEMPLATE_PATHS = 300;
 export const MAX_TEMPLATE_SEGMENTS = 3000;
 const CELL = 8; // grid cell for line lookups; must be larger than the tolerance
 const MAX_TOL = 5;
+const MAX_PAGE_TOL = 7.5; // must stay under the grid cell size
 
 /** Strictness 1..5 -> the share of the symbol that has to match. */
 export const STRICTNESS = { 1: 0.6, 2: 0.7, 3: 0.8, 4: 0.9, 5: 0.96 };
@@ -177,36 +178,41 @@ function indexPage(paths) {
   return idx;
 }
 
-function candidatesFor(idx, n, closed, len, lenTol) {
+function candidatesFor(idx, n, closed, minLen, maxLen, lenTol) {
   const list = idx.byCount.get(`${n}${closed ? "c" : "o"}`);
   if (!list) return [];
   let lo = 0, hi = list.length;
-  while (lo < hi) { const mid = (lo + hi) >> 1; if (list[mid].len < len - lenTol) lo = mid + 1; else hi = mid; }
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (list[mid].len < minLen - lenTol) lo = mid + 1; else hi = mid; }
   const out = [];
-  for (let k = lo; k < list.length && list[k].len <= len + lenTol; k++) out.push(list[k].i);
+  for (let k = lo; k < list.length && list[k].len <= maxLen + lenTol; k++) out.push(list[k].i);
   return out;
 }
 
 // ------------------------------------------------------------------ matching
 
 /** Rigid transform taking template points P (optionally mirrored) onto page points Q. */
-function fit(P, Q, mirror) {
+function fit(P, Q, mirror, withScale) {
   const n = P.length;
   let pcx = 0, pcy = 0, qcx = 0, qcy = 0;
   for (let i = 0; i < n; i++) { pcx += mirror * P[i][0]; pcy += P[i][1]; qcx += Q[i][0]; qcy += Q[i][1]; }
   pcx /= n; pcy /= n; qcx /= n; qcy /= n;
-  let dot = 0, cross = 0;
+  let dot = 0, cross = 0, pp = 0;
   for (let i = 0; i < n; i++) {
     const px = mirror * P[i][0] - pcx, py = P[i][1] - pcy, qx = Q[i][0] - qcx, qy = Q[i][1] - qcy;
     dot += px * qx + py * qy;
     cross += px * qy - py * qx;
+    pp += px * px + py * py;
   }
   const th = Math.atan2(cross, dot);
   const c = Math.cos(th), s = Math.sin(th);
-  return { c, s, m: mirror, th, tx: qcx - (c * pcx - s * pcy), ty: qcy - (s * pcx + c * pcy) };
+  const k = withScale && pp > 0 ? Math.hypot(dot, cross) / pp : 1; // how much bigger the page copy is
+  return { c, s, k, m: mirror, th, tx: qcx - k * (c * pcx - s * pcy), ty: qcy - k * (s * pcx + c * pcy) };
 }
-const apply = (T, x, y) => { const px = T.m * x; return [T.c * px - T.s * y + T.tx, T.s * px + T.c * y + T.ty]; };
-const unapply = (T, x, y) => { const dx = x - T.tx, dy = y - T.ty; return [T.m * (T.c * dx + T.s * dy), -T.s * dx + T.c * dy]; };
+const apply = (T, x, y) => { const px = T.m * x; return [T.k * (T.c * px - T.s * y) + T.tx, T.k * (T.s * px + T.c * y) + T.ty]; };
+const unapply = (T, x, y) => { const dx = (x - T.tx) / T.k, dy = (y - T.ty) / T.k; return [T.m * (T.c * dx + T.s * dy), -T.s * dx + T.c * dy]; };
+
+/** The range of sizes searched when "other sizes" is on: half to double the boxed copy. */
+export const SIZE_RANGE = [0.5, 2];
 
 function* orderings(n, closed) {
   if (closed) {
@@ -224,11 +230,13 @@ function* orderings(n, closed) {
  * Find copies of `template` among `paths`.
  * @param opts.level   strictness 1..5 (default 3)
  * @param opts.rotate  also find turned and mirrored copies (default true)
- * @returns {{hits: {x, y, cx, cy, angle, mirrored, score}[], note?: string}}
+ * @param opts.sizes   also find copies drawn bigger or smaller, half to double (default false)
+ * @returns {{hits: {x, y, cx, cy, angle, mirrored, scale, score}[], note?: string}}
  */
 export function findSymbols(paths, template, opts = {}) {
   const threshold = thresholdFor(opts.level ?? 3);
   const rotate = opts.rotate !== false;
+  const [kLo, kHi] = opts.sizes ? SIZE_RANGE : [1, 1];
   const tpl = template.paths.map((p) => ({ pts: p.pts, closed: !!p.closed }));
   if (!tpl.length) return { hits: [] };
 
@@ -256,7 +264,7 @@ export function findSymbols(paths, template, opts = {}) {
     const len = pathLength(pts, closed);
     if (len < tol * 2) continue;
     const lenTol = tol * 1.5 * Math.max(1, pts.length - 1);
-    const cands = candidatesFor(idx, pts.length, closed, len, lenTol);
+    const cands = candidatesFor(idx, pts.length, closed, len * kLo, len * kHi, lenTol * kHi);
     const score = cands.length * 1000 - pts.length * 10 - Math.min(len, 99);
     if (!anchor || score < anchor.score) anchor = { pts, closed, cands, score };
   }
@@ -275,14 +283,16 @@ export function findSymbols(paths, template, opts = {}) {
     for (const order of orderings(qpts.length, anchor.closed)) {
       const Q = order.map((k) => qpts[k]);
       for (const m of mirrors) {
-        const T = fit(anchor.pts, Q, m);
+        const T = fit(anchor.pts, Q, m, kHi !== kLo);
         if (!rotate && (Math.abs(T.th) > 0.05)) continue;
+        if (T.k < kLo * 0.97 || T.k > kHi * 1.03) continue;
         if (++tried > BUDGET) break outer;
+        const ptol = Math.min(tol * T.k, MAX_PAGE_TOL); // the tolerance on the page grows with the copy
         // the anchor itself must sit on its page twin
         let ok = true;
         for (let k = 0; k < anchor.pts.length && ok; k++) {
           const [x, y] = apply(T, anchor.pts[k][0], anchor.pts[k][1]);
-          if (Math.hypot(x - Q[k][0], y - Q[k][1]) > tol * 1.5) ok = false;
+          if (Math.hypot(x - Q[k][0], y - Q[k][1]) > ptol * 1.5) ok = false;
         }
         if (!ok) continue;
 
@@ -290,14 +300,14 @@ export function findSymbols(paths, template, opts = {}) {
         let miss = 0, found = 0;
         for (const [sx, sy] of samples) {
           const [x, y] = apply(T, sx, sy);
-          if (idx.grid.near(x, y, tol)) found++; else if (++miss > allowedMiss) break;
+          if (idx.grid.near(x, y, ptol)) found++; else if (++miss > allowedMiss) break;
         }
         if (miss > allowedMiss) continue;
         const coverage = found / samples.length;
 
         // precision: is everything else that sits inside the box part of the symbol?
         const [ccx, ccy] = [T.tx, T.ty];
-        const reach = Math.hypot(halfW, halfH);
+        const reach = Math.hypot(halfW, halfH) * T.k;
         const x0 = Math.floor((ccx - reach) / idx.START_CELL), x1 = Math.floor((ccx + reach) / idx.START_CELL);
         const y0 = Math.floor((ccy - reach) / idx.START_CELL), y1 = Math.floor((ccy + reach) / idx.START_CELL);
         let total = 0, explained = 0;
@@ -312,7 +322,7 @@ export function findSymbols(paths, template, opts = {}) {
               }
               if (!inside) continue;
               const pts = [];
-              samplePath(path, step, pts);
+              samplePath(path, step * T.k, pts);
               for (const [x, y, w] of pts) {
                 const [u, v] = unapply(T, x, y);
                 total += w;
@@ -325,16 +335,18 @@ export function findSymbols(paths, template, opts = {}) {
         const score = Math.min(coverage, precision);
         if (score < threshold) continue;
         const [px, py] = apply(T, template.pin[0], template.pin[1]);
-        hits.push({ x: px, y: py, cx: ccx, cy: ccy, angle: T.th, mirrored: T.m < 0, score });
+        hits.push({ x: px, y: py, cx: ccx, cy: ccy, angle: T.th, mirrored: T.m < 0, scale: T.k, score });
       }
     }
   }
 
   // Several starting points can describe the same copy: keep the best one in each place.
   hits.sort((p, q) => Math.round(q.score * 1000) - Math.round(p.score * 1000) || (p.mirrored - q.mirrored) || Math.abs(p.angle) - Math.abs(q.angle));
-  const radius = Math.max(tol * 2, diag * 0.3);
   const kept = [];
-  for (const h of hits) if (!kept.some((k) => Math.hypot(k.cx - h.cx, k.cy - h.cy) < radius)) kept.push(h);
+  for (const h of hits) {
+    const radius = Math.max(tol * 2, diag * 0.3) * Math.max(1, h.scale);
+    if (!kept.some((k) => Math.hypot(k.cx - h.cx, k.cy - h.cy) < Math.max(radius, Math.max(tol * 2, diag * 0.3) * Math.max(1, k.scale)))) kept.push(h);
+  }
   kept.sort((p, q) => p.y - q.y || p.x - q.x);
   return { hits: kept, note: tried > BUDGET ? "The drawing is very busy, so only part of it was searched." : undefined };
 }

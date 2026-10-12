@@ -1,14 +1,12 @@
 # Plandot
 
-Turn the callouts on a construction drawing into a task import file, with every task pinned on the dot at the end of its leader line.
-
-![Plandot finding callouts on a sample drawing, checking the pins and downloading the import file](docs/demo.gif)
+Turn callouts and symbols on a plan into a task import file, with every task pinned where it belongs.
 
 **Live app:** the link is in the *About* box at the top right of this page. No install, no sign-in.
 
 ## What it does
 
-You tell Plandot which tags matter ("A1, A2 and A3 are socket outlets"). It finds every matching callout in the drawing PDF, follows each callout's leader line to the dot it points at, shows the pins on the sheet so you can check them, and fills in your project's import template, ready to import.
+You tell Plandot which text matters ("A1, A2 and A3 are socket outlets"), or box one example of a symbol. It finds every match in the drawing PDF, follows each callout's leader line to the dot it points at, shows the pins on the sheet so you can check them, and fills in your project's import template, ready to import.
 
 ```
 drawing.pdf  +  import template.xlsx  +  rules   ->   check the pins   ->   import file (.xlsx)
@@ -22,12 +20,26 @@ drawing.pdf  +  import template.xlsx  +  rules   ->   check the pins   ->   impo
 1. Drop the **drawing PDF**.
 2. Drop the **import template** (.xlsx) downloaded from your project.
 3. Type the **plan name** exactly as it appears in the project.
-4. Add **rules**: the tags to find, a task title, and any other column to fill (category, assignee, a custom attribute).
-5. Untick any pin you don't want, then **Download import file** and import it.
+4. Add **rules**. Each has a *Look for* choice (*Text callout* or *Draw box*), the *Text to find*, a *Task title*, where the *Task pinned on* goes (*On the location* or *On the callout*), and any other column to fill (category, assignee, a custom attribute).
+5. Untick any pin you don't want, look at **Preview what will be exported**, then **Download import file** and import it.
 
-Rules can be saved to, and loaded from, a small JSON file, so a team can share a library of them.
+**Try it without your own files:** press *Try with a sample drawing* on the empty page. It loads a made-up drawing, template and rules in one click (needs the page opened from its web address, not as a file). The same three files are in `samples/`.
 
-**Try it without your own files:** drop `samples/sample-drawing.pdf` and `samples/sample-import-template.xlsx` on the page, then press *Load rules* and choose `samples/sample-rules.json`. All three are made up; none comes from a real project.
+## Task titles
+
+Under each rule's *Task title* are buttons: **Callout text**, **Room**, **Room in brackets** and **Number**. Click one to drop it into the title at the cursor (they are the fill-ins `{tag}`, `{room}`, `{room_label}` and `{n}`; you can also type them). A line underneath shows the result: *First task: Install socket A1 (Room 1-101)*, from the first real match, or an example until something is found. If the title uses the room but no room label pattern is set, it says so.
+
+## Zoom
+
+The drawing sits in a window of its own, next to a left panel that never changes size. Zoom with the **+ / −** buttons, **Ctrl (or ⌘) + scroll**, a trackpad pinch, or the **+ − 0** keys once the drawing has focus. **Fit** (or 0) shows the whole sheet again. Scroll or drag to move around. Only the part you can see is drawn at full sharpness, so lines stay crisp however far you zoom, and the percentage rulers get finer as you go. Click a row in the pin list to jump to that pin.
+
+## Setup files, undo and checking before you download
+
+- **Save setup / Open setup** keep your rules, the plan name and the room settings in a small file, so you can reuse them on other drawings or hand them to a customer.
+- **Undo / Redo** (above the rules, or Ctrl/⌘ + Z outside a text box) step back through rule changes, including removing a rule.
+- **Preview what will be exported** shows a sentence ("13 tasks will go onto plan …") and the first rows of the file.
+- A page with **no selectable text** (a scan or a photo of a drawing) now says so plainly, and each text rule says it too.
+- A password-protected PDF, a file that isn't a PDF, a wrong file dropped on the page, and a setup file that isn't one all get a plain message.
 
 ## Pins go on the dot, not the label
 
@@ -43,15 +55,19 @@ Positions are written as percentages from the top-left corner of the sheet, whic
 
 ## Pin a symbol, not just a callout
 
-Some things have no tag: patio doors, sockets, fire extinguishers. Set a rule to **Look for: a symbol I draw a box around**, drag a box around one example on the sheet, and Plandot finds every other copy of it and puts a pin on each.
+Some things have no tag: patio doors, sockets, fire extinguishers. Set a rule to **Look for: Draw box**, drag a box around one example on the sheet, and Plandot finds every other copy of it and puts a pin on each.
 
-- Copies that are **turned or mirrored** are found too. Copies must be the **same size** as the one you boxed.
+- Copies that are **turned or mirrored** are found too. Tick **Also find copies drawn bigger or smaller** to find copies from half to double the size of the one you boxed (the pin lands on the same spot, scaled with it). It takes longer, so it is off by default.
 - Draw the box so it fully contains the symbol. Lines that cross the box edge, such as the wall either side of a door, are left out.
 - Click the little picture of the symbol to choose **where the pin goes** on it. It lands on the same spot of every copy, however it is turned.
 - The **match slider** (Loose to Exact) sets how closely a copy must resemble yours. If some are missed, move towards Loose; if wrong things are picked up, towards Exact.
-- The task title can use `{tag}` (the rule's name) and `{n}`. The rule, its symbol and its settings are saved with the other rules.
+- The task title can use the rule's name (the **Symbol name** button) and the number. The rule, its symbol and its settings are saved in the setup file.
 
 It matches the drawing's line work, so like the leader dots it needs a vector PDF from CAD or Revit, not a scan. To try it, drop `samples/sample-symbols.pdf` and box one of the patio doors.
+
+## Keyboard and screen readers
+
+Everything can be done without a mouse: there is a *Skip to the drawing* link, the drawing window takes focus and responds to the zoom keys, pins are buttons you can reach with Tab, and a search area or symbol box can be drawn with the arrow keys (Shift for bigger steps, Alt for fine steps), Enter for each corner and Escape to cancel. Controls have names for screen readers, and messages are announced as they appear.
 
 ## Languages
 
@@ -64,7 +80,7 @@ The page is available in English, French, Spanish, German, Italian, Dutch, Portu
 
 ## Start over
 
-The **Start over** button at the top clears the drawing, template, rules and pins and takes the page back to the beginning. It asks first, and never touches rules files you saved on your computer.
+The **Start over** button at the top clears the drawing, template, rules and pins and takes the page back to the beginning. It asks first, and never touches setup files you saved on your computer.
 
 ## It follows your template
 
@@ -79,16 +95,17 @@ An import template differs from project to project: adding a custom task attribu
 
 ## Privacy
 
-Everything runs in your browser. The drawing, the template and the rules are never uploaded anywhere, and there is no server. Rules are remembered in the browser's own storage on your computer only.
+Everything runs in your browser. The drawing, the template and the rules are never uploaded anywhere, and there is no server. Your rules are remembered in the browser's own storage on your computer only.
 
 Real drawings and import templates can be confidential or carry personal details, so this repository's `.gitignore` blocks `*.pdf` and `*.xlsx` apart from the two made-up files in `samples/`.
 
 ## Limits
 
-- Callouts must be real text in the PDF, as in an export from CAD or Revit. A scan has no text to find.
+- Callouts must be real text in the PDF, as in an export from CAD or Revit. A scan has no text to find (the page says so).
 - Following leaders to dots needs the drawing's line work. A flattened PDF has none and falls back to pinning on the callout text.
 - Template headings in languages other than the twelve above are matched by hand (see Languages).
 - One PDF page at a time, because each page is its own plan.
+- Searching other symbol sizes covers half to double the boxed copy.
 - `{room}` in a task title is the nearest room label to the pin. A dot on a wall between two rooms can pick either, and pins on outer walls may be too far from any label to get one. Check titles before importing, or leave the room out of the title.
 
 ## Run it yourself
@@ -107,7 +124,7 @@ Opening `index.html` by double-clicking does not work, because browsers block th
 npm install
 npx playwright install chromium
 python3 -m pip install openpyxl     # the tests read the import file back with it
-npm test                            # 99 tests
+npm test                            # 128 tests
 ```
 
 GitHub runs the same tests on every push (`.github/workflows/tests.yml`). The tests build their own drawings and templates, or use the made-up files in `samples/`.
@@ -117,7 +134,8 @@ To rebuild the samples: `python3 samples/make_sample_drawing.py` and `python3 sa
 ## Roadmap
 
 - A native-speaker review of the translations
-- Symbol matching at other sizes, and for scanned drawings (image matching)
+- Symbol matching for scanned drawings (image matching)
+- Accounts and billing, once the app has a home of its own
 - Vision-assisted pins for locations with no label, such as wall ends and cable end points
 - CAD (DXF) input for exact line endpoints on a named layer
 

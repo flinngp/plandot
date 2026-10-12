@@ -140,3 +140,31 @@ test("symbol rules turn into pins, filtered by the search area, titled with the 
   // A symbol rule with no symbol yet gives no pins and no errors.
   assert.deepEqual(detect({ tokens: [], width: 10, height: 10, rules: [rule] }).pins, []);
 });
+
+// ------------------------------------------------------------------ different sizes
+const scaled = (paths, k) => paths.map((p) => ({ closed: p.closed, pts: p.pts.map(([x, y]) => [x * k, y * k]) }));
+const SIZED = sheet(
+  place(door(), 200, 150), place(scaled(door(), 1.5), 700, 300), place(scaled(door(), 0.6), 1000, 500, 90),
+  place(scaled(door(), 1.25), 400, 600, 180, true), place(window_(), 1000, 150),
+);
+
+test("by default only copies the same size are found", () => {
+  const { template } = captureSymbol(SIZED, box(200, 150));
+  assert.equal(findSymbols(SIZED, template).hits.length, 1);
+});
+
+test("with other sizes on, bigger and smaller copies are found, turned and mirrored too, and windows still are not", () => {
+  const { template } = captureSymbol(SIZED, box(200, 150));
+  const { hits } = findSymbols(SIZED, template, { sizes: true });
+  assert.equal(hits.length, 4);
+  const scales = hits.map((h) => Math.round(h.scale * 100) / 100).sort((a, b) => a - b);
+  assert.deepEqual(scales, [0.6, 1, 1.25, 1.5]);
+});
+
+test("with other sizes on, the pin lands on the same spot of a bigger copy, scaled with it", () => {
+  const { template } = captureSymbol(SIZED, box(200, 150));
+  template.pin = [10, 20];
+  const { hits } = findSymbols(SIZED, template, { sizes: true });
+  const big = hits.find((h) => Math.abs(h.scale - 1.5) < 0.02);
+  assert.ok(Math.hypot(big.x - (big.cx + 15), big.y - (big.cy + 30)) < 0.2, `${big.x - big.cx},${big.y - big.cy}`);
+});
