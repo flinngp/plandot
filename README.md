@@ -41,6 +41,31 @@ A callout is a tag inside a diamond, circle or hexagon, with a leader line runni
 
 Positions are written as percentages from the top-left corner of the sheet, which is how the importer reads them. *Check pin positions first* (under Download) makes nine test tasks on the 10%, 50% and 90% grid lines so you can confirm that on your own account in a minute.
 
+## Pin a symbol, not just a callout
+
+Some things have no tag: patio doors, sockets, fire extinguishers. Set a rule to **Look for: a symbol I draw a box around**, drag a box around one example on the sheet, and Plandot finds every other copy of it and puts a pin on each.
+
+- Copies that are **turned or mirrored** are found too. Copies must be the **same size** as the one you boxed.
+- Draw the box so it fully contains the symbol. Lines that cross the box edge, such as the wall either side of a door, are left out.
+- Click the little picture of the symbol to choose **where the pin goes** on it. It lands on the same spot of every copy, however it is turned.
+- The **match slider** (Loose to Exact) sets how closely a copy must resemble yours. If some are missed, move towards Loose; if wrong things are picked up, towards Exact.
+- The task title can use `{tag}` (the rule's name) and `{n}`. The rule, its symbol and its settings are saved with the other rules.
+
+It matches the drawing's line work, so like the leader dots it needs a vector PDF from CAD or Revit, not a scan. To try it, drop `samples/sample-symbols.pdf` and box one of the patio doors.
+
+## Languages
+
+The page is available in English, French, Spanish, German, Italian, Dutch, Portuguese, Danish, Swedish, Norwegian, Finnish, Polish and Czech. Pick one from the list at the top; the page remembers it, and the first time it uses your browser's language if it has it.
+
+- A task import template downloaded in one of those languages is read too (headings such as *Titel*, *Titre*, *Título*, *Tittel*). The X and Y position columns are found by their letter and the % sign.
+- If a template's headings still aren't recognised, Plandot shows **Match the columns yourself**: say which column is the title, plan, X and Y, and carry on.
+- Task titles, plan names and rule names are yours and are never translated.
+- The translations were written without a native speaker's review. To fix one, edit its file in `js/lang/`; the English text is the key, so nothing else needs changing. To add a language, copy a file there and add it to the list in `js/i18n.js`.
+
+## Start over
+
+The **Start over** button at the top clears the drawing, template, rules and pins and takes the page back to the beginning. It asks first, and never touches rules files you saved on your computer.
+
 ## It follows your template
 
 An import template differs from project to project: adding a custom task attribute adds a column, and hiding one removes a column. Plandot never assumes a column list. It reads the header row of the template you load, finds columns **by name**, and fills only the columns that exist.
@@ -62,7 +87,7 @@ Real drawings and import templates can be confidential or carry personal details
 
 - Callouts must be real text in the PDF, as in an export from CAD or Revit. A scan has no text to find.
 - Following leaders to dots needs the drawing's line work. A flattened PDF has none and falls back to pinning on the callout text.
-- Template column names are matched in English. A template downloaded in another interface language is not recognised yet.
+- Template headings in languages other than the twelve above are matched by hand (see Languages).
 - One PDF page at a time, because each page is its own plan.
 - `{room}` in a task title is the nearest room label to the pin. A dot on a wall between two rooms can pick either, and pins on outer walls may be too far from any label to get one. Check titles before importing, or leave the room out of the title.
 
@@ -82,17 +107,17 @@ Opening `index.html` by double-clicking does not work, because browsers block th
 npm install
 npx playwright install chromium
 python3 -m pip install openpyxl     # the tests read the import file back with it
-npm test                            # 50 tests
+npm test                            # 99 tests
 ```
 
 GitHub runs the same tests on every push (`.github/workflows/tests.yml`). The tests build their own drawings and templates, or use the made-up files in `samples/`.
 
-To rebuild the samples: `python3 samples/make_sample_drawing.py` (needs `reportlab`) and `node scripts/make-sample-template.mjs`.
+To rebuild the samples: `python3 samples/make_sample_drawing.py` and `python3 samples/make_symbol_sample.py` (need `reportlab`) and `node scripts/make-sample-template.mjs`.
 
 ## Roadmap
 
-- Match template columns in other languages, or let the user map them by hand
-- Symbol detection by image matching, for scanned drawings and unlabelled symbols
+- A native-speaker review of the translations
+- Symbol matching at other sizes, and for scanned drawings (image matching)
 - Vision-assisted pins for locations with no label, such as wall ends and cable end points
 - CAD (DXF) input for exact line endpoints on a named layer
 

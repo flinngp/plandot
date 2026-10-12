@@ -95,8 +95,31 @@ test("rejects files that are not workbooks, and sheets without a header row", as
   const z = await JSZip.loadAsync(await makeTemplate());
   z.file("xl/sharedStrings.xml", (await z.file("xl/sharedStrings.xml").async("string")).replace(/<t>Title<\/t>/, "<t>Name</t>"));
   const noHeader = await z.generateAsync({ type: "uint8array" });
-  const msg2 = await page.evaluate(async (b) => { try { await T.readTemplate(Uint8Array.from(atob(b), (c) => c.charCodeAt(0))); } catch (e) { return e.message; } }, b64(noHeader));
-  assert.match(msg2, /header row/);
+  // Headings it doesn't recognise: the widest row is taken as the headings and the user matches the columns by hand.
+  const guess = await page.evaluate(async (b) => { const t = await T.readTemplate(Uint8Array.from(atob(b), (c) => c.charCodeAt(0))); return { guessed: t.guessed, missing: t.missing, headerNo: t.headerNo }; }, b64(noHeader));
+  assert.equal(guess.guessed, true);
+  assert.deepEqual(guess.missing, ["Title"]);
+});
+
+test("headings in other languages are recognised, and columns can be matched by hand", async () => {
+  const z = await JSZip.loadAsync(await makeTemplate());
+  let sst = await z.file("xl/sharedStrings.xml").async("string");
+  for (const [en, to] of [["Title", "Titel"], ["Plan", "Plan"], ["X Pos (%)", "X-Pos. (%)"], ["Y Pos (%)", "Y-Pos. (%)"], ["Category", "Kategorie"], ["Assignee", "Zugewiesen"]]) sst = sst.replace(`<t>${en}</t>`, `<t>${to}</t>`);
+  z.file("xl/sharedStrings.xml", sst);
+  const bytes = await z.generateAsync({ type: "uint8array" });
+  const res = await page.evaluate(async (b) => {
+    const t = await T.readTemplate(Uint8Array.from(atob(b), (c) => c.charCodeAt(0)));
+    const roles = t.columns.filter((c) => c.role).map((c) => `${c.header}=${c.role}`);
+    const before = t.missing.slice();
+    const title = t.columns.find((c) => c.header === "Titel");
+    T.applyMapping(t, { title: t.columns[0].letters });
+    return { roles, before, guessed: t.guessed, remapped: t.columns[0].role, missingAfter: t.missing, titleRole: title.role };
+  }, b64(bytes));
+  assert.equal(res.guessed, false);
+  assert.deepEqual(res.before, []);
+  assert.ok(res.roles.includes("Titel=title") && res.roles.includes("X-Pos. (%)=x") && res.roles.includes("Y-Pos. (%)=y"));
+  assert.equal(res.remapped, "title");
+  assert.deepEqual(res.missingAfter.sort(), ["Plan", "X Pos (%)", "Y Pos (%)"]);
 });
 
 test("writes a valid workbook: new rows, blank IDs, real dates, template formatting kept", async () => {

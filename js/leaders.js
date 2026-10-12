@@ -361,6 +361,7 @@ export function shapesFromOperatorList({ fnArray, argsArray }, OPS, view) {
   const stack = [];
   const strokes = [];
   const fills = [];
+  const paths = []; // every painted line or shape, for matching symbols
 
   for (let i = 0; i < fnArray.length; i++) {
     const fn = fnArray[i], args = argsArray[i];
@@ -398,6 +399,9 @@ export function shapesFromOperatorList({ fnArray, argsArray }, OPS, view) {
           if (sp.pts.length < 2) continue;
           const bbox = bboxOf(sp.pts);
           const w = bbox[2] - bbox[0], h = bbox[3] - bbox[1];
+          if (sp.pts.length <= 200 && Math.max(w, h) <= 3000) {
+            paths.push({ pts: sp.pts, closed: !!(sp.closed || closingOps.has(paint) || (wantFill && !wantStroke)) });
+          }
           if (wantFill && w <= DOT.max + 2 && h <= DOT.max + 2 && luminance(state.fill) < DARK) {
             fills.push({ bbox, area: polygonArea(sp.pts) });
           }
@@ -412,5 +416,5 @@ export function shapesFromOperatorList({ fnArray, argsArray }, OPS, view) {
       default:
     }
   }
-  return { strokes, fills };
+  return { strokes, fills, paths };
 }

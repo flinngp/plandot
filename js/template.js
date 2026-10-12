@@ -14,18 +14,37 @@ const XML_DECL = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
 
 export const norm = (s) => String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
 
+// Header words for the columns Plandot fills in. English is what Fieldwire's own template uses; the
+// other languages are best guesses at a template downloaded with another interface language. Anything
+// not recognised can be matched by hand on the page (see applyMapping), so a wrong guess costs one click.
+const ALIASES = {
+  id: ["id", "identifiant", "identificador", "identificatie", "identificativo", "tunnus", "tunniste", "identyfikator", "identifikátor", "kennung"],
+  title: ["title", "titre", "título", "titulo", "titel", "titolo", "tittel", "otsikko", "tytuł", "název", "nazev", "nom", "nombre", "naam", "nome"],
+  plan: ["plan", "plano", "planos", "pianta", "planimetria", "plantegning", "tegning", "ritning", "plattegrond", "grundriss", "pohjakuva", "suunnitelma", "rzut", "výkres", "vykres", "planta", "planritning", "tegninger", "planer"],
+};
+// Words other standard columns go by, used only to spot which row holds the headings.
+const HINT_WORDS = [
+  "priority", "priorité", "prioridad", "prioridade", "priorität", "priorità", "prioriteit", "prioritet", "prioriteetti", "priorytet", "priorita",
+  "category", "catégorie", "categoría", "categoria", "kategorie", "categorie", "kategori", "luokka", "kategoria", "kategorie",
+  "assignee", "assigné", "asignado", "responsável", "zugewiesen", "assegnatario", "toegewezen", "tildelt", "tilldelad", "vastuuhenkilö", "przypisany", "přiřazeno",
+  "start date", "end date", "date de début", "date de fin", "fecha de inicio", "fecha de fin", "data de início", "data de fim", "startdatum", "enddatum", "data di inizio", "data di fine", "einddatum", "startdato", "slutdato", "slutdatum", "aloituspäivä", "päättymispäivä", "data rozpoczęcia", "data zakończenia", "datum zahájení", "datum ukončení",
+  "description / hashtags", "checklist", "liste de contrôle", "lista de verificación", "lista de verificação", "checkliste", "controlelijst", "tarkistuslista", "lista kontrolna", "kontrolní seznam",
+];
+const ALL_HINTS = new Set([...ALIASES.id, ...ALIASES.title, ...ALIASES.plan, ...HINT_WORDS]);
+const tokens = (h) => norm(h).split(/[^\p{L}\p{N}%]+/u).filter(Boolean);
+
 /** Columns the app fills itself. Anything else is a field the user can set per rule. */
 export function roleOf(header) {
   const h = norm(header);
-  if (h === "id") return "id";
-  if (h === "title") return "title";
-  if (h === "plan") return "plan";
-  if (/^x pos/.test(h)) return "x";
-  if (/^y pos/.test(h)) return "y";
+  if (ALIASES.id.includes(h)) return "id";
+  if (ALIASES.title.includes(h)) return "title";
+  if (ALIASES.plan.includes(h)) return "plan";
+  // Fieldwire writes the position columns as "X Pos (%)" and "Y Pos (%)", and translations keep the letter and the %.
+  const t = tokens(header);
+  if (h.includes("%") && t.includes("x") && !t.includes("y")) return "x";
+  if (h.includes("%") && t.includes("y") && !t.includes("x")) return "y";
   return null;
 }
-
-const HEADER_HINTS = new Set(["id", "title", "priority", "category", "assignee", "start date", "end date", "plan", "description / hashtags", "checklist"]);
 
 export class TemplateError extends Error {}
 
@@ -125,10 +144,22 @@ export async function readTemplate(data) {
   for (const row of rows) {
     if (Number(row.getAttribute("r")) > 30) break;
     const texts = kids(row, "c").map((c) => norm(cellText(c, sst)));
-    if (texts.includes("title") && texts.filter((t) => HEADER_HINTS.has(t)).length >= 3) {
+    if (texts.some((t) => ALIASES.title.includes(t)) && texts.filter((t) => ALL_HINTS.has(t)).length >= 3) {
       headerRow = row;
       break;
     }
+  }
+  // Not recognised (a language we have no words for): take the widest row near the top and let the user match the columns.
+  let guessed = false;
+  if (!headerRow) {
+    let best = 0;
+    for (const row of rows) {
+      if (Number(row.getAttribute("r")) > 30) break;
+      const n = kids(row, "c").filter((c) => cellText(c, sst).trim() !== "").length;
+      if (n > best) { best = n; headerRow = row; }
+    }
+    if (best < 5) headerRow = null;
+    guessed = !!headerRow;
   }
   if (!headerRow) throw new TemplateError("Couldn't find the header row. The template needs a row with column names such as ID, Title, Category and Plan.");
   const headerNo = Number(headerRow.getAttribute("r"));
@@ -148,10 +179,7 @@ export async function readTemplate(data) {
     if (s != null) styles[splitRef(c.getAttribute("r")).letters] = s;
   }
 
-  const missing = [];
-  for (const [role, label] of [["title", "Title"], ["plan", "Plan"], ["x", "X Pos (%)"], ["y", "Y Pos (%)"]]) {
-    if (!columns.some((c) => c.role === role)) missing.push(label);
-  }
+  const missing = missingRoles(columns);
   const a2 = rows.find((r) => r.getAttribute("r") === "2");
   const a2Cell = a2 && kids(a2, "c")[0];
   const projectName = a2Cell ? cellText(a2Cell, sst) : "";
@@ -162,7 +190,27 @@ export async function readTemplate(data) {
     (r) => Number(r.getAttribute("r")) > headerNo && kids(r, "c").some((c) => cellText(c, sst).trim() !== ""),
   ).length;
 
-  return { zip, sheetPath, sheetDoc, sstDoc, sst, headerNo, columns, styles, dateStyleSet, missing, projectName, prefilledRows };
+  return { zip, sheetPath, sheetDoc, sstDoc, sst, headerNo, columns, styles, dateStyleSet, missing, projectName, prefilledRows, guessed };
+}
+
+export const ROLE_LABELS = { title: "Title", plan: "Plan", x: "X Pos (%)", y: "Y Pos (%)" };
+function missingRoles(columns) {
+  return Object.entries(ROLE_LABELS).filter(([role]) => !columns.some((c) => c.role === role)).map(([, label]) => label);
+}
+
+/**
+ * Match columns by hand. `picks` maps a role (id, title, plan, x, y) to a column letter, or "" for none.
+ * Used when the template's headings are in a language Plandot doesn't recognise.
+ */
+export function applyMapping(tpl, picks) {
+  for (const c of tpl.columns) c.role = null;
+  for (const [role, letters] of Object.entries(picks)) {
+    const col = tpl.columns.find((c) => c.letters === letters);
+    if (col) col.role = role;
+  }
+  tpl.missing = missingRoles(tpl.columns);
+  if (!tpl.missing.length) tpl.guessed = false; // everything needed is matched: the form can go away
+  return tpl;
 }
 
 /** Fields the user can set per rule: every column the app doesn't fill itself. */

@@ -15,91 +15,96 @@
 <header class="masthead">
   <div class="brand">
     <h1>Plandot</h1>
-    <p>Turn callouts on a drawing into a task import file.</p>
+    <p data-i18n>Turn callouts on a drawing into a task import file.</p>
   </div>
-  <dl class="titleblock" aria-label="Current drawing">
-    <div class="tb-name"><dt>Drawing</dt><dd id="tb-name">None loaded</dd></div>
-    <div><dt>Sheet</dt><dd id="tb-size">–</dd></div>
-    <div><dt>Pins</dt><dd id="tb-pins">0</dd></div>
-  </dl>
+  <div class="masthead-right">
+    <dl class="titleblock" aria-label="Current drawing">
+      <div class="tb-name"><dt data-i18n>Drawing</dt><dd id="tb-name">None loaded</dd></div>
+      <div><dt data-i18n>Sheet</dt><dd id="tb-size">–</dd></div>
+      <div><dt data-i18n>Pins</dt><dd id="tb-pins">0</dd></div>
+    </dl>
+    <label class="lang"><span class="sr" data-i18n>Language</span><select id="lang" aria-label="Language"></select></label>
+    <button type="button" class="btn start-over" id="start-over" data-i18n>Start over</button>
+  </div>
 </header>
 
 <main class="layout">
+<div class="workspace">
   <aside class="controls" aria-label="Setup">
 
     <section class="step" id="step-drawing">
-      <h2><span class="num">1</span> Drawing</h2>
+      <h2><span class="num">1</span> <span data-i18n>Drawing</span></h2>
       <div class="field">
-        <label for="file-pdf">Drawing PDF</label>
+        <label for="file-pdf" data-i18n>Drawing PDF</label>
         <input id="file-pdf" type="file" accept=".pdf,application/pdf">
         <p class="hint" id="pdf-info">Callouts must be real text in the PDF, not part of a scanned image.</p>
       </div>
       <div class="field" id="page-field" hidden>
-        <label for="page-select">Page</label>
+        <label for="page-select" data-i18n>Page</label>
         <select id="page-select"></select>
-        <p class="hint">Each page is its own plan in Fieldwire, so tasks are exported one page at a time.</p>
+        <p class="hint" data-i18n>Each page is its own plan in Fieldwire, so tasks are exported one page at a time.</p>
       </div>
     </section>
 
     <section class="step" id="step-template">
-      <h2><span class="num">2</span> Import template</h2>
+      <h2><span class="num">2</span> <span data-i18n>Import template</span></h2>
       <div class="field">
-        <label for="file-xlsx">Task import template (.xlsx)</label>
+        <label for="file-xlsx" data-i18n>Task import template (.xlsx)</label>
         <input id="file-xlsx" type="file" accept=".xlsx">
         <p class="hint" id="tpl-info">Download it from your project's task import screen. Load a fresh copy whenever custom task attributes change.</p>
       </div>
       <div class="chips" id="tpl-chips" aria-label="Template columns"></div>
       <div class="field">
-        <label for="plan-name">Plan name in Fieldwire</label>
-        <input id="plan-name" type="text" autocomplete="off" placeholder="Exactly as it appears in the project">
+        <label for="plan-name" data-i18n>Plan name in Fieldwire</label>
+        <input id="plan-name" type="text" autocomplete="off" placeholder="Exactly as it appears in the project" data-i18n-ph>
       </div>
     </section>
 
     <section class="step" id="step-rules">
-      <h2><span class="num">3</span> Rules</h2>
-      <p class="hint lead">A rule turns every callout with a matching tag into one task.</p>
+      <h2><span class="num">3</span> <span data-i18n>Rules</span></h2>
+      <p class="hint lead" data-i18n>A rule turns every callout with a matching tag into one task.</p>
       <div id="rules"></div>
       <div class="row">
-        <button type="button" class="btn quiet" id="add-rule">Add rule</button>
-        <button type="button" class="btn quiet" id="save-rules">Save rules</button>
-        <button type="button" class="btn quiet" id="load-rules-btn">Load rules</button>
+        <button type="button" class="btn quiet" id="add-rule" data-i18n>Add rule</button>
+        <button type="button" class="btn quiet" id="save-rules" data-i18n>Save rules</button>
+        <button type="button" class="btn quiet" id="load-rules-btn" data-i18n>Load rules</button>
         <input id="load-rules" type="file" accept=".json,application/json" hidden>
       </div>
 
       <details class="settings">
-        <summary>Search area and room labels</summary>
+        <summary data-i18n>Search area and room labels</summary>
         <div class="field">
-          <span class="label">Search area</span>
+          <span class="label" data-i18n>Search area</span>
           <div class="row">
-            <button type="button" class="btn quiet" id="draw-area" disabled>Draw on sheet</button>
-            <button type="button" class="btn quiet" id="reset-area" disabled>Use whole sheet</button>
+            <button type="button" class="btn quiet" id="draw-area" disabled data-i18n>Draw on sheet</button>
+            <button type="button" class="btn quiet" id="reset-area" disabled data-i18n>Use whole sheet</button>
           </div>
           <p class="hint" id="area-info">Ignore keynotes and the title block by limiting the search to part of the sheet.</p>
         </div>
         <div class="field">
-          <label for="room-pattern">Room label pattern</label>
-          <input id="room-pattern" type="text" autocomplete="off" placeholder="For example \d-\d{3}">
-          <p class="hint">Optional. Finds the nearest room label to each callout so you can use {room} in titles. It is a regular expression and the match is approximate.</p>
+          <label for="room-pattern" data-i18n>Room label pattern</label>
+          <input id="room-pattern" type="text" autocomplete="off" placeholder="For example \d-\d{3}" data-i18n-ph>
+          <p class="hint" data-i18n>Optional. Finds the nearest room label to each callout so you can use {room} in titles. It is a regular expression and the match is approximate.</p>
         </div>
         <div class="field">
-          <label for="room-distance">Look for rooms within</label>
-          <div class="inline"><input id="room-distance" type="number" min="1" max="50" step="1" value="10"> <span>% of the sheet width</span></div>
+          <label for="room-distance" data-i18n>Look for rooms within</label>
+          <div class="inline"><input id="room-distance" type="number" min="1" max="50" step="1" value="10"> <span data-i18n>% of the sheet width</span></div>
         </div>
       </details>
     </section>
 
     <section class="step" id="step-export">
-      <h2><span class="num">4</span> Download</h2>
+      <h2><span class="num">4</span> <span data-i18n>Download</span></h2>
       <div class="stack">
-        <button type="button" class="btn primary" id="dl-import" disabled>Download import file</button>
+        <button type="button" class="btn primary" id="dl-import" disabled data-i18n>Download import file</button>
         <p class="hint" id="import-why"></p>
-        <button type="button" class="btn" id="dl-pdf" disabled>Download marked-up PDF</button>
-        <button type="button" class="btn" id="dl-png" disabled>Download pin image (PNG)</button>
+        <button type="button" class="btn" id="dl-pdf" disabled data-i18n>Download marked-up PDF</button>
+        <button type="button" class="btn" id="dl-png" disabled data-i18n>Download pin image (PNG)</button>
       </div>
       <details class="settings">
-        <summary>Check pin positions first</summary>
-        <p class="hint">Makes nine test tasks on the 10%, 50% and 90% grid lines. Import them onto the 34 × 22 comparison grid in Fieldwire and confirm each lands on its crossing.</p>
-        <button type="button" class="btn" id="dl-calibration" disabled>Download calibration file</button>
+        <summary data-i18n>Check pin positions first</summary>
+        <p class="hint" data-i18n>Makes nine test tasks on the 10%, 50% and 90% grid lines. Import them onto the 34 × 22 comparison grid in Fieldwire and confirm each lands on its crossing.</p>
+        <button type="button" class="btn" id="dl-calibration" disabled data-i18n>Download calibration file</button>
       </details>
       <p class="status" id="status" role="status" aria-live="polite"></p>
     </section>
@@ -107,7 +112,7 @@
 
   <section class="sheetpane" aria-label="Drawing preview">
     <div class="toolbar">
-      <label class="check"><input type="checkbox" id="show-grid"> 10% grid</label>
+      <label class="check"><input type="checkbox" id="show-grid"> <span data-i18n>10% grid</span></label>
       <span class="readout" id="readout" aria-live="off">X – &nbsp; Y –</span>
     </div>
     <div class="sheet" id="sheet" hidden>
@@ -120,23 +125,24 @@
       </div>
     </div>
     <div class="dropzone" id="dropzone">
-      <p class="dz-title">Drop the drawing PDF here</p>
-      <p>You can drop the import template too. Nothing leaves your computer.</p>
+      <p class="dz-title" data-i18n>Drop the drawing PDF here</p>
+      <p data-i18n>You can drop the import template too. Nothing leaves your computer.</p>
     </div>
 
   </section>
+</div>
 
   <div class="pinlist" id="pinlist" hidden>
       <div class="pinlist-head">
         <h2 id="pinlist-title">Pins</h2>
         <div class="row">
-          <button type="button" class="btn quiet" id="all-on">Include all</button>
-          <button type="button" class="btn quiet" id="all-off">Exclude all</button>
+          <button type="button" class="btn quiet" id="all-on" data-i18n>Include all</button>
+          <button type="button" class="btn quiet" id="all-off" data-i18n>Exclude all</button>
         </div>
       </div>
       <div class="tablewrap">
         <table>
-          <thead><tr><th scope="col"><span class="sr">Include</span></th><th scope="col">#</th><th scope="col">Rule</th><th scope="col">Tag</th><th scope="col">Room</th><th scope="col">Pinned on</th><th scope="col">Task title</th><th scope="col" class="num-col">X %</th><th scope="col" class="num-col">Y %</th></tr></thead>
+          <thead><tr><th scope="col"><span class="sr" data-i18n>Include</span></th><th scope="col">#</th><th scope="col" data-i18n>Rule</th><th scope="col" data-i18n>Tag</th><th scope="col" data-i18n>Room</th><th scope="col" data-i18n>Pinned on</th><th scope="col" data-i18n>Task title</th><th scope="col" class="num-col">X %</th><th scope="col" class="num-col">Y %</th></tr></thead>
           <tbody id="pin-rows"></tbody>
         </table>
       </div>

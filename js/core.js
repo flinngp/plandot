@@ -82,6 +82,9 @@ function compileRoom(settings) {
   }
 }
 
+/** What a rule looks for: "text" (callout tags) or "symbol" (copies of a symbol the user boxed). */
+export const ruleKind = (rule) => (rule.kind === "symbol" ? "symbol" : "text");
+
 /** Where a rule puts its pins: "dot" (the dot at the end of the callout's leader) or "text". Dot is the default. */
 export const pinMode = (rule) => (rule.pinAt === "text" ? "text" : "dot");
 
@@ -90,9 +93,10 @@ export const pinMode = (rule) => (rule.pinAt === "text" ? "text" : "dot");
  * @param anchorFor  optional (token) => [{kind, x, y, ux, uy}], the dot(s) at the end of the callout's
  *                   leader line(s). Rules set to pin on the dot use it; a callout it finds nothing for
  *                   keeps its pin on the callout text.
+ * @param symbolHits optional {ruleId: [{x, y, ux, uy}]}, the places each symbol rule found its symbol
  * @returns {{pins: object[], errors: Record<string,string>}}
  */
-export function detect({ tokens, width, height, rules, settings = {}, anchorFor = null }) {
+export function detect({ tokens, width, height, rules, settings = {}, anchorFor = null, symbolHits = null }) {
   const errors = {};
   const area = settings.area; // [x0,y0,x1,y1] fractions, or null
   const roomRe = compileRoom(settings);
@@ -105,6 +109,29 @@ export function detect({ tokens, width, height, rules, settings = {}, anchorFor 
 
   const pins = [];
   rules.forEach((rule, ruleIndex) => {
+    if (ruleKind(rule) === "symbol") {
+      const found = (symbolHits && symbolHits[rule.id]) || [];
+      const mine = found.filter((at) => inArea(at)).sort((p, q) => p.y - q.y || p.x - q.x);
+      mine.forEach((at, k) => {
+        let room = "";
+        let best = roomMax;
+        for (const r of roomTokens) {
+          const dist = Math.hypot(r.x - at.x, r.y - at.y);
+          if (dist <= best) { best = dist; room = r.text; }
+        }
+        const tag = rule.name;
+        const vars = { tag, room, room_label: room ? `(Room ${room})` : "", n: k + 1, rule: rule.name };
+        pins.push({
+          ruleId: rule.id, ruleIndex, ruleName: rule.name, tag, room,
+          x: at.x, y: at.y, ux: at.ux, uy: at.uy, tx: at.x, ty: at.y,
+          anchor: "symbol", anchorIndex: 1, anchorCount: 1,
+          px: (at.x / width) * 100, py: (at.y / height) * 100,
+          title: renderTemplate(rule.title, vars), vars,
+          key: `${rule.id}|symbol|${Math.round(at.cx ?? at.x)}|${Math.round(at.cy ?? at.y)}`,
+        });
+      });
+      return;
+    }
     const matcher = compileMatcher(rule);
     if (matcher.error) errors[rule.id] = matcher.error;
     if (matcher.empty || matcher.error) return;
@@ -179,5 +206,6 @@ export function newRule(n = 1) {
     title: "{tag}",
     pinAt: "dot",
     columns: {},
+    kind: "text",
   };
 }

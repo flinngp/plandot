@@ -36,6 +36,8 @@ p { margin: 0; }
 .masthead { display: flex; align-items: stretch; justify-content: space-between; gap: 24px; padding: 14px 20px; background: var(--paper); border-bottom: 2px solid var(--ink); }
 .brand h1 { font-size: 28px; line-height: 1.1; }
 .brand p { color: var(--ink-2); margin-top: 2px; }
+.masthead-right { display: flex; align-items: stretch; gap: 12px; min-width: 0; }
+.start-over { align-self: center; flex: none; padding: 9px 13px; }
 .titleblock { display: flex; margin: 0; border: 1px solid var(--ink); min-width: 0; }
 .titleblock > div { padding: 4px 14px; border-left: 1px solid var(--ink); min-width: 78px; }
 .titleblock > div:first-child { border-left: 0; min-width: 160px; max-width: 360px; }
@@ -43,7 +45,10 @@ p { margin: 0; }
 .titleblock dd { margin: 0; font: 700 18px/1.25 var(--display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Layout */
-.layout { display: grid; grid-template-columns: minmax(330px, 400px) minmax(0, 1fr); gap: 20px; padding: 20px; align-items: start; }
+.layout { padding: 20px; }
+/* The two columns sit in their own box. The sheet can stick inside this box, and because the pin
+   list is outside it, the sheet can never float down over the list. */
+.workspace { display: grid; grid-template-columns: minmax(330px, 400px) minmax(0, 1fr); gap: 20px; align-items: start; }
 .controls { display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--ink); }
 .step { padding: 16px 18px 18px; border-top: 1px solid var(--rule); }
 .step:first-child { border-top: 0; }
@@ -151,7 +156,7 @@ td.muted { color: var(--ink-2); }
 body.dragging .dropzone, body.dragging .sheet { outline: 3px solid var(--redline); outline-offset: 3px; }
 
 /* Pin table */
-.pinlist { grid-column: 1 / -1; background: var(--paper); border: 1px solid var(--ink); }
+.pinlist { margin-top: 20px; background: var(--paper); border: 1px solid var(--ink); }
 .pinlist-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--rule); }
 .pinlist-head h2 { font-size: 20px; }
 .tablewrap { overflow: auto; max-height: 460px; }
@@ -170,12 +175,34 @@ td input[type="text"]:hover, td input[type="text"]:focus { border-color: #98a4a0
 .empty { padding: 22px 14px; color: var(--ink-2); }
 
 @media (max-width: 1000px) {
-  .layout { grid-template-columns: minmax(0, 1fr); padding: 14px 16px; }
-  .masthead { flex-direction: column; align-items: flex-start; gap: 12px; padding: 14px 16px; }
-  .titleblock { align-self: stretch; }
+  .layout { padding: 14px 16px; }
+  .workspace { grid-template-columns: minmax(0, 1fr); }
+  .masthead { flex-direction: column; align-items: stretch; gap: 12px; padding: 14px 16px; }
+  .masthead-right { flex-wrap: wrap; }
+  .titleblock { flex: 1 1 100%; }
+  .titleblock > div { padding: 4px 10px; min-width: 64px; }
   .titleblock > div:first-child { flex: 1; min-width: 0; }
   .sheetpane { order: -1; }
 }
+/* The sheet follows you down the page while you set up rules, but only when all of it fits on
+   screen (the page switches the "stick" class on and off). A sheet taller than the window would
+   have its bottom cut off, so it scrolls normally instead. */
 @media (min-width: 1001px) {
-  .sheetpane { position: sticky; top: 14px; }
+  .sheetpane.stick { position: sticky; top: 14px; }
 }
+
+/* ---- symbol rules ---- */
+.sym-preview { width: 100%; max-width: 280px; height: 130px; background: #fff; border: 1px solid var(--rule); cursor: crosshair; }
+.sym-box { fill: none; stroke: var(--rule); stroke-width: 1; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
+.sym-line { fill: none; stroke: var(--ink); stroke-width: 1.4; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+.sym-pin { fill: var(--pin, var(--redline)); stroke: #fff; stroke-width: 1.5; vector-effect: non-scaling-stroke; pointer-events: none; }
+.slider { display: flex; align-items: center; gap: 10px; }
+.slider input { flex: 1; min-width: 0; }
+.slider .level { min-width: 64px; font-size: 13px; font-weight: 600; }
+.symbol-box { stroke: var(--pin, var(--redline)); }
+
+/* ---- language picker, column matching ---- */
+.lang select { width: auto; padding: 8px 9px; font-size: 14px; }
+.masthead-right .lang { align-self: center; flex: none; }
+.map-row { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; align-items: center; margin: 6px 0; font-weight: 600; font-size: 13px; }
+.mapping { margin-top: 10px; }

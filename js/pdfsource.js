@@ -24,11 +24,12 @@ export async function readPage(doc, pageNo) {
  * found. Slower than reading the text (about a second on a busy 34 x 22 sheet), so it is only done
  * when a rule asks for it.
  */
-export async function readGeometry(page) {
+export async function readShapes(page) {
   const opList = await page.getOperatorList();
   const vp = page.getViewport({ scale: 1 });
-  return buildGeometry(shapesFromOperatorList(opList, pdfjs.OPS, vp.transform));
+  return shapesFromOperatorList(opList, pdfjs.OPS, vp.transform);
 }
+export const readGeometry = async (page, shapes) => buildGeometry(shapes || (await readShapes(page)));
 
 /**
  * A function that maps a tag token to where its task(s) belong: the dot at the end of each of the
