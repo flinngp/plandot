@@ -1,12 +1,12 @@
 // Settings you may want to change without touching the rest of the code.
 
-export const VERSION = "0.5.1";
+export const VERSION = "0.5.2";
 
 // Where "Send feedback" goes. Use ONE of these:
 //   url:   a form link (for example a Google Form). It opens in a new tab.
 //   email: a shared address such as feedback@yourdomain. It opens the visitor's email app.
 // Leave both empty and the feedback link is simply not shown.
-export const FEEDBACK = { url: "", email: "" };
+export const FEEDBACK = { url: "https://forms.gle/HQUfuJ3h1k2ztf1z9", email: "" };
 
 /** The address behind "Send feedback", or "" when none is set. */
 export function feedbackHref(cfg = FEEDBACK, version = VERSION, env = (typeof navigator !== "undefined" ? navigator.userAgent : "")) {
