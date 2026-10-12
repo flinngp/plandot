@@ -1,7 +1,7 @@
 // Parts shared by the app and the help pages: the footer, the (i) pop-ups and the language menu.
 import { tr, LANGUAGES, currentLanguage, setLanguage, initialLanguage, translateDom } from "./i18n.js";
 import { FLAGS } from "./flags.js";
-import { VERSION, WHATS_NEW, FEEDBACK, feedbackHref } from "./config.js";
+import { VERSION, FEEDBACK, feedbackHref } from "./config.js";
 
 function h(tag, props = {}, ...kids) {
   const e = document.createElement(tag);
@@ -136,6 +136,7 @@ export async function initLanguageMenu({ onChange } = {}) {
       await setLanguage(code);
       paint();
       hydrateInfo();
+      renderNav();
       renderFooter();
       await onChange?.(code);
     }
@@ -167,43 +168,38 @@ export async function initLanguageMenu({ onChange } = {}) {
   paint();
 }
 
-// ---------------------------------------------------------------- footer and What's new
-function whatsNewDialog() {
-  let dlg = document.getElementById("whatsnew");
-  if (!dlg) {
-    dlg = h("dialog", { id: "whatsnew", class: "whatsnew", "aria-labelledby": "whatsnew-title" });
-    dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); }); // a click on the dimmed area closes it
-    document.body.append(dlg);
-  }
-  dlg.replaceChildren(
-    h("h2", { id: "whatsnew-title", text: tr("What's new") }),
-    ...WHATS_NEW.map((r, i) => h("section", {}, h("h3", { text: `${i === 0 ? tr("Version {v}", { v: r.version }) : `${tr("Version {v}", { v: r.version })}`}` }), h("ul", {}, ...r.items.map((t) => h("li", { text: t }))))),
-    h("p", { class: "hint", text: tr("These notes are in English only.") }),
-    h("form", { method: "dialog" }, h("button", { class: "btn primary", text: tr("Close") })));
-  return dlg;
+// ---------------------------------------------------------------- top menu and footer
+/** The menu bar at the top of every page. */
+export function renderNav() {
+  const nav = document.getElementById("topnav");
+  if (!nav) return;
+  const here = location.pathname.split("/").pop() || "index.html";
+  const onApp = here === "" || here === "index.html";
+  const href = feedbackHref();
+  const link = (to, text, extra = {}) => h("a", { href: to, text, ...(here === to ? { "aria-current": "page" } : {}), ...extra });
+  nav.setAttribute("aria-label", tr("More about Plandot"));
+  nav.replaceChildren(
+    ...(onApp ? [] : [link("index.html", tr("Open Plandot"), { class: "nav-app" })]),
+    link("howto.html", tr("How to guide")),
+    link("faq.html", tr("FAQ")),
+    ...(href ? [h("a", { href, class: "feedback-link", ...(FEEDBACK.url ? { target: "_blank", rel: "noopener" } : {}), text: tr("Send feedback") })] : []));
 }
 
 export function renderFooter() {
   const foot = document.getElementById("sitefoot");
   if (!foot) return;
-  const href = feedbackHref();
-  const links = h("nav", { class: "foot-links", "aria-label": tr("More about Plandot") },
-    h("a", { href: "howto.html", text: tr("How to use") }),
-    h("a", { href: "faq.html", text: tr("FAQ") }),
-    href ? h("a", { href, class: "feedback-link", ...(FEEDBACK.url ? { target: "_blank", rel: "noopener" } : {}), text: tr("Send feedback") }) : null,
-    h("button", { type: "button", class: "linklike whatsnew-btn", text: `${tr("What's new")} · v${VERSION}`, onclick: () => whatsNewDialog().showModal() }));
   foot.replaceChildren(
-    links,
     h("p", { text: tr("Plandot is an independent tool. It is not made, endorsed or supported by Fieldwire or Hilti. Fieldwire and Hilti are trademarks of their owners.") }),
     h("p", { text: tr("Your drawings stay in your browser and are never uploaded.") }),
     h("p", { text: tr("Check the pins before you import them. Plandot is provided as is, with no guarantee.") }),
-    h("p", { class: "copy", text: tr("© 2026 Plandot. All rights reserved.") }));
+    h("p", { class: "copy", text: `${tr("© 2026 Plandot. All rights reserved.")} · ${tr("Version {v}", { v: VERSION })}` }));
 }
 
-/** Pages other than the app call this: it applies the saved language and draws the footer. */
+/** Pages other than the app call this: it applies the saved language and draws the menu and footer. */
 export async function initSite() {
   await setLanguage(initialLanguage(), { remember: false });
   translateDom();
   hydrateInfo();
+  renderNav();
   renderFooter();
 }

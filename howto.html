@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>How to use Plandot</title>
+<title>Plandot how to guide</title>
 <meta name="description" content="A short guide to turning callouts and symbols on a drawing PDF into an import file of pins.">
 <meta name="theme-color" content="#eef1f6">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%233355ff'/%3E%3Cpath d='M9 24V8M9 24h14' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='21' cy='11' r='4.4' fill='%23ffd24a'/%3E%3C/svg%3E">
@@ -12,12 +12,12 @@
 <script type="module" src="js/help.js"></script>
 </head>
 <body>
+<nav class="topnav" id="topnav" aria-label="More about Plandot"></nav>
 <header class="help-head">
   <a class="brand" href="index.html"><svg class="mark" viewBox="0 0 38 38" width="38" height="38" aria-hidden="true"><rect width="38" height="38" rx="11" fill="currentColor"/><path d="M11 28V10M11 28h17" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/><circle cx="24.5" cy="13.5" r="4.6" fill="#ffd24a"/></svg><div><h1>Plandot</h1></div></a>
-  <a class="btn dark" href="index.html">Open Plandot</a>
 </header>
 <main class="doc" id="main">
-  <h1>How to use Plandot</h1>
+  <h1>How to guide</h1>
   <p class="lede">Plandot reads the drawing PDF you already have, finds the callouts and symbols you ask for, and makes an import file with a pin for each one. It takes about five minutes the first time.</p>
   <p class="note" id="lang-note" hidden></p>
   <p>Want to see it work first? Open Plandot and press <strong>Try with a sample drawing</strong>. It loads a made-up drawing and some rules, and nothing is uploaded.</p>
@@ -88,7 +88,7 @@
           <li><strong>Open the preview</strong> to see the first few rows exactly as they will be in the file.</li>
           <li><strong>Download import file</strong>, then import it into your Fieldwire project.</li>
         </ol>
-        <p>Pins are always added as new items with a blank ID, so nothing already in your project is changed. Fieldwire only takes a limited number of rows per file, so a big set is split into several files. Import them one after another.</p>
+        <p>Pins are always added as new items with a blank ID, so nothing already in your project is changed. Fieldwire takes up to 500 pins per import. If there are more, Plandot tells you how many imports you need, for example 1,200 pins means 3 imports, and downloads that many files. Import them one after another.</p>
         <p>The marked-up PDF and the pin image are handy for checking or sharing before you import. For a first run on a new kind of drawing, try <strong>Check pin positions first</strong>: it makes nine test pins on the 10%, 50% and 90% lines so you can confirm they land where you expect.</p>
         <p><strong>Always check the pins before importing.</strong> Plandot is a time saver, not a guarantee.</p>
       </div>
@@ -98,14 +98,37 @@
 
   <section class="card" id="symbols">
     <h2>Finding symbols</h2>
-    <p>Some things on a drawing have no text, such as a patio door or a fire extinguisher symbol. Plandot can find those too.</p>
-    <ol>
-      <li>Change <strong>Look for</strong> to <em>Draw box</em>.</li>
-      <li>Press <strong>Draw a box around the symbol</strong>, then drag a box on the sheet that fully contains one example. Lines that stick out of the box are left out.</li>
-      <li>Every matching copy on the sheet gets a pin. Click the small picture of the symbol to move where the pin goes.</li>
-    </ol>
-    <p>If copies are missed, slide <strong>How closely a copy must match</strong> towards Loose. If wrong things are picked up, slide it towards Exact. Tick <strong>Also find copies drawn bigger or smaller</strong> when the same symbol appears at different sizes. That search takes longer.</p>
-    <p>Symbol finding reads the drawn lines, so it needs a PDF exported from CAD or Revit. To try it, use the made-up <code>samples/sample-symbols.pdf</code> that comes with the project.</p>
+    <p>Some things on a drawing have no text, such as a patio door or a fire extinguisher symbol. Plandot can find those too. Here it is with a made-up drawing of patio doors (<code>samples/sample-symbols.pdf</code>, included with the project). Five doors are drawn, some turned, mirrored or upside down, along with three windows that look a little like them.</p>
+
+    <h3>1. Choose Draw box</h3>
+    <div class="split">
+      <div>
+        <p>Load the drawing, then in a rule change <strong>Look for</strong> to <em>Draw box</em> and press <strong>Draw a box around the symbol</strong>.</p>
+      </div>
+      <figure class="shot narrow"><img src="help/img/symbols-1-start.png" width="376" alt="A rule set to Draw box. Number one marks the Look for list and number two marks the Draw a box around the symbol button." loading="lazy"><figcaption>Switch the rule to Draw box.</figcaption></figure>
+    </div>
+
+    <h3>2. Box one example</h3>
+    <p>Drag a box on the sheet that fully contains one door. Lines that stick out of the box, such as the wall behind the door, are left out. Choose a clean example with nothing else inside the box.</p>
+    <figure class="shot"><img src="help/img/symbols-2-box.png" width="738" alt="The patio door drawing with a dashed blue box being dragged around the first door. Number one marks the box." loading="lazy"><figcaption>The dashed box goes around one door.</figcaption></figure>
+
+    <h3>3. Every copy gets a pin</h3>
+    <p>Plandot looks for the same shape everywhere on the sheet. It finds all five doors, including the turned, mirrored and upside-down ones, and leaves the windows alone.</p>
+    <figure class="shot"><img src="help/img/symbols-3-found.png" width="738" alt="The same drawing with a blue pin on each of the five doors. Number one marks two of the doors. Number two marks the three look-alike windows, which have no pins." loading="lazy"><figcaption>1: a pin on every door. 2: the look-alike windows are left alone.</figcaption></figure>
+
+    <h3>4. Tune the match</h3>
+    <div class="split">
+      <div>
+        <p>After you box the symbol, the rule shows a picture of it. Click the picture to move where the pin goes on the symbol.</p>
+        <ul>
+          <li>If copies are missed, slide <strong>How closely a copy must match</strong> towards Loose. If wrong things are picked up, slide it towards Exact.</li>
+          <li><strong>Also find copies that are turned or mirrored</strong> is on by default.</li>
+          <li>Tick <strong>Also find copies drawn bigger or smaller</strong> when the same symbol appears at different sizes. That search takes longer, and a progress bar shows while it runs.</li>
+        </ul>
+        <p>Symbol finding reads the drawn lines, so it needs a PDF exported from CAD or Revit, not a scan.</p>
+      </div>
+      <figure class="shot narrow"><img src="help/img/symbols-4-settings.png" width="376" alt="The rule after boxing a door. Number one marks the picture of the symbol with its pin, number two the match slider, number three the turned or mirrored tick box and number four the bigger or smaller tick box." loading="lazy"><figcaption>The symbol picture and the match settings.</figcaption></figure>
+    </div>
   </section>
 
   <section class="card" id="reuse">

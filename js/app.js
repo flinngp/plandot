@@ -7,7 +7,7 @@ import { readTemplate, writeImport, buildRows, buildCalibrationRows, extraColumn
 import { markedUpPdf, pinsPng, download } from "./markup.js";
 import { tr, translateDom, currentLanguage } from "./i18n.js";
 import { VERSION } from "./config.js";
-import { hydrateInfo, infoSlot, initLanguageMenu, renderFooter } from "./site.js";
+import { hydrateInfo, infoSlot, initLanguageMenu, renderFooter, renderNav } from "./site.js";
 
 const COLORS = ["#3355ff", "#e08a00", "#1f9d6b", "#8a4fff", "#0fa3b8", "#d6336c", "#7a8a14", "#5b6b7a"];
 const colorOf = (i) => COLORS[i % COLORS.length];
@@ -1133,8 +1133,16 @@ function updateExport() {
   $("#import-why").textContent = need.length
     ? tr("Still needed: {list}.", { list: need.join(", ") })
     : parts > 1
-      ? tr("Fieldwire imports up to {limit} pins at a time, so this downloads {parts} files. Import them one after another.", { limit: IMPORT_LIMIT, parts })
+      ? tr("Import the files one after another. Your browser may ask you to allow several downloads.")
       : tr("Pins import with a blank ID, so they are always created as new pins.");
+  $("#dl-import").textContent = parts > 1 ? tr("Download {files} import files", { files: parts }) : tr("Download import file");
+  const split = $("#export-split");
+  split.hidden = need.length > 0 || parts < 2;
+  if (!split.hidden) {
+    const last = inc - (parts - 1) * IMPORT_LIMIT;
+    const sizes = parts <= 6 ? [...Array(parts - 1).fill(IMPORT_LIMIT), last].join(" + ") : `${IMPORT_LIMIT} × ${parts - 1} + ${last}`;
+    split.textContent = tr("Fieldwire takes up to {limit} pins per import, so this needs {files} imports ({sizes}).", { limit: IMPORT_LIMIT, files: parts, sizes });
+  }
   renderExportPreview(need.length === 0);
   $("#dl-pdf").disabled = !(state.pdf && inc) || state.busy;
   $("#dl-png").disabled = !(state.pdf && inc) || state.busy;
@@ -1150,9 +1158,8 @@ function renderExportPreview(ready) {
   details.hidden = !(t && !t.missing.length && inc.length);
   if (!ready) { summary.textContent = ""; box.replaceChildren(); return; }
   const plan = state.settings.planName.trim();
-  const files = Math.ceil(inc.length / IMPORT_LIMIT);
   const skipped = state.pins.length - inc.length;
-  summary.textContent = (inc.length === 1 ? tr("1 pin will go onto plan \"{plan}\".", { plan }) : tr("{n} pins will go onto plan \"{plan}\".", { n: inc.length, plan })) + (skipped ? ` ${skipped === 1 ? tr("1 pin is left out.") : tr("{n} pins are left out.", { n: skipped })}` : "") + (files > 1 ? ` ${tr("Split over {files} files.", { files })}` : "");
+  summary.textContent = (inc.length === 1 ? tr("1 pin will go onto plan \"{plan}\".", { plan }) : tr("{n} pins will go onto plan \"{plan}\".", { n: inc.length, plan })) + (skipped ? ` ${skipped === 1 ? tr("1 pin is left out.") : tr("{n} pins are left out.", { n: skipped })}` : "");
   if (!details.open) return; // the table is only built while it is open
   const rulesById = Object.fromEntries(state.rules.map((r) => [r.id, r]));
   const rows = buildRows(t, inc.slice(0, PREVIEW_ROWS).map((p) => ({ ...p, title: hasText(p.title) ? p.title : p.tag })), { planName: plan, rulesById });
@@ -1173,6 +1180,7 @@ async function exportImport() {
     const bytes = await writeImport(t, group);
     const suffix = groups.length > 1 ? ` (part ${i + 1} of ${groups.length})` : ""; // file names stay English so they sort the same for everyone
     download(bytes, `${baseName(state.pdf.name)} - pin import${suffix}.xlsx`, XLSX_MIME);
+    if (i < groups.length - 1) await new Promise((r) => setTimeout(r, 350)); // browsers cope better with downloads that are spaced out
   }
   const plan = state.settings.planName.trim();
   say(groups.length > 1
@@ -1384,6 +1392,7 @@ await initLanguageMenu({
 });
 translateDom();
 hydrateInfo();
+renderNav();
 renderFooter();
 renderPdfInfo();
 renderTplInfo();

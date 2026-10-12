@@ -68,9 +68,9 @@ It matches the drawing's line work, so like the leader dots it needs a vector PD
 ## Help, pop-ups and feedback
 
 - A small **(i)** beside the main fields explains each one in a sentence. It opens with a click, Enter or Space, and closes with Escape or a click elsewhere.
-- `howto.html` is a step-by-step guide with annotated screenshots (retaken from the real app with `node scripts/make-howto-shots.mjs`, saved in `help/img/`), and `faq.html` answers questions about privacy, drawings, browsers and common problems. Both are English only for now; the footer in the app is translated.
-- The footer carries the not-affiliated notice, the privacy line, an as-is note, the version and a **What's new** list. Edit the list in `js/config.js`.
-- **Send feedback** appears when `FEEDBACK` in `js/config.js` has a form address (`url`) or a shared email (`email`). Leave both empty and the link is hidden. Use a shared address, not a personal one.
+- A menu bar at the top links to the **How to guide** (`howto.html`, step by step with annotated screenshots, including finding symbols with the patio door sample; retaken with `node scripts/make-howto-shots.mjs`) and the **FAQ** (`faq.html`). Both pages are English only for now; the menu and footer are translated.
+- The footer carries the not-affiliated notice, the privacy line, an as-is note and the version number (set in `js/config.js`).
+- **Send feedback** (in the menu bar) appears when `FEEDBACK` in `js/config.js` has a form address (`url`) or a shared email (`email`). Leave both empty and the link is hidden. Use a shared address, not a personal one.
 - Slow searches show a progress bar over the drawing, and error messages have a **Copy details** button (version, browser and settings, never a file name).
 - The language list shows a flag beside each language. A flag stands for a country, so the language name is always shown with it.
 - `index.html` has Open Graph tags for link previews, with `docs/preview.png` as the picture. When the site has its own address, make `og:image` a full web address.
@@ -101,7 +101,7 @@ An import template differs from project to project: adding a custom attribute ad
 - If a column the import needs (Title, Plan, X Pos, Y Pos) is missing, the page says so instead of producing a bad file.
 - Everything else in the template (formatting, widths, the header block) is left exactly as it was.
 - Pre-filled IDs in the template are left out of the import file, and new pins have a blank ID, so existing items are never touched.
-- The importer takes up to 500 rows per file, so bigger exports are split into numbered parts.
+- The importer takes up to 500 rows per file, so bigger exports are split into numbered parts. Plandot says how many imports that needs (1,200 pins is 3 imports: 500 + 500 + 200) and labels the button *Download 3 import files*.
 
 ## Privacy
 
@@ -134,7 +134,7 @@ Opening `index.html` by double-clicking does not work, because browsers block th
 npm install
 npx playwright install chromium
 python3 -m pip install openpyxl     # the tests read the import file back with it
-npm test                            # 146 tests
+npm test                            # 150 tests
 ```
 
 GitHub runs the same tests on every push (`.github/workflows/tests.yml`). The tests build their own drawings and templates, or use the made-up files in `samples/`.

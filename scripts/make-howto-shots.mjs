@@ -91,4 +91,72 @@ a = await rectOf("#step-export");
 await shot("howto-5-download.png", { x: a.x - 6, y: a.y - 6, width: a.width + 12, height: Math.min(a.height + 12, 700) });
 
 // symbols
+
+// ---- finding symbols: the made-up patio doors
+const sym = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1.5 });
+const tagEl = async (pg, loc, name) => { await pg.locator(loc).first().evaluate((e, n) => { e.dataset.shot = n; }, name); return `[data-shot=${name}]`; };
+const markOn = (pg, sel, n, { outline = true, dx = -12, dy = -12, nth = 0 } = {}) => pg.evaluate(([sel, n, outline, dx, dy, nth]) => {
+  const el = document.querySelectorAll(sel)[nth]; const r = el.getBoundingClientRect();
+  if (outline) { const o = document.createElement("div"); o.className = "ann"; o.style.cssText = `position:fixed;z-index:99998;pointer-events:none;left:${r.left - 4}px;top:${r.top - 4}px;width:${r.width + 8}px;height:${r.height + 8}px;border:2.5px solid #ff7a1a;border-radius:10px;`; document.body.append(o); }
+  const b = document.createElement("div"); b.className = "ann"; b.textContent = n;
+  b.style.cssText = `position:fixed;z-index:99999;pointer-events:none;left:${r.left + dx}px;top:${r.top + dy}px;width:26px;height:26px;border-radius:50%;background:#ff7a1a;color:#fff;font:800 14px/26px Inter,system-ui,sans-serif;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.35);`;
+  document.body.append(b);
+}, [sel, n, outline, dx, dy, nth]);
+// a ring and badge at a spot on the 1200 x 800 sample, in PDF points from the top-left
+const markAt = (pg, x, y, n, { r = 34, dx = -r - 8, dy = -r - 8, ring = true } = {}) => pg.evaluate(async ([x, y, n, r, dx, dy, ring]) => {
+  const st = document.querySelector("#stage").getBoundingClientRect();
+  const cx = st.left + (x / 1200) * st.width, cy = st.top + (y / 800) * st.height;
+  if (ring) { const o = document.createElement("div"); o.className = "ann"; o.style.cssText = `position:fixed;z-index:99998;pointer-events:none;left:${cx - r}px;top:${cy - r}px;width:${r * 2}px;height:${r * 2}px;border:2.5px solid #ff7a1a;border-radius:50%;`; document.body.append(o); }
+  const b = document.createElement("div"); b.className = "ann"; b.textContent = n;
+  b.style.cssText = `position:fixed;z-index:99999;pointer-events:none;left:${cx + dx}px;top:${cy + dy}px;width:26px;height:26px;border-radius:50%;background:#ff7a1a;color:#fff;font:800 14px/26px Inter,system-ui,sans-serif;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.35);`;
+  document.body.append(b);
+}, [x, y, n, r, dx, dy, ring]);
+await sym.goto(server.url + "/index.html"); await sym.evaluate(() => localStorage.clear()); await sym.reload();
+await sym.setInputFiles("#file-pdf", root + "samples/sample-symbols.pdf");
+await sym.waitForFunction(() => window.planTasks.state.pdf?.tokens);
+await sym.selectOption(".rule select[id$=-kind]", "symbol");
+await sym.waitForTimeout(800);
+await sym.evaluate(() => { document.querySelector(".controls").scrollTop = document.querySelector("#step-rules").offsetTop - 10; });
+await sym.waitForTimeout(900);
+await markOn(sym, ".rule .field:has(select[id$=-kind])", 1, { dx: -14, dy: -16 });
+await markOn(sym, await tagEl(sym, ".rule button:has-text('Draw a box around the symbol')", "drawbtn"), 2, { dx: -14, dy: -16 });
+let r1 = await sym.$eval(".rule", (e) => { const b = e.getBoundingClientRect(); const top = Math.max(b.top - 20, document.querySelector(".controls").getBoundingClientRect().top); return { x: b.left - 20, y: top, width: b.width + 40, height: Math.min(b.bottom + 10 - top, 380) }; });
+await sym.screenshot({ path: OUT + "symbols-1-start.png", clip: r1 });
+await sym.evaluate(() => document.querySelectorAll(".ann").forEach((e) => e.remove()));
+
+// draw the box around the first door (shown mid-drag)
+await sym.click(".rule button:has-text('Draw a box around the symbol')");
+const st = await sym.$eval("#stage", (e) => { const b = e.getBoundingClientRect(); return [b.left, b.top, b.width, b.height]; });
+const at = (x, y) => [st[0] + (x / 1200) * st[2], st[1] + (y / 800) * st[3]];
+const [ax, ay] = at(130, 135), [bx, by] = at(232, 200);
+await sym.mouse.move(ax, ay); await sym.mouse.down(); await sym.mouse.move(bx, by, { steps: 6 });
+await sym.waitForTimeout(300);
+await markAt(sym, 180, 168, 1, { r: 62, dx: 56, dy: -78 });
+const symPane = await sym.$eval(".sheetpane", (e) => { const b = e.getBoundingClientRect(); return { x: b.left, y: b.top, width: b.width, height: b.height }; });
+await sym.screenshot({ path: OUT + "symbols-2-box.png", clip: symPane });
+await sym.evaluate(() => document.querySelectorAll(".ann").forEach((e) => e.remove()));
+await sym.mouse.up();
+await sym.waitForFunction(() => window.planTasks.state.rules[0].symbol && window.planTasks.state.pins.length > 0);
+await sym.waitForFunction(() => !window.planTasks.state.busy && !/^(Looking|Reading)/.test(document.querySelector("#status").textContent));
+await sym.mouse.move(5, 5);
+await sym.waitForTimeout(900);
+
+// result: pins on every door, none on the windows
+await markAt(sym, 200, 150, 1, { r: 40, dx: -52, dy: -56 });
+await markAt(sym, 900, 450, 1, { r: 40, dx: -52, dy: -56, ring: true });
+await markAt(sym, 1000, 150, 2, { r: 36, dx: -48, dy: -50 });
+await markAt(sym, 150, 420, 2, { r: 36, dx: -48, dy: -50 });
+await markAt(sym, 500, 400, 2, { r: 36, dx: -48, dy: -50 });
+await sym.screenshot({ path: OUT + "symbols-3-found.png", clip: symPane });
+await sym.evaluate(() => document.querySelectorAll(".ann").forEach((e) => e.remove()));
+
+// the rule card after the box: picture of the symbol and the match settings
+await sym.evaluate(() => { document.querySelector(".controls").scrollTop = document.querySelector("#step-rules").offsetTop - 10; });
+await sym.waitForTimeout(900);
+await markOn(sym, ".rule .sym-preview", 1, { dx: -14, dy: -14 });
+await markOn(sym, ".rule .slider", 2, { dx: -14, dy: -16 });
+await markOn(sym, await tagEl(sym, ".rule label.check:has-text('turned or mirrored')", "turned"), 3, { dx: -16, dy: -16, outline: false });
+await markOn(sym, await tagEl(sym, ".rule label.check:has-text('bigger or smaller')", "sizes"), 4, { dx: -16, dy: -16, outline: false });
+const r4 = await sym.$eval(".rule", (e) => { const b = e.getBoundingClientRect(); const top = Math.max(b.top - 20, document.querySelector(".controls").getBoundingClientRect().top); return { x: b.left - 20, y: top, width: b.width + 40, height: Math.min(b.bottom + 10 - top, 640) }; });
+await sym.screenshot({ path: OUT + "symbols-4-settings.png", clip: r4 });
 await close();

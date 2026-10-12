@@ -3,7 +3,7 @@ import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { launch } from "./helpers/browser.mjs";
-import { feedbackHref, VERSION, WHATS_NEW } from "../js/config.js";
+import { feedbackHref, VERSION } from "../js/config.js";
 
 const root = new URL("..", import.meta.url).pathname;
 const SAMPLE = { pdf: `${root}samples/sample-drawing.pdf`, xlsx: `${root}samples/sample-import-template.xlsx`, rules: `${root}samples/sample-rules.json` };
@@ -152,29 +152,49 @@ test("the menu opens fully on screen on a phone", async () => {
 });
 
 // ---------------------------------------------------------------- footer, feedback, what's new
-test("the footer carries the disclaimer, privacy line, as-is note and links", async () => {
+test("the footer carries the disclaimer, privacy line, as-is note and version", async () => {
   const page = await fresh();
   const text = await page.textContent("#sitefoot");
   assert.match(text, /not made, endorsed or supported by Fieldwire or Hilti/);
   assert.match(text, /never uploaded/);
   assert.match(text, /Check the pins before you import them/);
   assert.match(text, /All rights reserved/);
-  assert.equal(await page.getAttribute("#sitefoot a[href='howto.html']", "href"), "howto.html");
-  assert.equal(await page.getAttribute("#sitefoot a[href='faq.html']", "href"), "faq.html");
-  await page.evaluate(() => { document.documentElement.lang = "en"; });
+  const pkg = JSON.parse(await readFile(`${root}package.json`, "utf8"));
+  assert.equal(pkg.version, VERSION, "package.json and js/config.js disagree");
+  assert.match(text, new RegExp(`Version ${VERSION.replaceAll(".", "\\.")}`));
+  assert.equal(await page.$(".whatsnew-btn, #whatsnew"), null, "the What's new box is gone");
   await page.ctx.close();
 });
 
-test("What's new opens a dialog with the version and closes again", async () => {
+test("the menu bar at the top links to the how to guide and the FAQ, on every page", async () => {
   const page = await fresh();
-  const pkg = JSON.parse(await readFile(`${root}package.json`, "utf8"));
-  assert.equal(pkg.version, VERSION, "package.json and js/config.js disagree");
-  assert.match(await page.textContent(".whatsnew-btn"), new RegExp(`v${VERSION.replaceAll(".", "\\.")}`));
-  await page.click(".whatsnew-btn");
-  assert.equal(await page.$eval("#whatsnew", (d) => d.open), true);
-  assert.equal(await page.$$eval("#whatsnew li", (l) => l.length), WHATS_NEW.reduce((n, r) => n + r.items.length, 0));
-  await page.keyboard.press("Escape");
-  assert.equal(await page.$eval("#whatsnew", (d) => d.open), false);
+  const links = await page.$$eval("#topnav a", (a) => a.map((x) => [x.textContent, x.getAttribute("href")]));
+  assert.deepEqual(links.slice(0, 2), [["How to guide", "howto.html"], ["FAQ", "faq.html"]]);
+  assert.ok(!/null|undefined/.test(await page.textContent("#topnav")), "stray text in the menu");
+  assert.ok(await page.$eval("#topnav", (n) => n.getBoundingClientRect().bottom <= document.querySelector(".masthead").getBoundingClientRect().top + 1), "the menu sits above the header");
+  await page.click("#topnav a[href='howto.html']");
+  await page.waitForURL(/howto\.html/);
+  await page.waitForSelector("#topnav a");
+  assert.equal(await page.getAttribute("#topnav a[href='howto.html']", "aria-current"), "page");
+  assert.equal(await page.textContent("#topnav a:first-child"), "Open Plandot");
+  assert.equal(await page.textContent("h1:not(.brand h1)"), "How to guide");
+  await page.click("#topnav a[href='faq.html']");
+  await page.waitForURL(/faq\.html/);
+  await page.waitForSelector("#topnav a");
+  assert.equal(await page.getAttribute("#topnav a[href='faq.html']", "aria-current"), "page");
+  await page.click("#topnav a[href='index.html']");
+  await page.waitForURL(/index\.html/);
+  await page.waitForSelector("#topnav a");
+  await page.ctx.close();
+});
+
+test("the menu is in the chosen language and fits a phone", async () => {
+  const page = await fresh({ width: 360, height: 800 });
+  await page.click("#lang-btn");
+  await page.click("#lang-list [data-lang=de]");
+  await page.waitForFunction(() => document.documentElement.lang === "de");
+  assert.equal(await page.textContent("#topnav a[href='howto.html']"), "Anleitung");
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   await page.ctx.close();
 });
 
@@ -230,7 +250,7 @@ for (const name of ["howto", "faq"]) {
       page.on("pageerror", (e) => errors.push(e.message));
       page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
       await page.goto(`${env.server.url}/${name}.html`);
-      await page.waitForSelector("#sitefoot a");
+      await page.waitForSelector("#topnav a");
       await page.evaluate(() => document.querySelectorAll("img").forEach((i) => { i.loading = "eager"; }));
       await page.waitForFunction(() => [...document.images].every((i) => i.complete));
       const broken = await page.$$eval("img", (imgs) => imgs.filter((i) => i.naturalWidth === 0).map((i) => i.src));
@@ -276,4 +296,55 @@ test("the share preview tags and image exist", async () => {
   for (const t of ["og:title", "og:description", "og:image", "twitter:card"]) assert.match(html, new RegExp(t));
   const img = html.match(/og:image" content="([^"]+)"/)[1];
   if (!/^https?:/.test(img)) await readFile(`${root}${img}`); // a local path must exist
+});
+
+test("the FAQ says what it should and leaves out what it shouldn't", async () => {
+  const html = await readFile(`${root}faq.html`, "utf8");
+  assert.match(html, /<summary>What does it cost\?<\/summary>\s*<p>It's completely free!<\/p>/);
+  assert.match(html, /<summary>Something went wrong\? Let us know<\/summary>/);
+  assert.doesNotMatch(html, /usage statistics/i);
+  assert.doesNotMatch(html, /haven't been tested|hasn't been tested|not been tested|untested/i);
+  assert.doesNotMatch(html, /How to use/);
+});
+
+test("the how to guide walks through finding symbols with pictures", async () => {
+  const html = await readFile(`${root}howto.html`, "utf8");
+  const section = html.slice(html.indexOf('id="symbols"'), html.indexOf('id="reuse"'));
+  assert.ok((section.match(/<img\b/g) || []).length >= 3);
+  assert.match(section, /patio door/i);
+});
+
+// ---------------------------------------------------------------- more than 500 pins
+test("1,200 pins say they need 3 Fieldwire imports, label the button, and download 3 files", async () => {
+  globalThis.self ??= globalThis;
+  await import("../vendor/pdf-lib.min.js");
+  const { PDFDocument, StandardFonts } = globalThis.PDFLib;
+  const doc = await PDFDocument.create();
+  const pg = doc.addPage([2000, 1500]);
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  for (let i = 0; i < 1200; i++) pg.drawText("A1", { x: 50 + (i % 40) * 48, y: 1450 - Math.floor(i / 40) * 46, size: 12, font });
+  const bytes = Buffer.from(await doc.save());
+
+  const page = await fresh({ width: 1440, height: 900 }, { acceptDownloads: true });
+  await page.setInputFiles("#file-pdf", { name: "big.pdf", mimeType: "application/pdf", buffer: bytes });
+  await page.setInputFiles("#file-xlsx", SAMPLE.xlsx);
+  await page.fill("#plan-name", "Big plan");
+  await page.fill(".rule:first-child input[id$='-tags']", "A1");
+  await page.selectOption(".rule:first-child select[id$='-pin']", "text");
+  await page.waitForFunction(() => window.planTasks.state.pins.length === 1200 && !window.planTasks.state.busy);
+  await page.waitForFunction(() => !document.querySelector("#export-split").hidden);
+  assert.equal(await page.textContent("#export-split"), "Fieldwire takes up to 500 pins per import, so this needs 3 imports (500 + 500 + 200).");
+  assert.equal(await page.textContent("#dl-import"), "Download 3 import files");
+  assert.match(await page.textContent("#export-summary"), /^1200 pins will go onto plan "Big plan"\.$/);
+  const names = [];
+  page.on("download", (d) => names.push(d.suggestedFilename()));
+  await page.click("#dl-import");
+  await page.waitForFunction(() => /Downloaded 1200 pins in 3 files/.test(document.querySelector("#status").textContent));
+  await page.waitForTimeout(300);
+  assert.deepEqual(names.sort(), ["big - pin import (part 1 of 3).xlsx", "big - pin import (part 2 of 3).xlsx", "big - pin import (part 3 of 3).xlsx"]);
+  // fewer pins: the notice goes away and the button goes back
+  await page.click("#all-off");
+  await page.waitForFunction(() => document.querySelector("#export-split").hidden);
+  assert.equal(await page.textContent("#dl-import"), "Download import file");
+  await page.ctx.close();
 });
