@@ -2,10 +2,12 @@
 // Everything happens in the browser. Nothing is uploaded.
 import { detect, newRule, round2, chunk, IMPORT_LIMIT, pinMode, ruleKind, renderTemplate } from "./core.js";
 import { openPdf, readPage, readShapes, readGeometry, anchorFinder, renderRegion, renderFull, MAX_SIDE } from "./pdfsource.js";
-import { captureSymbol, findSymbols, sanitizeTemplate } from "./symbols.js";
+import { captureSymbol, findSymbolsAsync, sanitizeTemplate } from "./symbols.js";
 import { readTemplate, writeImport, buildRows, buildCalibrationRows, extraColumns, orphanedColumns, applyMapping, TemplateError } from "./template.js";
 import { markedUpPdf, pinsPng, download } from "./markup.js";
-import { tr, LANGUAGES, initialLanguage, setLanguage, currentLanguage } from "./i18n.js";
+import { tr, translateDom, currentLanguage } from "./i18n.js";
+import { VERSION } from "./config.js";
+import { hydrateInfo, infoSlot, initLanguageMenu, renderFooter } from "./site.js";
 
 const COLORS = ["#3355ff", "#e08a00", "#1f9d6b", "#8a4fff", "#0fa3b8", "#d6336c", "#7a8a14", "#5b6b7a"];
 const colorOf = (i) => COLORS[i % COLORS.length];
@@ -119,11 +121,66 @@ function updateUndoButtons() {
 }
 
 // ---------------------------------------------------------------- status line
-function say(msg, kind = "") {
+function say(msg, kind = "", detail = "") {
   const s = $("#status");
   s.textContent = msg;
   s.className = `status ${kind}`;
+  if (kind === "err" && msg) {
+    const text = errorReport(msg, detail);
+    const btn = h("button", { type: "button", class: "btn link copy-details", text: tr("Copy details") });
+    btn.addEventListener("click", async () => {
+      let ok = true;
+      try { await navigator.clipboard.writeText(text); } catch { ok = false; }
+      if (!ok) { // clipboard blocked: select the text instead so it can be copied by hand
+        const ta = h("textarea", { class: "details-box", readonly: true, "aria-label": tr("Error details") }, text);
+        btn.replaceWith(ta); ta.focus(); ta.select();
+        return;
+      }
+      btn.textContent = tr("Copied");
+      setTimeout(() => { btn.textContent = tr("Copy details"); }, 2000);
+    });
+    s.append(" ", btn);
+  }
 }
+
+/** A short, privacy-safe report to paste into an email: no file names and no drawing content. */
+function errorReport(msg, detail) {
+  const pdf = state.pdf;
+  return [
+    `Plandot ${VERSION}`,
+    `When: ${new Date().toISOString()}`,
+    `Browser: ${navigator.userAgent}`,
+    `Language: ${currentLanguage()}`,
+    pdf ? `Drawing: page ${pdf.pageNo} of ${pdf.doc?.numPages ?? "?"}, ${Math.round(pdf.width || 0)} x ${Math.round(pdf.height || 0)} points` : "Drawing: none loaded",
+    `Template: ${state.tpl?.parsed ? "loaded" : "none"}`,
+    `Rules: ${state.rules.length}, pins: ${state.pins.length}`,
+    `Message: ${msg}`,
+    detail ? `Detail: ${detail}` : "",
+  ].filter(Boolean).join("\n");
+}
+
+/** The first few lines of an error's stack, for the Copy details text. */
+const whyText = (err) => (err?.stack ? String(err.stack).split("\n").slice(0, 4).map((l) => l.trim()).join(" | ") : err?.name || "");
+
+// A bar over the drawing for slow work. It only appears if the work takes more than a moment.
+const busy = (() => {
+  let timer = null, shown = false;
+  const el = () => $("#busybar");
+  const paint = (label, frac) => {
+    const bar = el();
+    bar.hidden = false; shown = true;
+    bar.querySelector(".busy-label").textContent = label;
+    const track = bar.querySelector(".busy-track");
+    const fill = bar.querySelector(".busy-fill");
+    if (frac == null) { bar.classList.add("indeterminate"); track.removeAttribute("aria-valuenow"); fill.style.width = ""; }
+    else { bar.classList.remove("indeterminate"); const pct = Math.max(2, Math.min(100, Math.round(frac * 100))); track.setAttribute("aria-valuenow", String(pct)); fill.style.width = `${pct}%`; }
+  };
+  return {
+    start(label) { clearTimeout(timer); timer = setTimeout(() => paint(label, null), 400); },
+    update(label, frac) { if (shown || timer) { clearTimeout(timer); timer = null; paint(label, frac); } },
+    stop() { clearTimeout(timer); timer = null; shown = false; el().hidden = true; },
+  };
+})();
 
 // ---------------------------------------------------------------- file loading
 let keyboardActivated = false;
@@ -136,7 +193,7 @@ async function loadPdfFile(file) {
     bytes = await file.arrayBuffer();
     doc = await openPdf(bytes);
   } catch (err) {
-    if (mine === loadRun) say(err?.name === "PasswordException" ? tr("This PDF is password protected. Save a copy without the password and try again.") : tr("That file couldn't be read as a PDF."), "err");
+    if (mine === loadRun) say(err?.name === "PasswordException" ? tr("This PDF is password protected. Save a copy without the password and try again.") : tr("That file couldn't be read as a PDF."), "err", whyText(err));
     return;
   }
   if (mine !== loadRun) { try { doc.destroy?.(); } catch { /* ignore */ } return; }
@@ -214,10 +271,10 @@ function renderTemplateInfo() {
     const cls = c.role ? "chip auto" : isCustom ? "chip custom" : "chip";
     box.append(h("span", { class: cls, text: c.role === "id" ? tr("ID (left blank)") : c.header, title: c.role ? tr("Filled in by Plandot") : isCustom ? tr("Custom attribute") : tr("You can set this per rule") }));
   }
-  if (t.missing.length) box.append(h("p", { class: "chips-note warn", text: tr("This template has no {list} column, so tasks can't be placed on a plan.", { list: t.missing.map(tr).join(` ${tr("or")} `) }) }));
+  if (t.missing.length) box.append(h("p", { class: "chips-note warn", text: tr("This template has no {list} column, so pins can't be placed on a plan.", { list: t.missing.map(tr).join(` ${tr("or")} `) }) }));
   else box.append(h("p", { class: "chips-note", text: custom.length ? tr("Dark columns are filled in for you; red ones are custom attributes ({list}).", { list: custom.join(", ") }) : tr("Dark columns are filled in for you.") }));
   if (t.missing.length || t.guessed) box.append(mappingForm(t));
-  if (t.prefilledRows) box.append(h("p", { class: "chips-note", text: t.prefilledRows === 1 ? tr("This template has 1 pre-filled row (task IDs). They are left out of the import file so existing tasks are never touched.") : tr("This template has {n} pre-filled rows (task IDs). They are left out of the import file so existing tasks are never touched.", { n: t.prefilledRows }) }));
+  if (t.prefilledRows) box.append(h("p", { class: "chips-note", text: t.prefilledRows === 1 ? tr("This template has 1 pre-filled row (existing IDs). They are left out of the import file so existing pins are never touched.") : tr("This template has {n} pre-filled rows (existing IDs). They are left out of the import file so existing pins are never touched.", { n: t.prefilledRows }) }));
   const orphans = orphanedColumns(state.rules, t);
   if (orphans.length) box.append(h("p", { class: "chips-note warn", text: tr("Rules have values for columns this template doesn't have, so they are ignored: {list}.", { list: orphans.join(", ") }) }));
 }
@@ -243,10 +300,16 @@ function mappingForm(t) {
 }
 
 // ---------------------------------------------------------------- rules UI
+/** A label with an (i) button after it. */
+/** Marks an English text that is translated later, when the (i) button is built. */
+const I = (s) => s;
+const lab = (label, info) => h("div", { class: "lab" }, label, infoSlot(info));
+
 function renderRules() {
   const box = $("#rules");
   box.replaceChildren();
   state.rules.forEach((rule, i) => box.append(ruleCard(rule, i)));
+  hydrateInfo(box);
   updateRuleStatus();
 }
 
@@ -262,7 +325,7 @@ function ruleCard(rule, index) {
   if (!cols.length) grid.append(h("p", { class: "hint", text: tr("Load the import template to set category, assignee, dates and custom attributes.") }));
   for (const col of cols) {
     const isDate = /\bdate\b/i.test(col.header);
-    const input = h("input", { type: "text", value: rule.columns?.[col.header] ?? "", autocomplete: "off", placeholder: isDate ? tr("2026-10-12 or 12/10/2026") : tr("Same for every task, or use {tag} {room}") });
+    const input = h("input", { type: "text", value: rule.columns?.[col.header] ?? "", autocomplete: "off", placeholder: isDate ? tr("2026-10-12 or 12/10/2026") : tr("Same for every pin, or use {tag} {room}") });
     input.addEventListener("input", () => { rule.columns = { ...(rule.columns || {}), [col.header]: input.value }; refreshSummary(); saveSoon(); renderTemplateInfo(); runDetect(); });
     grid.append(h("label", {}, h("span", { class: STANDARD.has(col.header.trim().toLowerCase()) ? "" : "tag", text: col.header }), input));
   }
@@ -286,7 +349,7 @@ function ruleCard(rule, index) {
   kind.value = ruleKind(rule);
   kind.addEventListener("change", () => { rule.kind = kind.value; if (state.boxFor === rule.id) cancelSymbolBox(); afterRulesChange(); });
 
-  // Task title: type it, or click a button to drop a detail into it. A live example shows the result.
+  // Pin title: type it, or click a button to drop a detail into it. A live example shows the result.
   const title = h("input", { type: "text", id: `${rule.id}-title`, value: rule.title, autocomplete: "off", "aria-describedby": `${rule.id}-becomes` });
   title.addEventListener("input", () => { set({ title: title.value }); updatePreviews(); });
   const token = (label, code, tip) => h("button", { type: "button", class: "token", text: label, title: tip, onclick: () => {
@@ -299,13 +362,13 @@ function ruleCard(rule, index) {
   } });
   const becomes = h("p", { class: "becomes", id: `${rule.id}-becomes`, "data-preview": rule.id });
   const titleField = h("div", { class: "field" },
-    h("label", { for: `${rule.id}-title`, text: tr("Task title") }), title,
+    lab(h("label", { for: `${rule.id}-title`, text: tr("Pin title") }), I("Names the pin. Use the buttons to add the callout text, the nearest room or a running number.")), title,
     h("div", { class: "insert", role: "group", "aria-label": tr("Add to the title") },
       h("span", { class: "lbl", text: tr("Add") }),
       isSymbol ? token(tr("Symbol name"), "{rule}", tr("The name of this rule")) : token(tr("Callout text"), "{tag}", tr("The text of the callout, for example A1")),
       token(tr("Room"), "{room}", tr("The nearest room label, for example 1-101")),
       token(tr("Room in brackets"), "{room_label}", tr("The nearest room label in brackets, for example (Room 1-101)")),
-      token(tr("Number"), "{n}", tr("Counts 1, 2, 3 for each task from this rule"))),
+      token(tr("Number"), "{n}", tr("Counts 1, 2, 3 for each pin from this rule"))),
     becomes);
 
   const symbolFields = () => {
@@ -323,9 +386,9 @@ function ruleCard(rule, index) {
         rule.symbol ? symbolPreview(rule, set) : null,
         h("div", { class: "row" }, h("button", { type: "button", class: "btn quiet", text: drawing ? tr("Cancel") : rule.symbol ? tr("Draw the box again") : tr("Draw a box around the symbol"), onclick: () => startSymbolBox(rule) })),
         h("p", { class: "hint", text: rule.symbol ? tr("Click the picture to move where the pin goes. Every copy of this symbol on the sheet gets one pin.") : tr("Draw a box that fully contains one example, such as a single patio door. Lines that stick out of the box are left out.") })),
-      rule.symbol ? h("div", { class: "field" }, h("label", { for: `${rule.id}-strict`, text: tr("How closely a copy must match") }), h("div", { class: "slider" }, level, levelText),
+      rule.symbol ? h("div", { class: "field" }, lab(h("label", { for: `${rule.id}-strict`, text: tr("How closely a copy must match") }), I("Slide towards Loose to catch more copies, or towards Exact to avoid wrong matches.")), h("div", { class: "slider" }, level, levelText),
         h("label", { class: "check" }, rotate, tr("Also find copies that are turned or mirrored")),
-        h("label", { class: "check" }, sizes, tr("Also find copies drawn bigger or smaller")),
+        lab(h("label", { class: "check" }, sizes, tr("Also find copies drawn bigger or smaller")), I("Also finds the same symbol drawn at a different scale, from half size to double size. It makes the search slower.")),
         h("p", { class: "hint", text: tr("If some are missed, move the slider towards Loose; if wrong things are picked up, towards Exact. Searching other sizes takes longer.") })) : null,
       titleField,
     ];
@@ -338,7 +401,7 @@ function ruleCard(rule, index) {
   if (isSymbol) {
     return h("div", { class: "rule", "data-id": rule.id, style: `--pin:${colorOf(index)}` },
       head,
-      h("div", { class: "field" }, h("label", { for: `${rule.id}-kind`, text: tr("Look for") }), kind),
+      h("div", { class: "field" }, lab(h("label", { for: `${rule.id}-kind`, text: tr("Look for") }), I("Text callout finds words on the drawing, such as door tags. Draw box finds a symbol: draw a box around one example.")), kind),
       ...symbolFields(),
       h("details", { class: "more" }, moreSummary, grid),
       h("p", { class: "rule-status", "data-status": rule.id }));
@@ -347,17 +410,17 @@ function ruleCard(rule, index) {
   return h("div", { class: "rule", "data-id": rule.id, style: `--pin:${colorOf(index)}` },
     head,
     h("div", { class: "pair" },
-      h("div", { class: "field" }, h("label", { for: `${rule.id}-kind`, text: tr("Look for") }), kind),
-      h("div", { class: "field" }, h("label", { for: `${rule.id}-tags`, text: tr("Text to find") }), tags)),
+      h("div", { class: "field" }, lab(h("label", { for: `${rule.id}-kind`, text: tr("Look for") }), I("Text callout finds words on the drawing, such as door tags. Draw box finds a symbol: draw a box around one example.")), kind),
+      h("div", { class: "field" }, lab(h("label", { for: `${rule.id}-tags`, text: tr("Text to find") }), I("The exact text on the drawing to match, for example a door tag. Separate several with commas.")), tags)),
     h("label", { class: "check" }, pattern, tr("Match with a pattern instead (regular expression)")),
     titleField,
-    h("div", { class: "field" }, h("label", { for: `${rule.id}-pin`, text: tr("Task pinned on") }), pinAt,
+    h("div", { class: "field" }, lab(h("label", { for: `${rule.id}-pin`, text: tr("Pin placed on") }), I("Where each pin sits: on the spot the leader line points to, or on the callout text itself.")), pinAt,
       h("p", { class: "hint", text: tr("A callout with no leader line keeps its pin on the callout. One with two leaders gets two pins.") })),
     h("details", { class: "more" }, moreSummary, grid),
     h("p", { class: "rule-status", "data-status": rule.id }));
 }
 
-/** The "Becomes:" line under each task title: the first real task from the rule, or an example. */
+/** The "Becomes:" line under each pin title: the first real pin from the rule, or an example. */
 function updatePreviews() {
   const hasRoomPattern = hasText(state.settings.roomPattern);
   for (const rule of state.rules) {
@@ -366,7 +429,7 @@ function updatePreviews() {
     const real = state.pins.find((p) => p.ruleId === rule.id);
     const example = { tag: "A1", room: "1-101", room_label: "(Room 1-101)", n: 1, rule: rule.name };
     const result = renderTemplate(rule.title, real ? real.vars : example) || "…";
-    el.replaceChildren(real ? tr("First task:") : tr("Example:"), " ", h("b", { text: result }));
+    el.replaceChildren(real ? tr("First pin:") : tr("Example:"), " ", h("b", { text: result }));
     if (/\{room(_label)?\}/.test(rule.title || "")) {
       if (!hasRoomPattern) el.append(h("span", { class: "note", text: tr("Room stays empty until you set a room label pattern under \"Search area and room labels\".") }));
       else if (real && !real.room) el.append(h("span", { class: "note", text: tr("No room label was found near this one. Try a larger distance under \"Search area and room labels\".") }));
@@ -443,6 +506,7 @@ function loadAnchors(pdf) {
     state.busy = true;
     updateExport();
     say(tr("Finding the leader lines and dots on the drawing…"));
+    busy.start(tr("Finding the leader lines and dots on the drawing…"));
     try {
       const anchorFor = anchorFinder(await readGeometry(page, await ensureShapes(pdf)), pdf.viewport);
       if (pdf.page === page) pdf.anchorFor = anchorFor;
@@ -453,6 +517,7 @@ function loadAnchors(pdf) {
       say(tr("Couldn't read the lines on this drawing, so pins are on the callouts instead."), "err");
     } finally {
       state.busy = false;
+      busy.stop();
     }
   })();
   return pdf.geoPromise;
@@ -479,7 +544,7 @@ async function detectNow() {
     await loadAnchors(pdf);
     if (run !== detectRun || state.pdf !== pdf) return; // a newer run (or a new drawing) took over
   }
-  const symbolHits = await findAllSymbols(pdf);
+  const symbolHits = await findAllSymbols(pdf, () => run !== detectRun || state.pdf !== pdf);
   if (run !== detectRun || state.pdf !== pdf) return;
   const { pins, errors } = detect({ tokens: pdf.tokens, width: pdf.width, height: pdf.height, rules: state.rules, anchorFor: wantsDots() ? pdf.anchorFor : null, symbolHits, settings: { area: state.settings.area, roomPattern: state.settings.roomPattern, roomDistance: state.settings.roomDistance } });
   for (const p of pins) {
@@ -493,7 +558,7 @@ async function detectNow() {
 }
 
 /** Look for each symbol rule's symbol on this page. Results are remembered until the symbol or its settings change. */
-async function findAllSymbols(pdf) {
+async function findAllSymbols(pdf, shouldStop = () => false) {
   const out = {};
   const rules = symbolRules();
   if (!rules.length) return out;
@@ -510,9 +575,14 @@ async function findAllSymbols(pdf) {
     if (!perTemplate) pdf.symbolCache.set(rule.symbol, (perTemplate = new Map()));
     let res = perTemplate.get(params);
     if (!res) {
-      say(tr("Looking for \"{name}\" on the drawing…", { name: rule.name }));
+      const label = tr("Looking for \"{name}\" on the drawing…", { name: rule.name });
+      say(label);
+      busy.start(label);
       await new Promise((r) => setTimeout(r, 20)); // let the message paint before the search starts
-      res = findSymbols(shapes.paths, rule.symbol, { level: rule.strict ?? 3, rotate: rule.rotate !== false, sizes: !!rule.sizes });
+      try {
+        res = await findSymbolsAsync(shapes.paths, rule.symbol, { level: rule.strict ?? 3, rotate: rule.rotate !== false, sizes: !!rule.sizes, shouldStop }, (f) => busy.update(label, f));
+      } finally { busy.stop(); }
+      if (res.stopped) return out; // a newer search took over; this one is not kept
       perTemplate.set(params, res);
       say("");
     }
@@ -1018,7 +1088,7 @@ function renderTable() {
   state.pins.slice(0, LIMIT).forEach((p) => {
     const box = h("input", { type: "checkbox", checked: p.include, "aria-label": `${tr("Include pin")} ${p.n}` });
     box.addEventListener("change", () => togglePin(p.key, box.checked));
-    const title = h("input", { type: "text", value: p.title, "aria-label": `${tr("Task title for pin")} ${p.n}` });
+    const title = h("input", { type: "text", value: p.title, "aria-label": `${tr("Title for pin")} ${p.n}` });
     title.addEventListener("input", () => { p.title = title.value; state.edits[p.key] = { ...(state.edits[p.key] || {}), title: title.value }; });
     const row = h("tr", { "data-key": p.key, class: p.include ? "" : "off", style: `--pin:${colorOf(p.ruleIndex)}` },
       h("td", {}, box), h("td", { text: String(p.n) }),
@@ -1063,8 +1133,8 @@ function updateExport() {
   $("#import-why").textContent = need.length
     ? tr("Still needed: {list}.", { list: need.join(", ") })
     : parts > 1
-      ? tr("Fieldwire imports up to {limit} tasks at a time, so this downloads {parts} files. Import them one after another.", { limit: IMPORT_LIMIT, parts })
-      : tr("Tasks import with a blank ID, so they are created as new tasks.");
+      ? tr("Fieldwire imports up to {limit} pins at a time, so this downloads {parts} files. Import them one after another.", { limit: IMPORT_LIMIT, parts })
+      : tr("Pins import with a blank ID, so they are always created as new pins.");
   renderExportPreview(need.length === 0);
   $("#dl-pdf").disabled = !(state.pdf && inc) || state.busy;
   $("#dl-png").disabled = !(state.pdf && inc) || state.busy;
@@ -1082,7 +1152,7 @@ function renderExportPreview(ready) {
   const plan = state.settings.planName.trim();
   const files = Math.ceil(inc.length / IMPORT_LIMIT);
   const skipped = state.pins.length - inc.length;
-  summary.textContent = (inc.length === 1 ? tr("1 task will go onto plan \"{plan}\".", { plan }) : tr("{n} tasks will go onto plan \"{plan}\".", { n: inc.length, plan })) + (skipped ? ` ${skipped === 1 ? tr("1 pin is left out.") : tr("{n} pins are left out.", { n: skipped })}` : "") + (files > 1 ? ` ${tr("Split over {files} files.", { files })}` : "");
+  summary.textContent = (inc.length === 1 ? tr("1 pin will go onto plan \"{plan}\".", { plan }) : tr("{n} pins will go onto plan \"{plan}\".", { n: inc.length, plan })) + (skipped ? ` ${skipped === 1 ? tr("1 pin is left out.") : tr("{n} pins are left out.", { n: skipped })}` : "") + (files > 1 ? ` ${tr("Split over {files} files.", { files })}` : "");
   if (!details.open) return; // the table is only built while it is open
   const rulesById = Object.fromEntries(state.rules.map((r) => [r.id, r]));
   const rows = buildRows(t, inc.slice(0, PREVIEW_ROWS).map((p) => ({ ...p, title: hasText(p.title) ? p.title : p.tag })), { planName: plan, rulesById });
@@ -1102,12 +1172,12 @@ async function exportImport() {
   for (const [i, group] of groups.entries()) {
     const bytes = await writeImport(t, group);
     const suffix = groups.length > 1 ? ` (part ${i + 1} of ${groups.length})` : ""; // file names stay English so they sort the same for everyone
-    download(bytes, `${baseName(state.pdf.name)} - task import${suffix}.xlsx`, XLSX_MIME);
+    download(bytes, `${baseName(state.pdf.name)} - pin import${suffix}.xlsx`, XLSX_MIME);
   }
   const plan = state.settings.planName.trim();
   say(groups.length > 1
-    ? tr("Downloaded {n} tasks in {files} files for plan \"{plan}\".", { n: rows.length, files: groups.length, plan })
-    : rows.length === 1 ? tr("Downloaded 1 task for plan \"{plan}\".", { plan }) : tr("Downloaded {n} tasks for plan \"{plan}\".", { n: rows.length, plan }), "ok");
+    ? tr("Downloaded {n} pins in {files} files for plan \"{plan}\".", { n: rows.length, files: groups.length, plan })
+    : rows.length === 1 ? tr("Downloaded 1 pin for plan \"{plan}\".", { plan }) : tr("Downloaded {n} pins for plan \"{plan}\".", { n: rows.length, plan }), "ok");
 }
 
 async function exportPdf() {
@@ -1126,8 +1196,8 @@ async function exportPng() {
 async function exportCalibration() {
   const t = state.tpl.parsed;
   const bytes = await writeImport(t, buildCalibrationRows(t, state.settings.planName.trim()));
-  download(bytes, "calibration tasks.xlsx", XLSX_MIME);
-  say(tr("Downloaded 9 calibration tasks at 10%, 50% and 90%."), "ok");
+  download(bytes, "calibration pins.xlsx", XLSX_MIME);
+  say(tr("Downloaded 9 calibration pins at 10%, 50% and 90%."), "ok");
 }
 
 // ---------------------------------------------------------------- sample drawing
@@ -1201,7 +1271,7 @@ function startOver() {
 }
 
 const guarded = (fn) => async () => {
-  try { await fn(); } catch (err) { console.error(err); say(tr("Something went wrong: {err}", { err: err.message || err }), "err"); }
+  try { await fn(); } catch (err) { console.error(err); say(tr("Something went wrong: {err}", { err: err.message || err }), "err", whyText(err)); }
 };
 
 // ---------------------------------------------------------------- rule files
@@ -1278,8 +1348,8 @@ function wire() {
     e.preventDefault();
     if (e.shiftKey) redo(); else undo();
   });
-  window.addEventListener("error", (e) => { if (!/ResizeObserver/.test(e.message || "")) say(tr("Something went wrong: {err}", { err: e.message || "unknown" }), "err"); });
-  window.addEventListener("unhandledrejection", (e) => { say(tr("Something went wrong: {err}", { err: e.reason?.message || e.reason || "unknown" }), "err"); });
+  window.addEventListener("error", (e) => { if (!/ResizeObserver/.test(e.message || "")) say(tr("Something went wrong: {err}", { err: e.message || "unknown" }), "err", whyText(e.error)); });
+  window.addEventListener("unhandledrejection", (e) => { say(tr("Something went wrong: {err}", { err: e.reason?.message || e.reason || "unknown" }), "err", whyText(e.reason)); });
 
   // Drop files anywhere: a .pdf is the drawing, a .xlsx is the template, a .json is a rules file.
   let depth = 0;
@@ -1306,17 +1376,15 @@ $("#room-distance").value = state.settings.roomDistance || 10;
 $("#show-grid").checked = !!state.settings.showGrid;
 wire();
 setupStage();
-{
-  const sel = $("#lang");
-  for (const [code, name] of LANGUAGES) sel.append(h("option", { value: code, text: name }));
-  sel.value = initialLanguage();
-  await setLanguage(sel.value, { remember: false });
-  sel.addEventListener("change", async () => {
-    await setLanguage(sel.value);
+await initLanguageMenu({
+  onChange: async () => {
     renderPdfInfo(); renderTplInfo(); renderTemplateInfo(); renderRules(); updateAreaInfo(); refresh();
     $("#draw-area").textContent = state.areaMode ? tr("Cancel") : tr("Draw on sheet");
-  });
-}
+  },
+});
+translateDom();
+hydrateInfo();
+renderFooter();
 renderPdfInfo();
 renderTplInfo();
 renderRules();

@@ -1,0 +1,36 @@
+/* How to use and FAQ pages. They reuse the app's colours and fonts from app.css. */
+.help-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 920px; margin: 0 auto; padding: 18px 28px 6px; }
+.help-head .brand { text-decoration: none; color: inherit; flex: none; }
+.help-head .brand .mark { color: var(--accent); }
+.help-head .btn { text-decoration: none; display: inline-block; }
+.doc { max-width: 920px; margin: 0 auto; padding: 8px 28px 8px; }
+.doc > h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin: 18px 0 6px; }
+.doc .lede { color: var(--ink-2); font-size: 16px; max-width: 62ch; margin-bottom: 22px; }
+.doc .note { background: var(--accent-wash); color: var(--accent-dark); border-radius: 10px; padding: 8px 12px; margin-bottom: 18px; font-weight: 600; font-size: 13px; }
+.doc .card { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 22px 26px 24px; margin-bottom: 16px; }
+.doc h2 { font-size: 20px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.doc h2 .num { flex: none; }
+.doc p { margin: 8px 0; max-width: 70ch; font-size: 15px; }
+.doc ul, .doc ol { max-width: 70ch; padding-left: 22px; font-size: 15px; }
+.doc li { margin: 5px 0; }
+.doc code, .doc kbd { font: 600 13px ui-monospace, Menlo, Consolas, monospace; background: var(--soft); border: 1px solid var(--line-soft); border-radius: 6px; padding: 1px 6px; }
+.doc a { color: var(--accent-dark); font-weight: 600; }
+.shot { margin: 14px 0 6px; }
+.shot img { display: block; max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); box-shadow: var(--shadow); }
+.shot.narrow img { max-width: 340px; }
+.shot figcaption { color: var(--ink-2); font-size: 13px; margin-top: 6px; }
+.split { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.split > div { flex: 1 1 320px; min-width: 0; }
+.split .shot { flex: none; margin: 8px 0 0; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; }
+.toc a { display: inline-block; background: var(--card); border-radius: 999px; padding: 7px 14px; box-shadow: var(--shadow); text-decoration: none; font-size: 13px; }
+.toc a:hover { background: var(--accent-wash); }
+.faq details { background: var(--card); border-radius: 14px; box-shadow: var(--shadow); margin-bottom: 10px; padding: 0 20px; }
+.faq summary { cursor: pointer; font-weight: 700; font-size: 15.5px; padding: 15px 0; list-style-position: outside; }
+.faq details[open] summary { padding-bottom: 6px; }
+.faq details > :not(summary) { padding-bottom: 2px; }
+.faq details > :last-child { margin-bottom: 16px; }
+.faq h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); margin: 26px 0 10px; }
+@media (max-width: 700px) { .help-head, .doc { padding-left: 16px; padding-right: 16px; } .doc .card { padding: 18px 16px; } .doc > h1 { font-size: 25px; } }
+.help-head .btn { display: inline-flex; align-items: center; }
+.doc .toc { padding: 0; max-width: none; }

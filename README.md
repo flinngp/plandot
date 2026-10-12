@@ -1,6 +1,6 @@
 # Plandot
 
-Turn callouts and symbols on a plan into a task import file, with every task pinned where it belongs.
+Turn callouts and symbols on a plan into pins, ready to import, with every pin placed where it belongs.
 
 **Live app:** the link is in the *About* box at the top right of this page. No install, no sign-in.
 
@@ -20,14 +20,14 @@ drawing.pdf  +  import template.xlsx  +  rules   ->   check the pins   ->   impo
 1. Drop the **drawing PDF**.
 2. Drop the **import template** (.xlsx) downloaded from your project.
 3. Type the **plan name** exactly as it appears in the project.
-4. Add **rules**. Each has a *Look for* choice (*Text callout* or *Draw box*), the *Text to find*, a *Task title*, where the *Task pinned on* goes (*On the location* or *On the callout*), and any other column to fill (category, assignee, a custom attribute).
+4. Add **rules**. Each has a *Look for* choice (*Text callout* or *Draw box*), the *Text to find*, a *Pin title*, where the *Pin placed on* goes (*On the location* or *On the callout*), and any other column to fill (category, assignee, a custom attribute).
 5. Untick any pin you don't want, look at **Preview what will be exported**, then **Download import file** and import it.
 
 **Try it without your own files:** press *Try with a sample drawing* on the empty page. It loads a made-up drawing, template and rules in one click (needs the page opened from its web address, not as a file). The same three files are in `samples/`.
 
-## Task titles
+## Pin titles
 
-Under each rule's *Task title* are buttons: **Callout text**, **Room**, **Room in brackets** and **Number**. Click one to drop it into the title at the cursor (they are the fill-ins `{tag}`, `{room}`, `{room_label}` and `{n}`; you can also type them). A line underneath shows the result: *First task: Install socket A1 (Room 1-101)*, from the first real match, or an example until something is found. If the title uses the room but no room label pattern is set, it says so.
+Under each rule's *Pin title* are buttons: **Callout text**, **Room**, **Room in brackets** and **Number**. Click one to drop it into the title at the cursor (they are the fill-ins `{tag}`, `{room}`, `{room_label}` and `{n}`; you can also type them). A line underneath shows the result: *First pin: Install socket A1 (Room 1-101)*, from the first real match, or an example until something is found. If the title uses the room but no room label pattern is set, it says so.
 
 ## Zoom
 
@@ -37,13 +37,13 @@ The drawing sits in a window of its own, next to a left panel that never changes
 
 - **Save setup / Open setup** keep your rules, the plan name and the room settings in a small file, so you can reuse them on other drawings or hand them to a customer.
 - **Undo / Redo** (above the rules, or Ctrl/⌘ + Z outside a text box) step back through rule changes, including removing a rule.
-- **Preview what will be exported** shows a sentence ("13 tasks will go onto plan …") and the first rows of the file.
+- **Preview what will be exported** shows a sentence ("13 pins will go onto plan …") and the first rows of the file.
 - A page with **no selectable text** (a scan or a photo of a drawing) now says so plainly, and each text rule says it too.
 - A password-protected PDF, a file that isn't a PDF, a wrong file dropped on the page, and a setup file that isn't one all get a plain message.
 
 ## Pins go on the dot, not the label
 
-A callout is a tag inside a diamond, circle or hexagon, with a leader line running to a solid dot on the thing it labels. The task belongs on the dot, so that is where the pin goes.
+A callout is a tag inside a diamond, circle or hexagon, with a leader line running to a solid dot on the thing it labels. The pin belongs on the dot, so that is where the pin goes.
 
 - Leaders with elbows, or drawn in several pieces, are followed to the end.
 - A callout with **two leaders gets two pins**. Untick one if you only want one.
@@ -51,7 +51,7 @@ A callout is a tag inside a diamond, circle or hexagon, with a leader line runni
 - Arrowheads and square blocks are not mistaken for dots, and each callout gets its own dot, not simply the nearest one.
 - Each rule can instead pin on the callout text.
 
-Positions are written as percentages from the top-left corner of the sheet, which is how the importer reads them. *Check pin positions first* (under Download) makes nine test tasks on the 10%, 50% and 90% grid lines so you can confirm that on your own account in a minute.
+Positions are written as percentages from the top-left corner of the sheet, which is how the importer reads them. *Check pin positions first* (under Download) makes nine test pins on the 10%, 50% and 90% grid lines so you can confirm that on your own account in a minute.
 
 ## Pin a symbol, not just a callout
 
@@ -61,9 +61,19 @@ Some things have no tag: patio doors, sockets, fire extinguishers. Set a rule to
 - Draw the box so it fully contains the symbol. Lines that cross the box edge, such as the wall either side of a door, are left out.
 - Click the little picture of the symbol to choose **where the pin goes** on it. It lands on the same spot of every copy, however it is turned.
 - The **match slider** (Loose to Exact) sets how closely a copy must resemble yours. If some are missed, move towards Loose; if wrong things are picked up, towards Exact.
-- The task title can use the rule's name (the **Symbol name** button) and the number. The rule, its symbol and its settings are saved in the setup file.
+- The pin title can use the rule's name (the **Symbol name** button) and the number. The rule, its symbol and its settings are saved in the setup file.
 
 It matches the drawing's line work, so like the leader dots it needs a vector PDF from CAD or Revit, not a scan. To try it, drop `samples/sample-symbols.pdf` and box one of the patio doors.
+
+## Help, pop-ups and feedback
+
+- A small **(i)** beside the main fields explains each one in a sentence. It opens with a click, Enter or Space, and closes with Escape or a click elsewhere.
+- `howto.html` is a step-by-step guide with annotated screenshots (retaken from the real app with `node scripts/make-howto-shots.mjs`, saved in `help/img/`), and `faq.html` answers questions about privacy, drawings, browsers and common problems. Both are English only for now; the footer in the app is translated.
+- The footer carries the not-affiliated notice, the privacy line, an as-is note, the version and a **What's new** list. Edit the list in `js/config.js`.
+- **Send feedback** appears when `FEEDBACK` in `js/config.js` has a form address (`url`) or a shared email (`email`). Leave both empty and the link is hidden. Use a shared address, not a personal one.
+- Slow searches show a progress bar over the drawing, and error messages have a **Copy details** button (version, browser and settings, never a file name).
+- The language list shows a flag beside each language. A flag stands for a country, so the language name is always shown with it.
+- `index.html` has Open Graph tags for link previews, with `docs/preview.png` as the picture. When the site has its own address, make `og:image` a full web address.
 
 ## Keyboard and screen readers
 
@@ -73,9 +83,9 @@ Everything can be done without a mouse: there is a *Skip to the drawing* link, t
 
 The page is available in English, French, Spanish, German, Italian, Dutch, Portuguese, Danish, Swedish, Norwegian, Finnish, Polish and Czech. Pick one from the list at the top; the page remembers it, and the first time it uses your browser's language if it has it.
 
-- A task import template downloaded in one of those languages is read too (headings such as *Titel*, *Titre*, *Título*, *Tittel*). The X and Y position columns are found by their letter and the % sign.
+- An import template downloaded in one of those languages is read too (headings such as *Titel*, *Titre*, *Título*, *Tittel*). The X and Y position columns are found by their letter and the % sign.
 - If a template's headings still aren't recognised, Plandot shows **Match the columns yourself**: say which column is the title, plan, X and Y, and carry on.
-- Task titles, plan names and rule names are yours and are never translated.
+- Pin titles, plan names and rule names are yours and are never translated.
 - The translations were written without a native speaker's review. To fix one, edit its file in `js/lang/`; the English text is the key, so nothing else needs changing. To add a language, copy a file there and add it to the list in `js/i18n.js`.
 
 ## Start over
@@ -84,18 +94,18 @@ The **Start over** button at the top clears the drawing, template, rules and pin
 
 ## It follows your template
 
-An import template differs from project to project: adding a custom task attribute adds a column, and hiding one removes a column. Plandot never assumes a column list. It reads the header row of the template you load, finds columns **by name**, and fills only the columns that exist.
+An import template differs from project to project: adding a custom attribute adds a column, and hiding one removes a column. Plandot never assumes a column list. It reads the header row of the template you load, finds columns **by name**, and fills only the columns that exist.
 
 - Custom attributes show up as extra fields on every rule. Hidden attributes disappear.
 - Load a fresh template whenever the project's attributes change. Saved rule values for a column that no longer exists are ignored, and the page says so.
 - If a column the import needs (Title, Plan, X Pos, Y Pos) is missing, the page says so instead of producing a bad file.
 - Everything else in the template (formatting, widths, the header block) is left exactly as it was.
-- Pre-filled task IDs in the template are left out of the import file, and new tasks have a blank ID, so existing tasks are never touched.
-- The importer takes up to 500 tasks per file, so bigger exports are split into numbered parts.
+- Pre-filled IDs in the template are left out of the import file, and new pins have a blank ID, so existing items are never touched.
+- The importer takes up to 500 rows per file, so bigger exports are split into numbered parts.
 
 ## Privacy
 
-Everything runs in your browser. The drawing, the template and the rules are never uploaded anywhere, and there is no server. Your rules are remembered in the browser's own storage on your computer only.
+Everything runs in your browser. The drawing, the template and the rules are never uploaded anywhere, and there is no server. Your rules and language are remembered in the browser's own storage on your computer only.
 
 Real drawings and import templates can be confidential or carry personal details, so this repository's `.gitignore` blocks `*.pdf` and `*.xlsx` apart from the two made-up files in `samples/`.
 
@@ -106,7 +116,7 @@ Real drawings and import templates can be confidential or carry personal details
 - Template headings in languages other than the twelve above are matched by hand (see Languages).
 - One PDF page at a time, because each page is its own plan.
 - Searching other symbol sizes covers half to double the boxed copy.
-- `{room}` in a task title is the nearest room label to the pin. A dot on a wall between two rooms can pick either, and pins on outer walls may be too far from any label to get one. Check titles before importing, or leave the room out of the title.
+- `{room}` in a pin title is the nearest room label to the pin. A dot on a wall between two rooms can pick either, and pins on outer walls may be too far from any label to get one. Check titles before importing, or leave the room out of the title.
 
 ## Run it yourself
 
@@ -124,7 +134,7 @@ Opening `index.html` by double-clicking does not work, because browsers block th
 npm install
 npx playwright install chromium
 python3 -m pip install openpyxl     # the tests read the import file back with it
-npm test                            # 128 tests
+npm test                            # 146 tests
 ```
 
 GitHub runs the same tests on every push (`.github/workflows/tests.yml`). The tests build their own drawings and templates, or use the made-up files in `samples/`.
@@ -135,6 +145,8 @@ To rebuild the samples: `python3 samples/make_sample_drawing.py` and `python3 sa
 
 - A native-speaker review of the translations
 - Symbol matching for scanned drawings (image matching)
+- Help pages in other languages, and a short video walkthrough
+- A usage counter without cookies (disclosed in the FAQ)
 - Accounts and billing, once the app has a home of its own
 - Vision-assisted pins for locations with no label, such as wall ends and cable end points
 - CAD (DXF) input for exact line endpoints on a named layer

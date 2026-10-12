@@ -234,6 +234,27 @@ function* orderings(n, closed) {
  * @returns {{hits: {x, y, cx, cy, angle, mirrored, scale, score}[], note?: string}}
  */
 export function findSymbols(paths, template, opts = {}) {
+  const run = searchSymbols(paths, template, opts);
+  for (;;) { const step = run.next(); if (step.done) return step.value; }
+}
+
+/**
+ * The same search, but on a page that stays responsive: it hands control back every so often so a progress
+ * bar can move. onProgress gets a number from 0 to 1. opts.shouldStop() can cancel it (the result is then
+ * {hits: [], stopped: true}).
+ */
+export async function findSymbolsAsync(paths, template, opts = {}, onProgress) {
+  const run = searchSymbols(paths, template, opts);
+  for (;;) {
+    const step = run.next();
+    if (step.done) return step.value;
+    onProgress?.(step.value);
+    await new Promise((r) => setTimeout(r, 0));
+    if (opts.shouldStop?.()) return { hits: [], stopped: true };
+  }
+}
+
+function* searchSymbols(paths, template, opts = {}) {
   const threshold = thresholdFor(opts.level ?? 3);
   const rotate = opts.rotate !== false;
   const [kLo, kHi] = opts.sizes ? SIZE_RANGE : [1, 1];
@@ -277,8 +298,11 @@ export function findSymbols(paths, template, opts = {}) {
   let tried = 0;
   const BUDGET = 400000;
 
+  let lastYield = Date.now(), done = 0;
   outer:
   for (const qi of anchor.cands) {
+    if (Date.now() - lastYield > (opts.yieldMs ?? 60)) { lastYield = Date.now(); yield done / anchor.cands.length; }
+    done++;
     const qpts = cleanPts(paths[qi]);
     for (const order of orderings(qpts.length, anchor.closed)) {
       const Q = order.map((k) => qpts[k]);

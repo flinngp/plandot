@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plandot FAQ</title>
+<meta name="description" content="Answers about privacy, supported drawings, browsers and common problems with Plandot.">
+<meta name="theme-color" content="#eef1f6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%233355ff'/%3E%3Cpath d='M9 24V8M9 24h14' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='21' cy='11' r='4.4' fill='%23ffd24a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/help.css">
+<script type="module" src="js/help.js"></script>
+</head>
+<body>
+<header class="help-head">
+  <a class="brand" href="index.html"><svg class="mark" viewBox="0 0 38 38" width="38" height="38" aria-hidden="true"><rect width="38" height="38" rx="11" fill="currentColor"/><path d="M11 28V10M11 28h17" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/><circle cx="24.5" cy="13.5" r="4.6" fill="#ffd24a"/></svg><div><h1>Plandot</h1></div></a>
+  <a class="btn dark" href="index.html">Open Plandot</a>
+</header>
+<main class="doc faq" id="main">
+  <h1>Frequently asked questions</h1>
+  <p class="lede">Short answers about your data, your drawings and what to do when something doesn't look right.</p>
+  <p class="note" id="lang-note" hidden></p>
+  <p>New to Plandot? Start with <a href="howto.html">How to use Plandot</a>.</p>
+
+  <h2>Your data</h2>
+  <details><summary>Is my drawing uploaded anywhere?</summary>
+<p>No. Plandot runs entirely in your browser. Your drawing, your template and your rules are read on your own computer and never sent to a server. The files it makes are created on your computer too.</p>
+</details>
+
+  <details><summary>What does Plandot remember?</summary>
+<p>Only your rules (including the outline of any symbol you boxed), plan name, room settings and chosen language, kept in your own browser so they are still there next time. Drawings and templates are not kept. That information stays on your computer. <strong>Start over</strong> clears the rules and settings, and so does clearing your browser's site data. A saved setup file holds your rules but never a drawing.</p>
+</details>
+
+  <details><summary>Does Plandot collect usage statistics?</summary>
+<p>Not at the moment. If that changes, it will be simple counts of which features are used, with no cookies and nothing about your drawings, and this page will say so.</p>
+</details>
+
+  <details><summary>Does Plandot change my Fieldwire project?</summary>
+<p>No. Plandot never connects to Fieldwire. It only makes a file that you import yourself. Pins are added as new items with a blank ID, so nothing already in your project is edited or deleted.</p>
+</details>
+
+  <details><summary>Is Plandot made by Fieldwire or Hilti?</summary>
+<p>No. Plandot is an independent tool and isn't made, endorsed or supported by Fieldwire or Hilti. Fieldwire and Hilti are trademarks of their owners.</p>
+</details>
+
+
+  <h2>Drawings</h2>
+  <details><summary>Which PDFs work?</summary>
+<p>PDFs exported from design software such as AutoCAD or Revit, where the text is real text and the lines are real lines. Callouts can only be found if you can select the text in a PDF reader. A scan or a photo of a drawing has no text for Plandot to read, and it will tell you so.</p>
+</details>
+
+  <details><summary>Can I upload a DWG or another CAD file?</summary>
+<p>Not directly. Export or plot the sheet to PDF from your CAD software first. Keep the text as text, not as outlines or an image, and Plandot can read it.</p>
+</details>
+
+  <details><summary>My PDF has many pages. What happens?</summary>
+<p>You choose one page at a time. Each page is its own plan in Fieldwire, so you make one import file per page.</p>
+</details>
+
+  <details><summary>A callout wasn't found. Why?</summary>
+<ul><li>The text must match exactly, including capital letters, and not be broken into separate pieces in the PDF.</li><li>Callouts drawn as outlines or part of an image can't be read. Try exporting the PDF again with text kept as text.</li><li>Check the search area isn't limited to part of the sheet.</li><li>If the rule uses a pattern, check the pattern.</li></ul>
+</details>
+
+  <details><summary>A symbol wasn't found, or the wrong things were found.</summary>
+<p>Slide <strong>How closely a copy must match</strong> towards Loose to catch more copies, or towards Exact to avoid wrong ones. Tick the options for turned or mirrored copies, or for copies at a different size, if they apply. Draw the box tightly around one clean example, with nothing else inside it.</p>
+</details>
+
+  <details><summary>Are the pins in exactly the right place?</summary>
+<p>Pins are placed by percentage across and down the sheet, which is how Fieldwire reads the import file. They should land on the callout or the dot at the end of its leader line, but always look before you import. For a new kind of drawing, use <strong>Check pin positions first</strong>: it makes nine test pins you can import to confirm positions.</p>
+</details>
+
+
+  <h2>Using Plandot</h2>
+  <details><summary>Which browsers work?</summary>
+<p>Plandot is built to work in current versions of Chrome, Edge, Safari and Firefox. Chrome and Safari have been tested, and Edge uses the same engine as Chrome. Firefox hasn't been tested yet, so tell us if you hit a problem there. A laptop or desktop is best, because large drawings are awkward on a phone.</p>
+</details>
+
+  <details><summary>Do I have to start again for every drawing?</summary>
+<p>No. Use <strong>Save setup</strong> to keep your rules, then <strong>Open setup</strong> on the next drawing.</p>
+</details>
+
+  <details><summary>What languages does it speak?</summary>
+<p>Thirteen: English, French, Spanish, German, Italian, Dutch, Portuguese, Danish, Swedish, Norwegian, Finnish, Polish and Czech. The translations haven't yet been checked by native speakers, so please tell us if something reads oddly. These help pages are in English only for now.</p>
+</details>
+
+  <details><summary>What does it cost?</summary>
+<p>Plandot is free to use at the moment.</p>
+</details>
+
+  <details><summary>Something went wrong. What should I send?</summary>
+<p>When Plandot shows an error, press <strong>Copy details</strong> next to it and paste the text into your message. It contains the version, browser and a few settings, and never a file name or anything from your drawing.</p>
+</details>
+
+</main>
+<footer class="sitefoot" id="sitefoot"></footer>
+</body>
+</html>

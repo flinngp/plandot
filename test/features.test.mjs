@@ -1,4 +1,4 @@
-// Zoom, the fixed left panel, clearer task titles, undo, setup files, the export preview, the sample,
+// Zoom, the fixed left panel, clearer pin titles, undo, setup files, the export preview, the sample,
 // scanned pages and keyboard use. Driven in a real browser with the made-up sample files.
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
@@ -39,11 +39,11 @@ const level = (page) => page.$eval("#zoom-level", (e) => e.textContent);
 
 test("the new wording is on the page", async () => {
   const page = await withSample();
-  assert.equal(await page.textContent(".brand p"), "Turn callouts and symbols on a plan into a task import file.");
+  assert.equal(await page.textContent(".brand p"), "Turn callouts and symbols on a plan into pins, ready to import.");
   assert.deepEqual(await page.$$eval(".rule select[id$='-kind'] option", (o) => o.map((x) => x.textContent)).then((a) => a.slice(0, 2)), ["Text callout", "Draw box"]);
   const labels = await page.$$eval(".rule:first-child label", (l) => l.map((x) => x.textContent));
   assert.ok(labels.includes("Text to find"));
-  assert.ok(labels.includes("Task pinned on"));
+  assert.ok(labels.includes("Pin placed on"));
   assert.ok(!labels.some((t) => /Tags to find|Pin goes/.test(t)));
   assert.deepEqual(await page.$$eval(".rule:first-child select[id$='-pin'] option", (o) => o.map((x) => x.textContent)), ["On the location", "On the callout"]);
   assert.deepEqual(await page.$$eval(".rule:first-child select[id$='-pin'] option", (o) => o.map((x) => x.value)), ["dot", "text"]);
@@ -51,7 +51,7 @@ test("the new wording is on the page", async () => {
   await page.close();
 });
 
-// ------------------------------------------------------------------ task title helper
+// ------------------------------------------------------------------ pin title helper
 
 test("buttons put callout text, room and number into the title at the cursor, with a live example", async () => {
   const page = await withSample();
@@ -61,7 +61,7 @@ test("buttons put callout text, room and number into the title at the cursor, wi
   await page.click(".rule:first-child .token:has-text('Room in brackets')");
   assert.equal(await page.inputValue(title), "Install socket {tag} {room_label}");
   await page.waitForFunction(() => window.planTasks.state.pins[0]?.title === "Install socket A1 (Room 1-101)");
-  assert.match(await page.textContent(".rule:first-child .becomes"), /First task: Install socket A1 \(Room 1-101\)/);
+  assert.match(await page.textContent(".rule:first-child .becomes"), /First pin: Install socket A1 \(Room 1-101\)/);
 
   // in the middle of the text
   await page.fill(title, "Check  done");
@@ -293,9 +293,9 @@ test("an older rules file without a plan name still opens and leaves the plan na
   await page.close();
 });
 
-test("the export preview says what will be exported and shows the first tasks", async () => {
+test("the export preview says what will be exported and shows the first pins", async () => {
   const page = await withSample();
-  assert.equal(await page.textContent("#export-summary"), '13 tasks will go onto plan "Ground floor plan".');
+  assert.equal(await page.textContent("#export-summary"), '13 pins will go onto plan "Ground floor plan".');
   await page.click("#export-preview summary");
   await page.waitForSelector("#preview-table th"); // the table is built when the section opens
   const heads = await page.$$eval("#preview-table th", (t) => t.map((x) => x.textContent));
@@ -305,7 +305,7 @@ test("the export preview says what will be exported and shows the first tasks", 
   assert.match(await page.textContent("#preview-table .more-rows"), /and 7 more/);
   // leaving a pin out changes the sentence and the table
   await page.click("#pin-rows tr:first-child input[type=checkbox]");
-  assert.match(await page.textContent("#export-summary"), /12 tasks.*1 pin is left out/);
+  assert.match(await page.textContent("#export-summary"), /12 pins.*1 pin is left out/);
   await page.close();
 });
 

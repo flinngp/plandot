@@ -12,10 +12,14 @@ const ph = (s) => (s.match(/\{\w+\}/g) || []).sort().join();
 // every English text the page can show: tr("...") in the code and data-i18n text in the HTML
 async function englishTexts() {
   const out = new Set();
-  const app = await readFile(`${root}js/app.js`, "utf8");
-  for (const m of app.matchAll(/\btr\(("(?:[^"\\]|\\.)*")/g)) out.add(JSON.parse(m[1]));
+  for (const file of ["app.js", "site.js", "help.js"]) {
+    const src = await readFile(`${root}js/${file}`, "utf8");
+    for (const m of src.matchAll(/\b(?:tr|I)\(("(?:[^"\\]|\\.)*")/g)) out.add(JSON.parse(m[1]));
+  }
   const html = await readFile(`${root}index.html`, "utf8");
   for (const m of html.matchAll(/<([a-z0-9]+)[^>]*data-i18n(?!-)[^>]*>([\s\S]*?)<\/\1>/g)) { const t = m[2].replace(/<[^>]+>/g, "").trim(); if (t) out.add(t.replaceAll("&amp;", "&")); }
+  // the (i) pop-up sentences written in the HTML
+  for (const m of html.matchAll(/data-info="([^"]*)"/g)) out.add(m[1]);
   // labels set through data-i18n-aria and placeholders through data-i18n-ph
   for (const m of html.matchAll(/<[^>]*data-i18n-aria[^>]*>/g)) { const a = m[0].match(/aria-label="([^"]*)"/); if (a) out.add(a[1]); }
   for (const m of html.matchAll(/<[^>]*data-i18n-ph[^>]*>/g)) { const a = m[0].match(/placeholder="([^"]*)"/); if (a) out.add(a[1]); }
@@ -46,6 +50,13 @@ for (const code of CODES) {
 
 let env;
 before(async () => { env = await launch(); });
+// the language menu: click the button, then the language
+async function pick(page, code) {
+  await page.click("#lang-btn");
+  await page.click(`#lang-list [data-lang="${code}"]`);
+  await page.waitForFunction((c) => document.documentElement.lang === c, code);
+}
+const current = (page) => page.$eval("#lang-list [aria-selected=true]", (e) => e.dataset.lang);
 after(async () => env.close());
 
 async function open(locale = "en-US") {
@@ -63,7 +74,7 @@ test("English by default, and the picker lists English plus the twelve", async (
   const { page, ctx } = await open("en-GB");
   assert.equal(await page.$eval("html", (e) => e.lang), "en");
   assert.equal(await page.$eval("#start-over", (e) => e.textContent), "Start over");
-  assert.equal(await page.$$eval("#lang option", (o) => o.length), 13);
+  assert.equal(await page.$$eval("#lang-list [role=option]", (o) => o.length), 13);
   await ctx.close();
 });
 
@@ -79,8 +90,7 @@ test("the browser's language is used when we have it, with Norwegian variants fo
 test("choosing a language changes headings, hints, placeholders and the rule card, and is remembered", async () => {
   const { page, ctx, errors } = await open();
   for (const code of CODES) {
-    await page.selectOption("#lang", code);
-    await page.waitForFunction((c) => document.documentElement.lang === c, code);
+    await pick(page, code);
     const pack = (await import(`../js/lang/${code}.js`)).default;
     assert.equal(await page.$eval("#start-over", (e) => e.textContent), pack["Start over"], code);
     assert.equal(await page.$eval("#plan-name", (e) => e.placeholder), pack["Exactly as it appears in the project"], code);
@@ -88,11 +98,11 @@ test("choosing a language changes headings, hints, placeholders and the rule car
     assert.equal(await page.$eval("#add-rule", (e) => e.textContent), pack["Add rule"], code);
     assert.equal(await page.$eval(".rule label[for$='-kind']", (e) => e.textContent), pack["Look for"], code);
   }
-  await page.selectOption("#lang", "fi");
+  await pick(page, "fi");
   await page.reload();
-  assert.equal(await page.$eval("#lang", (e) => e.value), "fi");
+  assert.equal(await current(page), "fi");
   assert.equal(await page.$eval("#start-over", (e) => e.textContent), "Aloita alusta");
-  await page.selectOption("#lang", "en");
+  await pick(page, "en");
   assert.equal(await page.$eval("#start-over", (e) => e.textContent), "Start over");
   assert.deepEqual(errors, []);
   await ctx.close();
@@ -100,7 +110,7 @@ test("choosing a language changes headings, hints, placeholders and the rule car
 
 test("a drawing, messages and the pin table follow the language, and Start over keeps it", async () => {
   const { page, ctx } = await open();
-  await page.selectOption("#lang", "de");
+  await pick(page, "de");
   await page.setInputFiles("#file-pdf", `${root}samples/sample-drawing.pdf`);
   await page.setInputFiles("#load-rules", `${root}samples/sample-rules.json`);
   await page.waitForFunction(() => window.planTasks.state.pins.length === 13 && !window.planTasks.state.busy);
@@ -110,16 +120,16 @@ test("a drawing, messages and the pin table follow the language, and Start over 
   assert.equal(await page.$eval("#pin-rows tr:first-child td:nth-child(6)", (e) => e.textContent), "Punkt");
   assert.match(await page.textContent("#import-why"), /Noch nötig/);
   // switching back re-renders what is already on screen
-  await page.selectOption("#lang", "en");
+  await pick(page, "en");
   assert.match(await page.textContent("#pdf-info"), /words of text found on this page/);
   assert.match(await page.textContent("#pinlist-title"), /Pins · 13 of 13 included/);
-  await page.selectOption("#lang", "fr");
+  await pick(page, "fr");
   let msg = "";
   page.once("dialog", async (d) => { msg = d.message(); await d.accept(); });
   await page.click("#start-over");
   await page.waitForFunction(() => window.planTasks.state.pdf === null);
   assert.match(msg, /^Recommencer \?/);
-  assert.equal(await page.$eval("#lang", (e) => e.value), "fr");
+  assert.equal(await current(page), "fr");
   assert.equal(await page.$eval("#tb-name", (e) => e.textContent), "Aucun chargé");
   assert.match(await page.textContent("#pdf-info"), /Les repères doivent être|Callouts must/); // default hint is English only until translated
   await ctx.close();

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { captureSymbol, findSymbols, sanitizeTemplate } from "../js/symbols.js";
+import { captureSymbol, findSymbols, findSymbolsAsync, sanitizeTemplate } from "../js/symbols.js";
 import { detect, newRule, ruleKind } from "../js/core.js";
 
 // A made-up "door": a frame, two panels and a swing, as separate paths.
@@ -167,4 +167,17 @@ test("with other sizes on, the pin lands on the same spot of a bigger copy, scal
   const { hits } = findSymbols(SIZED, template, { sizes: true });
   const big = hits.find((h) => Math.abs(h.scale - 1.5) < 0.02);
   assert.ok(Math.hypot(big.x - (big.cx + 15), big.y - (big.cy + 30)) < 0.2, `${big.x - big.cx},${big.y - big.cy}`);
+});
+
+test("the search that reports progress finds exactly what the plain search finds, and can be stopped", async () => {
+  const { template } = captureSymbol(PLAN, box(200, 150));
+  const plain = findSymbols(PLAN, template, { level: 3 });
+  const seen = [];
+  const withProgress = await findSymbolsAsync(PLAN, template, { level: 3, yieldMs: -1 }, (f) => seen.push(f));
+  assert.deepEqual(withProgress.hits, plain.hits);
+  assert.ok(seen.length > 0, "progress was reported");
+  assert.ok(seen.every((f, i) => f >= 0 && f <= 1 && (i === 0 || f >= seen[i - 1])), "progress only moves forward, between 0 and 1");
+  const stopped = await findSymbolsAsync(PLAN, template, { level: 3, yieldMs: -1, shouldStop: () => true });
+  assert.equal(stopped.stopped, true);
+  assert.deepEqual(stopped.hits, []);
 });

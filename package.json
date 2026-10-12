@@ -1,10 +1,10 @@
 {
   "name": "plandot",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
-  "description": "Turn callouts and symbols on a plan into a task import file. Runs entirely in the browser.",
+  "description": "Turn callouts and symbols on a plan into pins, ready to import. Runs entirely in the browser.",
   "engines": {
     "node": ">=20"
   },

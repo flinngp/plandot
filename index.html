@@ -4,8 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Plandot</title>
-<meta name="description" content="Turn callouts and symbols on a plan into a task import file. Everything runs in your browser; drawings are never uploaded.">
+<meta name="description" content="Turn callouts and symbols on a plan into pins, ready to import. Everything runs in your browser; drawings are never uploaded.">
 <meta name="theme-color" content="#eef1f6">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Plandot: turn plan callouts into pins">
+<meta property="og:description" content="Find callouts and symbols on a drawing PDF and get an import file with every pin placed. Runs in your browser; your drawings are never uploaded.">
+<!-- When the site has its final address, make og:image and og:url full web addresses (https://your-domain/docs/preview.png): link previews need them. -->
+<meta property="og:image" content="docs/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%233355ff'/%3E%3Cpath d='M9 24V8M9 24h14' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='21' cy='11' r='4.4' fill='%23ffd24a'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/app.css">
 <script src="vendor/jszip.min.js"></script>
@@ -19,7 +27,7 @@
     <svg class="mark" viewBox="0 0 38 38" aria-hidden="true"><rect width="38" height="38" rx="11" fill="currentColor"/><path d="M11 28V10M11 28h17" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/><circle cx="24.5" cy="13.5" r="4.6" fill="#ffd24a"/></svg>
     <div>
       <h1>Plandot</h1>
-      <p data-i18n>Turn callouts and symbols on a plan into a task import file.</p>
+      <p data-i18n>Turn callouts and symbols on a plan into pins, ready to import.</p>
     </div>
   </div>
   <div class="masthead-right">
@@ -28,7 +36,7 @@
       <div><dt data-i18n>Sheet</dt><dd id="tb-size">–</dd></div>
       <div><dt data-i18n>Pins</dt><dd id="tb-pins">0</dd></div>
     </dl>
-    <label class="lang"><span class="sr" data-i18n>Language</span><select id="lang" aria-label="Language"></select></label>
+    <div class="langmenu"><button type="button" id="lang-btn" class="lang-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="lang-list" aria-label="Language"></button><ul id="lang-list" class="lang-list" role="listbox" tabindex="-1" aria-label="Language" hidden></ul></div>
     <button type="button" class="btn dark start-over" id="start-over" data-i18n>Start over</button>
   </div>
 </header>
@@ -40,7 +48,7 @@
     <section class="step" id="step-drawing">
       <h2><span class="num">1</span> <span data-i18n>Drawing</span></h2>
       <div class="field">
-        <label for="file-pdf" data-i18n>Drawing PDF</label>
+        <div class="lab"><label for="file-pdf" data-i18n>Drawing PDF</label><span class="info-slot" data-info="Your drawing, saved as a PDF from your design software. It opens only on this computer and is never uploaded."></span></div>
         <input id="file-pdf" type="file" accept=".pdf,application/pdf">
         <p class="hint" id="pdf-info">Callouts must be real text in the PDF, not part of a scanned image.</p>
         <div class="alert" id="pdf-alert" role="alert" hidden>
@@ -51,20 +59,20 @@
       <div class="field" id="page-field" hidden>
         <label for="page-select" data-i18n>Page</label>
         <select id="page-select"></select>
-        <p class="hint" data-i18n>Each page is its own plan in Fieldwire, so tasks are exported one page at a time.</p>
+        <p class="hint" data-i18n>Each page is its own plan in Fieldwire, so pins are exported one page at a time.</p>
       </div>
     </section>
 
     <section class="step" id="step-template">
       <h2><span class="num">2</span> <span data-i18n>Import template</span></h2>
       <div class="field">
-        <label for="file-xlsx" data-i18n>Task import template (.xlsx)</label>
+        <div class="lab"><label for="file-xlsx" data-i18n>Import template file (.xlsx)</label><span class="info-slot" data-info="The blank import spreadsheet from your Fieldwire project. Plandot fills it in, so your own columns carry across."></span></div>
         <input id="file-xlsx" type="file" accept=".xlsx">
-        <p class="hint" id="tpl-info">Download it from your project's task import screen. Load a fresh copy whenever custom task attributes change.</p>
+        <p class="hint" id="tpl-info">Download it from your project's import screen in Fieldwire. Load a fresh copy whenever custom attributes change.</p>
       </div>
       <div class="chips" id="tpl-chips" aria-label="Template columns"></div>
       <div class="field">
-        <label for="plan-name" data-i18n>Plan name in Fieldwire</label>
+        <div class="lab"><label for="plan-name" data-i18n>Plan name in Fieldwire</label><span class="info-slot" data-info="Which plan in your Fieldwire project the pins go onto. It must match the plan name exactly."></span></div>
         <input id="plan-name" type="text" autocomplete="off" placeholder="Exactly as it appears in the project" data-i18n-ph>
       </div>
     </section>
@@ -77,7 +85,7 @@
           <button type="button" class="btn link" id="redo" disabled data-i18n>Redo</button>
         </div>
       </div>
-      <p class="hint lead" data-i18n>A rule turns every callout or symbol it finds into one task.</p>
+      <p class="hint lead" data-i18n>A rule turns every callout or symbol it finds into one pin.</p>
       <div id="rules"></div>
       <div class="row">
         <button type="button" class="btn quiet" id="add-rule" data-i18n>Add rule</button>
@@ -90,7 +98,7 @@
       <details class="settings">
         <summary data-i18n>Search area and room labels</summary>
         <div class="field">
-          <span class="label" data-i18n>Search area</span>
+          <div class="lab"><span class="label" data-i18n>Search area</span><span class="info-slot" data-info="Limits the search to part of the sheet, so keynotes and the title block are ignored."></span></div>
           <div class="row">
             <button type="button" class="btn quiet" id="draw-area" disabled data-i18n>Draw on sheet</button>
             <button type="button" class="btn quiet" id="reset-area" disabled data-i18n>Use whole sheet</button>
@@ -98,19 +106,19 @@
           <p class="hint" id="area-info">Ignore keynotes and the title block by limiting the search to part of the sheet.</p>
         </div>
         <div class="field">
-          <label for="room-pattern" data-i18n>Room label pattern</label>
+          <div class="lab"><label for="room-pattern" data-i18n>Room label pattern</label><span class="info-slot" data-info="Lets Plandot find the nearest room number to each callout, so you can put the room in the pin title."></span></div>
           <input id="room-pattern" type="text" autocomplete="off" placeholder="For example \d-\d{3}" data-i18n-ph>
           <p class="hint" data-i18n>Optional. Finds the nearest room label to each callout so you can use {room} in titles. It is a regular expression and the match is approximate.</p>
         </div>
         <div class="field">
-          <label for="room-distance" data-i18n>Look for rooms within</label>
+          <div class="lab"><label for="room-distance" data-i18n>Look for rooms within</label><span class="info-slot" data-info="How far from a callout Plandot looks for a room label, as a share of the sheet width."></span></div>
           <div class="inline"><input id="room-distance" type="number" min="1" max="50" step="1" value="10"> <span data-i18n>% of the sheet width</span></div>
         </div>
       </details>
     </section>
 
     <section class="step" id="step-export">
-      <h2><span class="num">4</span> <span data-i18n>Download</span></h2>
+      <div class="step-head"><h2><span class="num">4</span> <span data-i18n>Download</span></h2><span class="info-slot head-info" data-info="Makes the spreadsheet to import into Fieldwire. Pins are always added as new items, so nothing already in your project is changed."></span></div>
       <div class="stack">
         <p class="export-summary" id="export-summary" role="status"></p>
         <details class="settings flat" id="export-preview">
@@ -124,7 +132,7 @@
       </div>
       <details class="settings">
         <summary data-i18n>Check pin positions first</summary>
-        <p class="hint" data-i18n>Makes nine test tasks on the 10%, 50% and 90% grid lines. Import them onto the 34 × 22 comparison grid in Fieldwire and confirm each lands on its crossing.</p>
+        <p class="hint" data-i18n>Makes nine test pins on the 10%, 50% and 90% grid lines. Import them onto the 34 × 22 comparison grid in Fieldwire and confirm each lands on its crossing.</p>
         <button type="button" class="btn" id="dl-calibration" disabled data-i18n>Download calibration file</button>
       </details>
       <p class="status" id="status" role="status" aria-live="polite"></p>
@@ -133,7 +141,7 @@
 
   <section class="sheetpane" aria-label="Drawing preview" data-i18n-aria>
     <div class="toolbar">
-      <label class="check"><input type="checkbox" id="show-grid"> <span data-i18n>10% grid</span></label>
+      <span class="tool-left"><label class="check"><input type="checkbox" id="show-grid"> <span data-i18n>10% grid</span></label><span class="info-slot" data-info="Draws grid lines every 10% across the sheet, to help you check where pins land."></span></span>
       <span class="tip" data-i18n>Scroll to pan · Ctrl + scroll to zoom</span>
       <span class="readout" id="readout" aria-live="off">X – &nbsp; Y –</span>
     </div>
@@ -158,6 +166,7 @@
       <p class="dz-title" data-i18n>Drop the drawing PDF here</p>
       <p data-i18n>You can drop the import template too. Nothing leaves your computer.</p>
       <button type="button" class="btn quiet" id="try-sample" data-i18n>Try with a sample drawing</button>
+      <p class="dz-help"><a href="howto.html" data-i18n>New here? See how it works</a></p>
     </div>
   </section>
 </div>
@@ -172,11 +181,13 @@
       </div>
       <div class="tablewrap">
         <table>
-          <thead><tr><th scope="col"><span class="sr" data-i18n>Include</span></th><th scope="col">#</th><th scope="col" data-i18n>Rule</th><th scope="col" data-i18n>Tag</th><th scope="col" data-i18n>Room</th><th scope="col" data-i18n>Pinned on</th><th scope="col" data-i18n>Task title</th><th scope="col" class="num-col">X %</th><th scope="col" class="num-col">Y %</th></tr></thead>
+          <thead><tr><th scope="col"><span class="sr" data-i18n>Include</span></th><th scope="col">#</th><th scope="col" data-i18n>Rule</th><th scope="col" data-i18n>Tag</th><th scope="col" data-i18n>Room</th><th scope="col" data-i18n>Pinned on</th><th scope="col" data-i18n>Pin title</th><th scope="col" class="num-col">X %</th><th scope="col" class="num-col">Y %</th></tr></thead>
           <tbody id="pin-rows"></tbody>
         </table>
       </div>
     </div>
 </main>
+<footer class="sitefoot" id="sitefoot"></footer>
+<div class="busybar" id="busybar" hidden role="status"><span class="busy-label"></span><span class="busy-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progress" data-i18n-aria><span class="busy-fill"></span></span></div>
 </body>
 </html>
