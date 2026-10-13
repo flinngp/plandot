@@ -175,7 +175,6 @@ export default {
  "Loading the sample…": "Načítání ukázky…",
  "The sample couldn't be loaded. It needs the page to be opened from its web address, not as a file on your computer.": "Ukázku se nepodařilo načíst. Stránku je třeba otevřít z její webové adresy, ne jako soubor z počítače.",
  "This is a made-up sample. Try the rules on the left, then download the import file.": "Toto je vymyšlená ukázka. Vyzkoušejte pravidla vlevo a poté stáhněte importní soubor.",
- "Start over? This clears the drawing, the import template, your rules and the pins, and takes you back to the beginning.\n\nSetup files saved on your computer are not touched. Choose Save setup first if you want to keep these rules.": "Začít znovu? Tím se vymaže výkres, importní šablona, vaše pravidla a špendlíky a vrátíte se na začátek.\n\nSoubory nastavení uložené v počítači se nezmění. Pokud chcete tato pravidla zachovat, nejprve zvolte Uložit nastavení.",
  "That isn't a Plandot setup file ({err}).": "Toto není soubor nastavení Plandot ({err}).",
  "Without a mouse: use the arrow keys, Enter for each corner, Escape to cancel.": "Bez myši: šipky pohybují, Enter nastaví každý roh, Esc zruší.",
  "\"{name}\" isn't a PDF drawing, an .xlsx template or a setup file.": "„{name}“ není výkres PDF, šablona .xlsx ani soubor nastavení.",
@@ -250,4 +249,6 @@ export default {
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Otevřete soubor, zkopírujte řádky se špendlíky a vložte je do importu úkolů ve Fieldwire, vždy jednu dávku.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "Import úkolů ve Fieldwire přijme najednou nejvýš {limit} špendlíků, takže vložte tento soubor v {n} dávkách (špendlíky {ranges}).",
  "Plandot is an independent tool, not made or endorsed by Fieldwire by Hilti.": "Plandot je nezávislý nástroj, který nevytvořila ani neschválila společnost Fieldwire by Hilti.",
+ "The sample couldn't be loaded ({file}). Reload the page and try again.": "Ukázku se nepodařilo načíst ({file}). Obnovte stránku a zkuste to znovu.",
+ "Start over? This clears your drawing, template, rules and pins. Choose Save setup first to keep your rules.": "Začít znovu? Výkres, šablona, pravidla i body se smažou. Chcete-li pravidla zachovat, nejdřív zvolte Uložit nastavení.",
 };

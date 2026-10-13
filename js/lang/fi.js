@@ -175,7 +175,6 @@ export default {
  "Loading the sample…": "Ladataan esimerkkiä…",
  "The sample couldn't be loaded. It needs the page to be opened from its web address, not as a file on your computer.": "Esimerkkiä ei voitu ladata. Sivu on avattava verkko-osoitteestaan, ei tiedostona tietokoneeltasi.",
  "This is a made-up sample. Try the rules on the left, then download the import file.": "Tämä on keksitty esimerkki. Kokeile vasemmalla olevia sääntöjä ja lataa sitten tuontitiedosto.",
- "Start over? This clears the drawing, the import template, your rules and the pins, and takes you back to the beginning.\n\nSetup files saved on your computer are not touched. Choose Save setup first if you want to keep these rules.": "Aloitetaanko alusta? Tämä tyhjentää piirustuksen, tuontimallin, säännöt ja nastat ja vie takaisin alkuun.\n\nTietokoneelle tallennettuihin asetustiedostoihin ei kosketa. Valitse ensin Tallenna asetukset, jos haluat säilyttää nämä säännöt.",
  "That isn't a Plandot setup file ({err}).": "Tämä ei ole Plandotin asetustiedosto ({err}).",
  "Without a mouse: use the arrow keys, Enter for each corner, Escape to cancel.": "Ilman hiirtä: nuolinäppäimillä liikutat, Enter asettaa kulman, Esc peruu.",
  "\"{name}\" isn't a PDF drawing, an .xlsx template or a setup file.": "”{name}” ei ole PDF-piirustus, .xlsx-malli eikä asetustiedosto.",
@@ -250,4 +249,6 @@ export default {
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Avaa tiedosto, kopioi nastarivit ja liitä ne Fieldwiren tehtävien tuontityökaluun yksi erä kerrallaan.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "Fieldwiren tehtävien tuonti ottaa enintään {limit} nastaa kerrallaan, joten liitä tiedosto {n} erässä (nastat {ranges}).",
  "Plandot is an independent tool, not made or endorsed by Fieldwire by Hilti.": "Plandot on itsenäinen työkalu, jota Fieldwire by Hilti ei ole tehnyt eikä hyväksynyt.",
+ "The sample couldn't be loaded ({file}). Reload the page and try again.": "Esimerkkiä ei voitu ladata ({file}). Lataa sivu uudelleen ja yritä uudelleen.",
+ "Start over? This clears your drawing, template, rules and pins. Choose Save setup first to keep your rules.": "Aloitetaanko alusta? Piirustus, pohja, säännöt ja nastat tyhjennetään. Valitse ensin Tallenna asetukset, jos haluat säilyttää säännöt.",
 };

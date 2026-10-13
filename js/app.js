@@ -1216,14 +1216,16 @@ async function trySample() {
   say(tr("Loading the sample…"));
   const get = async (name) => {
     const res = await fetch(new URL(`samples/${name}`, document.baseURI));
-    if (!res.ok) throw new Error(name);
+    if (!res.ok) throw new Error(`${name}: ${res.status}`);
     return res;
   };
   let pdf, xlsx, rules;
   try {
     [pdf, xlsx, rules] = await Promise.all([get("sample-drawing.pdf").then((r) => r.blob()), get("sample-import-template.xlsx").then((r) => r.blob()), get("sample-rules.json").then((r) => r.blob())]);
-  } catch {
-    say(tr("The sample couldn't be loaded. It needs the page to be opened from its web address, not as a file on your computer."), "err");
+  } catch (e) {
+    const fromFile = location.protocol === "file:";
+    say(fromFile ? tr("The sample couldn't be loaded. It needs the page to be opened from its web address, not as a file on your computer.")
+      : tr("The sample couldn't be loaded ({file}). Reload the page and try again.", { file: String(e?.message || e).slice(0, 80) }), "err");
     return;
   }
   state.settings.planName = "Ground floor plan";
@@ -1233,6 +1235,7 @@ async function trySample() {
   await loadPdfFile(new File([pdf], "sample-drawing.pdf", { type: "application/pdf" }));
   save();
   say(tr("This is a made-up sample. Try the rules on the left, then download the import file."), "ok");
+  if (globalThis.matchMedia?.("(max-width: 1000px)").matches) document.querySelector(".sheetpane")?.scrollIntoView({ block: "start" }); // on a phone, show the plan
 }
 
 // ---------------------------------------------------------------- start over
@@ -1245,7 +1248,7 @@ function hasWork() {
 }
 
 function startOver() {
-  if (hasWork() && !window.confirm(tr("Start over? This clears the drawing, the import template, your rules and the pins, and takes you back to the beginning.\n\nSetup files saved on your computer are not touched. Choose Save setup first if you want to keep these rules."))) return;
+  if (hasWork() && !window.confirm(tr("Start over? This clears your drawing, template, rules and pins. Choose Save setup first to keep your rules."))) return;
   loadRun++;
   detectRun++; // anything still being worked out for the old drawing is thrown away
   try { state.pdf?.doc?.destroy?.(); } catch { /* already gone */ }
@@ -1386,6 +1389,16 @@ $("#room-distance").value = state.settings.roomDistance || 10;
 $("#show-grid").checked = !!state.settings.showGrid;
 wire();
 setupStage();
+// The setup panel sticks to the top of the window as the page scrolls, and stretches to the bottom of it.
+{
+  const panel = $(".controls");
+  let queued = false;
+  const fit = () => { queued = false; if (getComputedStyle(panel).position === "sticky") panel.style.height = `${Math.max(360, innerHeight - panel.getBoundingClientRect().top - 16)}px`; };
+  const queue = () => { if (!queued) { queued = true; requestAnimationFrame(fit); } };
+  addEventListener("scroll", queue, { passive: true });
+  addEventListener("resize", queue);
+  fit();
+}
 startAnalytics();
 await initLanguageMenu({
   onChange: async () => {

@@ -175,7 +175,6 @@ export default {
  "Loading the sample…": "Voorbeeld laden…",
  "The sample couldn't be loaded. It needs the page to be opened from its web address, not as a file on your computer.": "Het voorbeeld kon niet worden geladen. De pagina moet via het webadres worden geopend, niet als bestand op uw computer.",
  "This is a made-up sample. Try the rules on the left, then download the import file.": "Dit is een verzonnen voorbeeld. Probeer de regels links en download daarna het importbestand.",
- "Start over? This clears the drawing, the import template, your rules and the pins, and takes you back to the beginning.\n\nSetup files saved on your computer are not touched. Choose Save setup first if you want to keep these rules.": "Opnieuw beginnen? Hiermee wist u de tekening, het importsjabloon, uw regels en de spelden en begint u weer bij het begin.\n\nOp uw computer opgeslagen setupbestanden blijven ongemoeid. Kies eerst Setup opslaan als u deze regels wilt bewaren.",
  "That isn't a Plandot setup file ({err}).": "Dat is geen Plandot-setupbestand ({err}).",
  "Without a mouse: use the arrow keys, Enter for each corner, Escape to cancel.": "Zonder muis: pijltjestoetsen om te bewegen, Enter voor elke hoek, Esc om te annuleren.",
  "\"{name}\" isn't a PDF drawing, an .xlsx template or a setup file.": "\"{name}\" is geen pdf-tekening, .xlsx-sjabloon of setupbestand.",
@@ -250,4 +249,6 @@ export default {
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Open het bestand, kopieer de rijen met spelden en plak ze in de taakimporter van Fieldwire, steeds één groep tegelijk.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "De taakimporter van Fieldwire neemt maximaal {limit} spelden tegelijk aan, dus plak dit bestand in {n} groepen (spelden {ranges}).",
  "Plandot is an independent tool, not made or endorsed by Fieldwire by Hilti.": "Plandot is een onafhankelijk hulpmiddel, niet gemaakt of goedgekeurd door Fieldwire by Hilti.",
+ "The sample couldn't be loaded ({file}). Reload the page and try again.": "Het voorbeeld kon niet worden geladen ({file}). Laad de pagina opnieuw en probeer het nog eens.",
+ "Start over? This clears your drawing, template, rules and pins. Choose Save setup first to keep your rules.": "Opnieuw beginnen? Tekening, sjabloon, regels en spelden worden gewist. Kies eerst Setup opslaan om je regels te bewaren.",
 };

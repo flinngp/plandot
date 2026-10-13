@@ -175,7 +175,6 @@ export default {
  "Loading the sample…": "Cargando el ejemplo…",
  "The sample couldn't be loaded. It needs the page to be opened from its web address, not as a file on your computer.": "No se pudo cargar el ejemplo. La página debe abrirse desde su dirección web, no como un archivo de su ordenador.",
  "This is a made-up sample. Try the rules on the left, then download the import file.": "Este es un ejemplo ficticio. Pruebe las reglas de la izquierda y descargue el archivo de importación.",
- "Start over? This clears the drawing, the import template, your rules and the pins, and takes you back to the beginning.\n\nSetup files saved on your computer are not touched. Choose Save setup first if you want to keep these rules.": "¿Empezar de nuevo? Se borran el plano, la plantilla de importación, sus reglas y las chinchetas, y vuelve al principio.\n\nLos archivos de configuración guardados en su ordenador no se tocan. Elija antes Guardar configuración si quiere conservar estas reglas.",
  "That isn't a Plandot setup file ({err}).": "Ese no es un archivo de configuración de Plandot ({err}).",
  "Without a mouse: use the arrow keys, Enter for each corner, Escape to cancel.": "Sin ratón: flechas para mover, Intro para cada esquina, Esc para cancelar.",
  "\"{name}\" isn't a PDF drawing, an .xlsx template or a setup file.": "«{name}» no es un plano PDF, una plantilla .xlsx ni un archivo de configuración.",
@@ -250,4 +249,6 @@ export default {
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Abre el archivo, copia las filas de chinchetas y pégalas en el importador de tareas de Fieldwire, un lote cada vez.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "El importador de tareas de Fieldwire admite hasta {limit} chinchetas a la vez, así que pega este archivo en {n} lotes (chinchetas {ranges}).",
  "Plandot is an independent tool, not made or endorsed by Fieldwire by Hilti.": "Plandot es una herramienta independiente, no creada ni avalada por Fieldwire by Hilti.",
+ "The sample couldn't be loaded ({file}). Reload the page and try again.": "No se pudo cargar el ejemplo ({file}). Recarga la página e inténtalo de nuevo.",
+ "Start over? This clears your drawing, template, rules and pins. Choose Save setup first to keep your rules.": "¿Empezar de nuevo? Se borran el plano, la plantilla, las reglas y las chinchetas. Elige primero Guardar configuración para conservar las reglas.",
 };

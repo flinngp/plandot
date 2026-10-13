@@ -175,7 +175,6 @@ export default {
  "Loading the sample…": "Beispiel wird geladen…",
  "The sample couldn't be loaded. It needs the page to be opened from its web address, not as a file on your computer.": "Das Beispiel konnte nicht geladen werden. Die Seite muss über ihre Webadresse geöffnet werden, nicht als Datei auf Ihrem Computer.",
  "This is a made-up sample. Try the rules on the left, then download the import file.": "Dies ist ein erfundenes Beispiel. Probieren Sie die Regeln links aus und laden Sie dann die Importdatei herunter.",
- "Start over? This clears the drawing, the import template, your rules and the pins, and takes you back to the beginning.\n\nSetup files saved on your computer are not touched. Choose Save setup first if you want to keep these rules.": "Neu beginnen? Dadurch werden Zeichnung, Importvorlage, Ihre Regeln und die Markierungen gelöscht, und Sie beginnen von vorn.\n\nAuf Ihrem Computer gespeicherte Setup-Dateien bleiben unberührt. Wählen Sie zuerst Setup speichern, wenn Sie diese Regeln behalten möchten.",
  "That isn't a Plandot setup file ({err}).": "Das ist keine Plandot-Setup-Datei ({err}).",
  "Without a mouse: use the arrow keys, Enter for each corner, Escape to cancel.": "Ohne Maus: Pfeiltasten zum Bewegen, Eingabetaste für jede Ecke, Esc zum Abbrechen.",
  "\"{name}\" isn't a PDF drawing, an .xlsx template or a setup file.": "„{name}“ ist weder eine PDF-Zeichnung noch eine .xlsx-Vorlage oder eine Setup-Datei.",
@@ -250,4 +249,6 @@ export default {
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Öffnen Sie die Datei, kopieren Sie die Markierungszeilen und fügen Sie sie stapelweise in den Aufgaben-Import von Fieldwire ein.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "Der Aufgaben-Import von Fieldwire nimmt höchstens {limit} Markierungen auf einmal an. Fügen Sie diese Datei daher in {n} Stapeln ein (Markierungen {ranges}).",
  "Plandot is an independent tool, not made or endorsed by Fieldwire by Hilti.": "Plandot ist ein unabhängiges Werkzeug und wird weder von Fieldwire by Hilti entwickelt noch empfohlen.",
+ "The sample couldn't be loaded ({file}). Reload the page and try again.": "Das Beispiel konnte nicht geladen werden ({file}). Laden Sie die Seite neu und versuchen Sie es erneut.",
+ "Start over? This clears your drawing, template, rules and pins. Choose Save setup first to keep your rules.": "Neu beginnen? Zeichnung, Vorlage, Regeln und Markierungen werden gelöscht. Wählen Sie zuerst Setup speichern, um Ihre Regeln zu behalten.",
 };

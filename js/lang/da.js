@@ -175,7 +175,6 @@ export default {
  "Loading the sample…": "Indlæser eksemplet…",
  "The sample couldn't be loaded. It needs the page to be opened from its web address, not as a file on your computer.": "Eksemplet kunne ikke indlæses. Siden skal åbnes fra sin webadresse, ikke som en fil på din computer.",
  "This is a made-up sample. Try the rules on the left, then download the import file.": "Dette er et opdigtet eksempel. Prøv reglerne til venstre, og download derefter importfilen.",
- "Start over? This clears the drawing, the import template, your rules and the pins, and takes you back to the beginning.\n\nSetup files saved on your computer are not touched. Choose Save setup first if you want to keep these rules.": "Start forfra? Det rydder tegningen, importskabelonen, dine regler og nålene og fører dig tilbage til start.\n\nOpsætningsfiler gemt på din computer berøres ikke. Vælg først Gem opsætning, hvis du vil beholde disse regler.",
  "That isn't a Plandot setup file ({err}).": "Det er ikke en Plandot-opsætningsfil ({err}).",
  "Without a mouse: use the arrow keys, Enter for each corner, Escape to cancel.": "Uden mus: brug piletasterne, Enter for hvert hjørne og Esc for at annullere.",
  "\"{name}\" isn't a PDF drawing, an .xlsx template or a setup file.": "\"{name}\" er hverken en PDF-tegning, en .xlsx-skabelon eller en opsætningsfil.",
@@ -250,4 +249,6 @@ export default {
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Åbn filen, kopiér nålerækkerne og indsæt dem i Fieldwires opgaveimport, én gruppe ad gangen.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "Fieldwires opgaveimport tager op til {limit} nåle ad gangen, så indsæt denne fil i {n} grupper (nåle {ranges}).",
  "Plandot is an independent tool, not made or endorsed by Fieldwire by Hilti.": "Plandot er et uafhængigt værktøj, ikke lavet eller godkendt af Fieldwire by Hilti.",
+ "The sample couldn't be loaded ({file}). Reload the page and try again.": "Eksemplet kunne ikke indlæses ({file}). Genindlæs siden og prøv igen.",
+ "Start over? This clears your drawing, template, rules and pins. Choose Save setup first to keep your rules.": "Starte forfra? Tegning, skabelon, regler og nåle slettes. Vælg først Gem opsætning for at beholde dine regler.",
 };

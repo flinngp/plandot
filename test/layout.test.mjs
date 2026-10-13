@@ -51,15 +51,36 @@ for (const [w, h] of [[1440, 780], [1280, 720], [1920, 1080], [820, 1100], [390,
   });
 }
 
-test("the pin list sits below both columns, outside the workspace", async () => {
+test("the pin list sits under the sheet, and the setup panel stays on screen down to the bottom of the window", async () => {
   const page = await env.browser.newPage({ viewport: { width: 1440, height: 780 } });
   await loadSample(page);
   const ok = await page.evaluate(() => {
-    const ws = document.querySelector(".workspace"), list = document.querySelector("#pinlist");
-    return !ws.contains(list) && list.getBoundingClientRect().top >= ws.getBoundingClientRect().bottom - 1;
+    const pane = document.querySelector(".sheetpane"), list = document.querySelector("#pinlist"), panel = document.querySelector(".controls");
+    const a = pane.getBoundingClientRect(), b = list.getBoundingClientRect(), c = panel.getBoundingClientRect();
+    return { under: b.top >= a.bottom - 1 && Math.abs(b.left - a.left) < 2, besideX: c.right <= a.left + 1 };
   });
+  assert.ok(ok.under, "the pin list is directly under the sheet");
+  assert.ok(ok.besideX, "the setup panel is in its own column");
+  for (const y of [0, 200, 420, 700]) {
+    await page.evaluate((y) => scrollTo(0, y), y);
+    await page.waitForTimeout(150);
+    const r = await page.evaluate(() => { const c = document.querySelector(".controls").getBoundingClientRect(); return { top: c.top, bottom: c.bottom, h: innerHeight }; });
+    assert.ok(r.bottom <= r.h + 1 && r.bottom >= r.h - 20, `at scroll ${y} the panel ends at ${r.bottom} of ${r.h}`);
+    assert.ok(r.top >= 0, "the panel is never cut off at the top");
+  }
+  // once the page is scrolled down, the panel is pinned near the top and fills the window
+  const pinned = await page.evaluate(() => { const c = document.querySelector(".controls").getBoundingClientRect(); return { top: c.top, height: c.height, h: innerHeight }; });
+  assert.ok(pinned.top <= 14, `pinned near the top, got ${pinned.top}`);
+  assert.ok(pinned.height >= pinned.h - 40, `fills the window, got ${pinned.height} of ${pinned.h}`);
   await page.close();
-  assert.ok(ok);
+});
+
+test("on a phone the setup panel is part of the page, not pinned", async () => {
+  const page = await env.browser.newPage({ viewport: { width: 390, height: 800 } });
+  await loadSample(page);
+  const pos = await page.evaluate(() => { const c = getComputedStyle(document.querySelector(".controls")); return [c.position, document.documentElement.scrollWidth <= innerWidth]; });
+  await page.close();
+  assert.deepEqual(pos, ["static", true]);
 });
 
 // ------------------------------------------------------------------ Start over

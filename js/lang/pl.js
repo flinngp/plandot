@@ -175,7 +175,6 @@ export default {
  "Loading the sample…": "Wczytywanie przykładu…",
  "The sample couldn't be loaded. It needs the page to be opened from its web address, not as a file on your computer.": "Nie udało się wczytać przykładu. Stronę trzeba otworzyć pod jej adresem internetowym, a nie jako plik z komputera.",
  "This is a made-up sample. Try the rules on the left, then download the import file.": "To zmyślony przykład. Wypróbuj reguły po lewej, a potem pobierz plik importu.",
- "Start over? This clears the drawing, the import template, your rules and the pins, and takes you back to the beginning.\n\nSetup files saved on your computer are not touched. Choose Save setup first if you want to keep these rules.": "Zacząć od nowa? Spowoduje to wyczyszczenie rysunku, szablonu importu, reguł i pinezek oraz powrót do początku.\n\nPliki konfiguracji zapisane na komputerze nie zostaną zmienione. Jeśli chcesz zachować te reguły, najpierw wybierz Zapisz konfigurację.",
  "That isn't a Plandot setup file ({err}).": "To nie jest plik konfiguracji Plandot ({err}).",
  "Without a mouse: use the arrow keys, Enter for each corner, Escape to cancel.": "Bez myszy: strzałki przesuwają, Enter ustawia każdy narożnik, Esc anuluje.",
  "\"{name}\" isn't a PDF drawing, an .xlsx template or a setup file.": "„{name}” nie jest rysunkiem PDF, szablonem .xlsx ani plikiem konfiguracji.",
@@ -250,4 +249,6 @@ export default {
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Otwórz plik, skopiuj wiersze z pinezkami i wklej je do importera zadań Fieldwire, jedna partia po drugiej.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "Importer zadań Fieldwire przyjmuje do {limit} pinezek naraz, więc wklej ten plik w {n} partiach (pinezki {ranges}).",
  "Plandot is an independent tool, not made or endorsed by Fieldwire by Hilti.": "Plandot to niezależne narzędzie, które nie zostało stworzone ani zatwierdzone przez Fieldwire by Hilti.",
+ "The sample couldn't be loaded ({file}). Reload the page and try again.": "Nie udało się wczytać przykładu ({file}). Odśwież stronę i spróbuj ponownie.",
+ "Start over? This clears your drawing, template, rules and pins. Choose Save setup first to keep your rules.": "Zacząć od nowa? Rysunek, szablon, reguły i pinezki zostaną usunięte. Najpierw wybierz Zapisz konfigurację, aby zachować reguły.",
 };

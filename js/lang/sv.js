@@ -175,7 +175,6 @@ export default {
  "Loading the sample…": "Läser in exemplet…",
  "The sample couldn't be loaded. It needs the page to be opened from its web address, not as a file on your computer.": "Exemplet kunde inte läsas in. Sidan måste öppnas från sin webbadress, inte som en fil på din dator.",
  "This is a made-up sample. Try the rules on the left, then download the import file.": "Det här är ett påhittat exempel. Prova reglerna till vänster och ladda sedan ned importfilen.",
- "Start over? This clears the drawing, the import template, your rules and the pins, and takes you back to the beginning.\n\nSetup files saved on your computer are not touched. Choose Save setup first if you want to keep these rules.": "Börja om? Det rensar ritningen, importmallen, dina regler och nålarna och tar dig tillbaka till början.\n\nInställningsfiler som sparats på din dator påverkas inte. Välj först Spara inställningar om du vill behålla de här reglerna.",
  "That isn't a Plandot setup file ({err}).": "Det är inte en Plandot-inställningsfil ({err}).",
  "Without a mouse: use the arrow keys, Enter for each corner, Escape to cancel.": "Utan mus: använd piltangenterna, Retur för varje hörn och Esc för att avbryta.",
  "\"{name}\" isn't a PDF drawing, an .xlsx template or a setup file.": "\"{name}\" är varken en PDF-ritning, en .xlsx-mall eller en inställningsfil.",
@@ -250,4 +249,6 @@ export default {
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Öppna filen, kopiera nålraderna och klistra in dem i Fieldwires uppgiftsimport, en grupp i taget.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "Fieldwires uppgiftsimport tar högst {limit} nålar åt gången, så klistra in filen i {n} grupper (nålar {ranges}).",
  "Plandot is an independent tool, not made or endorsed by Fieldwire by Hilti.": "Plandot är ett oberoende verktyg, inte framtaget eller godkänt av Fieldwire by Hilti.",
+ "The sample couldn't be loaded ({file}). Reload the page and try again.": "Exemplet kunde inte laddas ({file}). Ladda om sidan och försök igen.",
+ "Start over? This clears your drawing, template, rules and pins. Choose Save setup first to keep your rules.": "Börja om? Ritningen, mallen, reglerna och nålarna rensas. Välj Spara inställningar först för att behålla reglerna.",
 };
