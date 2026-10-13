@@ -85,5 +85,9 @@ export default [
 `Para desenhar uma caixa sem rato, ponha a planta em foco, mova-se com as setas (mantenha <kbd>Shift</kbd> ou <kbd>Alt</kbd> premido para mudar o passo), prima <kbd>Enter</kbd> em cada canto e <kbd>Esc</kbd> para cancelar.`,
 `Prima o pequeno <strong>(i)</strong> junto a um campo para ver uma explicação de uma linha.`,
 `Algo não funciona? Consulte as <a href="faq.html">perguntas frequentes</a>.`,
+`Guardar configuração e Abrir configuração ficam por baixo das suas regras.`,
+`Os botões por baixo das regras. O número um marca Guardar configuração e o número dois marca Abrir configuração.`,
+`Vídeo curto sem som: carregar em Guardar configuração, depois em Abrir configuração, e as regras voltam.`,
+`Veja: guarde a configuração e abra-a de novo.`,
 `As capturas de ecrã mostram a aplicação em inglês.`,
 ];

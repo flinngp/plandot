@@ -163,5 +163,26 @@ await record("clip-4-download", {
   },
 });
 
+// 5: save the setup, then open it again
+await record("clip-5-reuse", {
+  setup: async (page) => {
+    await page.setInputFiles("#file-pdf", root + "samples/sample-drawing.pdf"); await ready(page);
+    await page.setInputFiles("#file-xlsx", root + "samples/sample-import-template.xlsx");
+    await page.waitForFunction(() => window.planTasks.state.tpl?.parsed);
+    await page.setInputFiles("#load-rules", root + "samples/sample-rules.json");
+    await page.waitForFunction(() => window.planTasks.state.pins.length > 0);
+    await page.evaluate(() => document.querySelector("#save-rules").scrollIntoView({ block: "center" }));
+    await sleep(800);
+  },
+  act: async (page) => {
+    await Promise.all([page.waitForEvent("download"), click(page, "#save-rules")]); // Save setup
+    await sleep(1200);
+    const [x, y] = await centre(page, "#load-rules-btn"); await glide(page, x, y); await sleep(200);
+    const [fc] = await Promise.all([page.waitForEvent("filechooser"), page.locator("#load-rules-btn").click()]); // Open setup
+    await fc.setFiles(root + "samples/sample-rules.json");
+    await sleep(1800);
+  },
+});
+
 rmSync(tmp, { recursive: true, force: true });
 await close();

@@ -15,14 +15,18 @@
 .doc li { margin: 5px 0; }
 .doc code, .doc kbd { font: 600 13px ui-monospace, Menlo, Consolas, monospace; background: var(--soft); border: 1px solid var(--line-soft); border-radius: 6px; padding: 1px 6px; }
 .doc a { color: var(--accent-dark); font-weight: 600; }
+/* every screenshot and clip sits in a media row: two equal columns, or one wide picture across both */
+.media { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 22px; align-items: start; margin: 16px 0 4px; }
+.media > figure { margin: 0; min-width: 0; }
+.media > .shot:not(.narrow) { grid-column: 1 / -1; }
+.media > .shot:not(.narrow) + .clip { grid-column: 1 / -1; max-width: 640px; }
+.media figcaption { color: var(--ink-2); font-size: 13px; line-height: 1.4; margin-top: 8px; }
+.media .shot img, .media .clip-video { width: 100%; max-width: 100%; height: auto; }
+.media .shot.narrow img { width: auto; max-width: 100%; }
+@media (max-width: 700px) { .media { grid-template-columns: minmax(0, 1fr); } .media > .shot:not(.narrow) + .clip { max-width: none; } }
 .shot { margin: 14px 0 6px; }
 .shot img { display: block; max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); box-shadow: var(--shadow); }
-.shot.narrow img { max-width: min(340px, 100%); }
 .shot figcaption { color: var(--ink-2); font-size: 13px; margin-top: 6px; }
-.split { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
-.split > div { flex: 1 1 320px; min-width: 0; }
-.split .shot { flex: none; margin: 8px 0 0; max-width: 100%; }
-.shot.narrow { width: min(340px, 100%); }
 .toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; }
 .toc a { display: inline-block; background: var(--card); border-radius: 999px; padding: 7px 14px; box-shadow: var(--shadow); text-decoration: none; font-size: 13px; }
 .toc a:hover { background: var(--accent-wash); }

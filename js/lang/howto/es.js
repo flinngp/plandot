@@ -85,5 +85,9 @@ export default [
 `Para dibujar un recuadro sin ratón, enfoca el plano, muévete con las flechas (mantén <kbd>Mayús</kbd> o <kbd>Alt</kbd> para cambiar el paso), pulsa <kbd>Intro</kbd> en cada esquina y <kbd>Esc</kbd> para cancelar.`,
 `Pulsa la pequeña <strong>(i)</strong> junto a un campo para ver una explicación de una línea.`,
 `¿Algo no funciona? Consulta las <a href="faq.html">preguntas frecuentes</a>.`,
+`Guardar configuración y Abrir configuración están debajo de tus reglas.`,
+`Los botones bajo las reglas. El número uno marca Guardar configuración y el número dos marca Abrir configuración.`,
+`Clip corto sin sonido: se pulsa Guardar configuración, luego Abrir configuración y las reglas vuelven.`,
+`Mira: guarda la configuración y vuelve a abrirla.`,
 `Las capturas de pantalla muestran la aplicación en inglés.`,
 ];

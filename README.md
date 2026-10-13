@@ -170,4 +170,12 @@ All rights reserved: see `LICENSE`. Third-party libraries in `vendor/` keep thei
 
 `howto.html` is written in English, and each piece of text carries a number (`data-h`, plus `data-ha` for picture descriptions and `data-hl` for video labels). `js/lang/howto/<code>.js` holds the same pieces in the same order for each of the 12 other languages, with one extra last entry: the note that the screenshots are in English. `js/help.js` swaps them in when the app language isn't English. The tests check that every language has every piece, the same bold, code and link markup as English, and the app's own button names.
 
-If you change the English guide, the numbers can shift, so re-number the page and update all 12 packs (the tests will tell you which entry is wrong). The FAQ is still English only. The screenshots and clips show the English app.
+If you change the English guide, the numbers can shift, so re-number the page and update all 12 packs (the tests will tell you which entry is wrong). The FAQ works the same way with `js/lang/faq/<code>.js` (`<body data-guide="faq">`; its last entry is empty because the FAQ is fully translated). The screenshots and clips show the English app. Every picture and clip sits in a `.media` row (two equal columns, or one wide picture across both), so the guide keeps one layout. Retake them with `scripts/make-howto-shots.mjs` and `scripts/make-howto-videos.mjs`.
+
+Both help pages have the language menu in the top bar; choosing a language reloads the page in it.
+
+## Page header and link previews
+
+- The top bar holds the page links and the language menu. The drawing name, sheet size and pin count sit above the drawing (`.titleblock`), and Start over is the only button in the header.
+- Clicking a pin row jumps up to the drawing when it is off screen, and a floating "Back to the pins" button returns to the list.
+- Link previews (WhatsApp, Slack, iMessage and so on) come from the Open Graph tags on all three pages and `docs/preview.png` (1200 x 630, 25 KB). The image address must stay absolute (`https://plandot.uk/...`). These apps cache previews, so a changed image can take a while to appear; a new address (for example `preview.png?v=2`) forces a refresh.

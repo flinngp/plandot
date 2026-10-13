@@ -279,4 +279,5 @@ export default {
  "Download the import template from your Fieldwire project, then choose it here and type the plan name exactly as it appears in the project.": "Last ned importmalen fra Fieldwire-prosjektet ditt, velg den her og skriv planens navn nøyaktig slik det står i prosjektet.",
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Hver regel gjør hver henvisning eller hvert symbol som blir funnet, til en nål. Skriv teksten som skal søkes etter, eller tegn en boks rundt et symbol.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Trykk på Kopier rader og lim inn i Fieldwires oppgaveimport, opptil 500 nåler om gangen. Eller last ned importfilen.",
+ "Back to the pins": "Tilbake til nålene",
 };

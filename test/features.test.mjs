@@ -536,3 +536,33 @@ test("the page's security rules let everything work: sample, downloads, marked-u
   assert.deepEqual(page.errors, []);
   await page.close();
 });
+
+test("clicking a pin row jumps up to the drawing, and a button brings you back to the list", async () => {
+  const page = await fresh({ width: 1280, height: 480 });
+  await page.click("#try-sample");
+  await page.waitForFunction(() => window.planTasks.state.pins.length === 13 && !window.planTasks.state.busy, null, { timeout: 20000 });
+  await page.evaluate(() => window.scrollTo(0, 1e6));
+  await page.waitForTimeout(300);
+  const vb = await page.evaluate(() => document.querySelector("#viewport").getBoundingClientRect().bottom);
+  assert.ok(vb < 250, `the drawing is scrolled out of sight (bottom ${vb})`);
+  await page.click("#pin-rows tr:nth-child(3) td:nth-child(4)");
+  await page.waitForFunction(() => { const r = document.querySelector("#viewport").getBoundingClientRect(); return r.top >= -2 && r.top < innerHeight * 0.5; }, null, { timeout: 5000 });
+  await page.waitForSelector("#back-to-pins:not([hidden])");
+  await page.click("#back-to-pins");
+  await page.waitForFunction(() => document.querySelector("#pinlist").getBoundingClientRect().top < innerHeight * 0.6, null, { timeout: 5000 });
+  await page.waitForSelector("#back-to-pins", { state: "hidden" });
+  assert.deepEqual(page.errors, []);
+  await page.close();
+});
+
+test("the header: language sits in the top bar and the drawing details sit above the drawing", async () => {
+  const page = await fresh({ width: 1280, height: 700 });
+  const r = await page.evaluate(() => {
+    const b = (s) => document.querySelector(s).getBoundingClientRect();
+    return { langInNav: !!document.querySelector("#topnav #lang-btn"), tbInPane: !!document.querySelector(".sheetpane > .titleblock"), mastLang: !!document.querySelector(".masthead #lang-btn"), tbAboveToolbar: b(".titleblock").bottom <= b(".toolbar").top + 1 };
+  });
+  assert.deepEqual(r, { langInNav: true, tbInPane: true, mastLang: false, tbAboveToolbar: true });
+  await page.click("#lang-btn"); await page.click("#lang-fr");
+  await page.waitForFunction(() => document.querySelector("#topnav .feedback-link").textContent === "Envoyer un avis");
+  await page.close();
+});

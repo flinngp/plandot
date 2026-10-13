@@ -279,4 +279,5 @@ export default {
  "Download the import template from your Fieldwire project, then choose it here and type the plan name exactly as it appears in the project.": "Download het importsjabloon uit je Fieldwire-project, kies het hier en typ de plannaam precies zoals die in het project staat.",
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Elke regel maakt van elke aanduiding of elk symbool dat wordt gevonden een speld. Typ de tekst die je zoekt of teken een kader om een symbool.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Klik op Rijen kopiëren en plak in de taakimporter van Fieldwire, maximaal 500 spelden per keer. Of download het importbestand.",
+ "Back to the pins": "Terug naar de spelden",
 };

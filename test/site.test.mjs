@@ -393,10 +393,10 @@ test("counting visits switches on only for the live site, and events never throw
 });
 
 // ---------------------------------------------------------------- short clips in the how to guide
-test("the how to guide has four short clips, each with a poster and two video formats", async () => {
+test("the how to guide has five short clips, each with a poster and two video formats", async () => {
   const html = await readFile(`${root}howto.html`, "utf8");
   const tags = html.match(/<video\b[^>]*>[\s\S]*?<\/video>/g) || [];
-  assert.equal(tags.length, 4);
+  assert.equal(tags.length, 5);
   for (const t of tags) {
     assert.match(t, /aria-label="[^"]{30,}"/);
     assert.match(t, /\bmuted\b/);

@@ -759,6 +759,35 @@ function showPin(key) {
   vp.scrollTop += r.top + fy * r.height - (vr.top + vr.height / 2);
   const g = document.querySelector(`.pin[data-key="${CSS.escape(key)}"]`);
   if (g) { g.classList.add("hot"); setTimeout(() => g.classList.remove("hot"), 1200); }
+  bringDrawingIntoView(key);
+}
+/** Clicking a pin in the list jumps up to the drawing if it is off screen, and offers a button to come back to the list. */
+function bringDrawingIntoView(key) {
+  const pane = document.querySelector(".sheetpane"), vp = $("#viewport");
+  const r = vp.getBoundingClientRect();
+  const visible = r.top >= -2 && r.bottom <= innerHeight + 2 || (r.top >= 0 && r.top < innerHeight * 0.4);
+  if (visible) return;
+  const row = document.querySelector(`#pin-rows tr[data-key="${CSS.escape(key)}"]`);
+  const smooth = !globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  pane.scrollIntoView({ block: "start", behavior: smooth ? "smooth" : "auto" });
+  let back = $("#back-to-pins");
+  if (!back) {
+    back = h("button", { type: "button", id: "back-to-pins", class: "btn dark back-to-pins" });
+    document.body.append(back);
+    back.addEventListener("click", () => {
+      const target = document.querySelector(`#pin-rows tr[data-key="${CSS.escape(back.dataset.key)}"]`) || $("#pinlist");
+      target.scrollIntoView({ block: "center", behavior: smooth ? "smooth" : "auto" });
+      back.hidden = true;
+    });
+    window.addEventListener("scroll", () => { // gone once the list is back on screen
+      const l = $("#pinlist").getBoundingClientRect();
+      if (back.hidden) return;
+      if (l.top >= innerHeight * 0.6) back.dataset.armed = "1"; // the list has left the screen...
+      else if (back.dataset.armed) { back.hidden = true; delete back.dataset.armed; } // ...and now it is back
+    }, { passive: true });
+  }
+  back.textContent = `↓ ${tr("Back to the pins")}`;
+  back.dataset.key = key; delete back.dataset.armed; back.hidden = !row;
 }
 
 const pxToUnits = () => state.pdf.width / $("#stage").clientWidth;

@@ -85,5 +85,9 @@ export default [
 `Chcete-li nakreslit rámeček bez myši, aktivujte výkres, pohybujte se šipkami (podržením <kbd>Shift</kbd> nebo <kbd>Alt</kbd> změníte krok), u každého rohu stiskněte <kbd>Enter</kbd> a pro zrušení <kbd>Esc</kbd>.`,
 `Stiskněte malé <strong>(i)</strong> vedle pole pro jednořádkové vysvětlení.`,
 `Něco nefunguje? Podívejte se do <a href="faq.html">častých otázek</a>.`,
+`Uložit nastavení a Otevřít nastavení najdete pod svými pravidly.`,
+`Tlačítka pod pravidly. Číslo jedna označuje Uložit nastavení a číslo dvě Otevřít nastavení.`,
+`Krátké video bez zvuku: stisknutí Uložit nastavení, pak Otevřít nastavení a pravidla se vrátí.`,
+`Podívejte se: uložte nastavení a znovu ho otevřete.`,
 `Snímky obrazovky ukazují aplikaci v angličtině.`,
 ];

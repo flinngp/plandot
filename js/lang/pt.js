@@ -279,4 +279,5 @@ export default {
  "Download the import template from your Fieldwire project, then choose it here and type the plan name exactly as it appears in the project.": "Transfira o modelo de importação do seu projeto Fieldwire, escolha-o aqui e escreva o nome da planta exatamente como aparece no projeto.",
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Cada regra transforma cada legenda ou símbolo encontrado num alfinete. Escreva o texto a procurar ou desenhe uma caixa à volta de um símbolo.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Prima Copiar linhas e cole no importador de tarefas do Fieldwire, até 500 alfinetes de cada vez. Ou transfira o ficheiro de importação.",
+ "Back to the pins": "Voltar aos alfinetes",
 };

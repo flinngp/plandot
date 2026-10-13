@@ -85,5 +85,9 @@ export default [
 `Aby narysować ramkę bez myszy, aktywuj rysunek, poruszaj się klawiszami strzałek (przytrzymaj <kbd>Shift</kbd> lub <kbd>Alt</kbd>, aby zmienić krok), naciskaj <kbd>Enter</kbd> przy każdym rogu i <kbd>Esc</kbd>, aby anulować.`,
 `Naciśnij małe <strong>(i)</strong> obok pola, aby zobaczyć jednowierszowe wyjaśnienie.`,
 `Coś nie działa? Zobacz <a href="faq.html">często zadawane pytania</a>.`,
+`Zapisz konfigurację i Otwórz konfigurację znajdują się pod twoimi regułami.`,
+`Przyciski pod regułami. Numer jeden oznacza Zapisz konfigurację, a numer dwa Otwórz konfigurację.`,
+`Krótki film bez dźwięku: kliknięcie Zapisz konfigurację, potem Otwórz konfigurację i reguły wracają.`,
+`Zobacz: zapisz konfigurację i otwórz ją ponownie.`,
 `Zrzuty ekranu pokazują aplikację po angielsku.`,
 ];

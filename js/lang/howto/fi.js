@@ -85,5 +85,9 @@ export default [
 `Jos haluat piirtää laatikon ilman hiirtä, kohdista piirustus, liiku nuolinäppäimillä (pidä <kbd>Vaihto</kbd> tai <kbd>Alt</kbd> alhaalla muuttaaksesi askelta), paina <kbd>Enter</kbd> jokaisessa kulmassa ja <kbd>Esc</kbd> peruuttaaksesi.`,
 `Paina kentän vieressä olevaa pientä <strong>(i)</strong>-merkkiä saadaksesi yhden rivin selityksen.`,
 `Eikö jokin toimi? Katso <a href="faq.html">usein kysytyt kysymykset</a>.`,
+`Tallenna asetukset ja Avaa asetukset ovat sääntöjesi alla.`,
+`Sääntöjen alla olevat painikkeet. Numero yksi osoittaa Tallenna asetukset -painikkeen ja numero kaksi Avaa asetukset -painikkeen.`,
+`Lyhyt äänetön klippi: painetaan Tallenna asetukset, sitten Avaa asetukset, ja säännöt palaavat.`,
+`Katso: tallenna asetukset ja avaa ne uudelleen.`,
 `Kuvakaappaukset näyttävät sovelluksen englanniksi.`,
 ];

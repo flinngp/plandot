@@ -85,5 +85,9 @@ export default [
 `Per disegnare un riquadro senza mouse, attiva il disegno, muoviti con i tasti freccia (tieni premuto <kbd>Maiusc</kbd> o <kbd>Alt</kbd> per cambiare il passo), premi <kbd>Invio</kbd> per ogni angolo ed <kbd>Esc</kbd> per annullare.`,
 `Premi la piccola <strong>(i)</strong> accanto a un campo per una spiegazione di una riga.`,
 `Qualcosa non funziona? Consulta le <a href="faq.html">FAQ</a>.`,
+`Salva configurazione e Apri configurazione si trovano sotto le regole.`,
+`I pulsanti sotto le regole. Il numero uno indica Salva configurazione e il numero due Apri configurazione.`,
+`Breve clip senza audio: si preme Salva configurazione, poi Apri configurazione e le regole tornano.`,
+`Guarda: salva la configurazione e riaprila.`,
 `Gli screenshot mostrano l'app in inglese.`,
 ];

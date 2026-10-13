@@ -85,5 +85,9 @@ export default [
 `Um ohne Maus einen Rahmen zu zeichnen, fokussieren Sie die Zeichnung, bewegen sich mit den Pfeiltasten (mit <kbd>Umschalt</kbd> oder <kbd>Alt</kbd> ändern Sie die Schrittweite), drücken für jede Ecke <kbd>Eingabe</kbd> und zum Abbrechen <kbd>Esc</kbd>.`,
 `Klicken Sie auf das kleine <strong>(i)</strong> neben einem Feld für eine einzeilige Erklärung.`,
 `Etwas funktioniert nicht? Lesen Sie die <a href="faq.html">FAQ</a>.`,
+`Setup speichern und Setup öffnen stehen unter Ihren Regeln.`,
+`Die Schaltflächen unter den Regeln. Nummer eins markiert Setup speichern, Nummer zwei Setup öffnen.`,
+`Kurzer Clip ohne Ton: Klick auf Setup speichern, dann auf Setup öffnen, und die Regeln sind wieder da.`,
+`Zum Ansehen: Setup speichern und wieder öffnen.`,
 `Die Screenshots zeigen die App auf Englisch.`,
 ];

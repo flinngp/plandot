@@ -1,8 +1,9 @@
 // Help pages (How to guide, FAQ): the footer in the visitor's language, and a note if these pages aren't.
-import { initSite } from "./site.js";
+import { initSite, initLanguageMenu } from "./site.js";
 import { currentLanguage, tr } from "./i18n.js";
 import { FEEDBACK, feedbackHref } from "./config.js";
 await initSite();
+await initLanguageMenu({ onChange: () => location.reload() }); // the pages are written in the chosen language, so load them again
 // The how to guide has a translation for each app language (js/lang/howto/<code>.js): one entry for each
 // data-h / data-ha / data-hl number in the page, with the last entry holding the note about the screenshots.
 async function translateGuide() {

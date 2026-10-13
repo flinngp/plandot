@@ -85,5 +85,9 @@ export default [
 `For at tegne en boks uden mus skal du give tegningen fokus, flytte med piletasterne (hold <kbd>Shift</kbd> eller <kbd>Alt</kbd> nede for at ændre trinnet), trykke på <kbd>Enter</kbd> ved hvert hjørne og på <kbd>Esc</kbd> for at annullere.`,
 `Tryk på det lille <strong>(i)</strong> ved siden af et felt for en forklaring på én linje.`,
 `Virker noget ikke? Se <a href="faq.html">ofte stillede spørgsmål</a>.`,
+`Gem opsætning og Åbn opsætning sidder under dine regler.`,
+`Knapperne under reglerne. Nummer et markerer Gem opsætning og nummer to markerer Åbn opsætning.`,
+`Kort klip uden lyd: der trykkes på Gem opsætning, derefter på Åbn opsætning, og reglerne kommer tilbage.`,
+`Se: gem opsætningen og åbn den igen.`,
 `Skærmbillederne viser appen på engelsk.`,
 ];

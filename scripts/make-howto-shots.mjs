@@ -91,6 +91,18 @@ await mark("#dl-import", 4, { dx: -14, dy: -16 });
 a = await rectOf("#step-export");
 await shot("howto-5-download.png", { x: a.x - 6, y: a.y - 6, width: a.width + 12, height: Math.min(a.height + 12, 700) });
 
+// 6 reuse your setup
+await page.evaluate(() => { const c = document.querySelector(".controls"); c.scrollTop = document.querySelector("#step-rules").scrollHeight - 200 + document.querySelector("#step-rules").offsetTop; });
+await page.evaluate(() => document.querySelector("#save-rules").scrollIntoView({ block: "center" }));
+await page.waitForTimeout(300);
+await mark("#save-rules", 1, { dx: -14, dy: -16 });
+await mark("#load-rules-btn", 2, { dx: -14, dy: -16 });
+{
+  const row = await rectOf("#save-rules"), step = await rectOf("#step-rules");
+  const hint = await page.$eval("#step-rules > .hint:last-of-type", (e) => { const r = e.getBoundingClientRect(); return r.bottom; }).catch(() => row.y + row.height + 60);
+  await shot("howto-6-reuse.png", { x: step.x - 6, y: row.y - 60, width: step.width + 12, height: hint - row.y + 76 });
+}
+
 // symbols
 
 // ---- finding symbols: the made-up patio doors

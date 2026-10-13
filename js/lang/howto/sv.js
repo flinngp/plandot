@@ -85,5 +85,9 @@ export default [
 `För att rita en ruta utan mus ger du ritningen fokus, flyttar med piltangenterna (håll ned <kbd>Skift</kbd> eller <kbd>Alt</kbd> för att ändra steget), trycker på <kbd>Retur</kbd> för varje hörn och på <kbd>Esc</kbd> för att avbryta.`,
 `Tryck på det lilla <strong>(i)</strong> bredvid ett fält för en förklaring på en rad.`,
 `Fungerar något inte? Se <a href="faq.html">vanliga frågor</a>.`,
+`Spara inställningar och Öppna inställningar finns under dina regler.`,
+`Knapparna under reglerna. Nummer ett markerar Spara inställningar och nummer två markerar Öppna inställningar.`,
+`Kort klipp utan ljud: Spara inställningar trycks, sedan Öppna inställningar, och reglerna kommer tillbaka.`,
+`Titta: spara inställningarna och öppna dem igen.`,
 `Skärmbilderna visar appen på engelska.`,
 ];

@@ -279,4 +279,5 @@ export default {
  "Download the import template from your Fieldwire project, then choose it here and type the plan name exactly as it appears in the project.": "Lataa tuontipohja Fieldwire-projektistasi, valitse se tässä ja kirjoita pohjakuvan nimi täsmälleen kuten se on projektissa.",
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Jokainen sääntö muuttaa jokaisen löydetyn merkinnän tai symbolin nastaksi. Kirjoita haettava teksti tai piirrä ruutu symbolin ympärille.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Paina Kopioi rivit ja liitä Fieldwiren tehtävien tuontityökaluun, enintään 500 nastaa kerrallaan. Tai lataa tuontitiedosto.",
+ "Back to the pins": "Takaisin nastoihin",
 };

@@ -85,5 +85,9 @@ export default [
 `Om zonder muis een kader te tekenen, activeer je de tekening, ga je met de pijltoetsen (houd <kbd>Shift</kbd> of <kbd>Alt</kbd> ingedrukt om de stapgrootte te wijzigen), druk je voor elke hoek op <kbd>Enter</kbd> en op <kbd>Esc</kbd> om te annuleren.`,
 `Klik op de kleine <strong>(i)</strong> naast een veld voor een uitleg van één regel.`,
 `Werkt er iets niet? Zie de <a href="faq.html">veelgestelde vragen</a>.`,
+`Setup opslaan en Setup openen staan onder je regels.`,
+`De knoppen onder de regels. Nummer één markeert Setup opslaan en nummer twee Setup openen.`,
+`Korte clip zonder geluid: klikken op Setup opslaan, dan op Setup openen, en de regels komen terug.`,
+`Kijk: sla de setup op en open hem daarna weer.`,
 `De schermafbeeldingen tonen de app in het Engels.`,
 ];

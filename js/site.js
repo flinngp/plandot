@@ -183,7 +183,8 @@ export function renderNav() {
   const href = feedbackHref();
   const link = (to, text, extra = {}) => h("a", { href: to, text, ...(here === to ? { "aria-current": "page" } : {}), ...extra });
   nav.setAttribute("aria-label", tr("More about Plandot"));
-  nav.replaceChildren(
+  nav.querySelectorAll(":scope > a").forEach((a) => a.remove()); // the language menu stays
+  nav.prepend(
     ...(onApp ? [] : [link("index.html", tr("Open Plandot"), { class: "nav-app" })]),
     ...(onApp && tourHandler ? [h("a", { href: "#", class: "tour-link", text: tr("Take the tour"), onclick: (e) => { e.preventDefault(); tourHandler(); } })] : []),
     link("howto.html", tr("How to guide")),

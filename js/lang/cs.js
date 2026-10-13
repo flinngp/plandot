@@ -279,4 +279,5 @@ export default {
  "Download the import template from your Fieldwire project, then choose it here and type the plan name exactly as it appears in the project.": "Stáhněte importní šablonu ze svého projektu ve Fieldwire, vyberte ji zde a zadejte název plánu přesně tak, jak je v projektu.",
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Každé pravidlo změní každý nalezený popisek nebo symbol v bod. Zadejte hledaný text nebo nakreslete rámeček kolem symbolu.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Klikněte na Kopírovat řádky a vložte do importu úkolů ve Fieldwire, nejvýše 500 bodů najednou. Nebo stáhněte importní soubor.",
+ "Back to the pins": "Zpět na špendlíky",
 };

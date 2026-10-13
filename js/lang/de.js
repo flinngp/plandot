@@ -279,4 +279,5 @@ export default {
  "Download the import template from your Fieldwire project, then choose it here and type the plan name exactly as it appears in the project.": "Laden Sie die Importvorlage aus Ihrem Fieldwire-Projekt herunter, wählen Sie sie hier aus und geben Sie den Plannamen genau so ein, wie er im Projekt steht.",
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Jede Regel macht aus jeder gefundenen Beschriftung oder jedem Symbol eine Markierung. Geben Sie den gesuchten Text ein oder ziehen Sie einen Rahmen um ein Symbol.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Klicken Sie auf Zeilen kopieren und fügen Sie sie in den Aufgaben-Import von Fieldwire ein, höchstens 500 Markierungen auf einmal. Oder laden Sie die Importdatei herunter.",
+ "Back to the pins": "Zurück zu den Markierungen",
 };

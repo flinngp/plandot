@@ -85,5 +85,9 @@ export default [
 `Pour tracer un cadre sans souris, donnez le focus au plan, déplacez-vous avec les flèches (maintenez <kbd>Maj</kbd> ou <kbd>Alt</kbd> pour changer le pas), appuyez sur <kbd>Entrée</kbd> pour chaque coin et sur <kbd>Échap</kbd> pour annuler.`,
 `Cliquez sur le petit <strong>(i)</strong> à côté d'un champ pour une explication en une ligne.`,
 `Quelque chose ne fonctionne pas ? Consultez la <a href="faq.html">FAQ</a>.`,
+`Enregistrer la configuration et Ouvrir une configuration se trouvent sous vos règles.`,
+`Les boutons sous les règles. Le numéro un indique Enregistrer la configuration et le numéro deux Ouvrir une configuration.`,
+`Courte vidéo sans son : clic sur Enregistrer la configuration, puis sur Ouvrir une configuration, et les règles reviennent.`,
+`À voir : enregistrez la configuration, puis rouvrez-la.`,
 `Les captures d'écran montrent l'application en anglais.`,
 ];

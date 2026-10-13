@@ -85,5 +85,9 @@ export default [
 `For å tegne en boks uten mus gir du tegningen fokus, flytter med piltastene (hold inne <kbd>Shift</kbd> eller <kbd>Alt</kbd> for å endre steget), trykker <kbd>Enter</kbd> for hvert hjørne og <kbd>Esc</kbd> for å avbryte.`,
 `Trykk på den lille <strong>(i)</strong> ved siden av et felt for en forklaring på én linje.`,
 `Fungerer ikke noe? Se <a href="faq.html">vanlige spørsmål</a>.`,
+`Lagre oppsett og Åpne oppsett står under reglene dine.`,
+`Knappene under reglene. Nummer én markerer Lagre oppsett og nummer to markerer Åpne oppsett.`,
+`Kort klipp uten lyd: det trykkes på Lagre oppsett, deretter Åpne oppsett, og reglene kommer tilbake.`,
+`Se: lagre oppsettet og åpne det igjen.`,
 `Skjermbildene viser appen på engelsk.`,
 ];
