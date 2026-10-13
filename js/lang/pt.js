@@ -106,7 +106,6 @@ export default {
  "Download pin image (PNG)": "Descarregar imagem dos alfinetes (PNG)",
  "Check pin positions first": "Verificar primeiro as posições",
  "Download calibration file": "Descarregar ficheiro de calibração",
- "10% grid": "Grelha de 10%",
  "Drop the drawing PDF here": "Largue aqui o PDF da planta",
  "You can drop the import template too. Nothing leaves your computer.": "Também pode largar o modelo de importação. Nada sai do seu computador.",
  "Include all": "Incluir todos",
@@ -186,7 +185,6 @@ export default {
  "Open setup": "Abrir configuração",
  "A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.": "Um ficheiro de configuração guarda as suas regras, o nome da planta e as definições de divisões, para reutilizar noutras plantas ou partilhar.",
  "Preview what will be exported": "Pré-visualização do que será exportado",
- "Scroll to pan · Ctrl + scroll to zoom": "Desloque para mover · Ctrl + deslocar para ampliar",
  "Fit": "Ajustar",
  "Try with a sample drawing": "Experimentar com uma planta de exemplo",
  "Current drawing": "Planta atual",
@@ -280,4 +278,5 @@ export default {
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Cada regra transforma cada legenda ou símbolo encontrado num alfinete. Escreva o texto a procurar ou desenhe uma caixa à volta de um símbolo.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Prima Copiar linhas e cole no importador de tarefas do Fieldwire, até 500 alfinetes de cada vez. Ou transfira o ficheiro de importação.",
  "Back to the pins": "Voltar aos alfinetes",
+ "Gridlines": "Linhas de grelha",
 };

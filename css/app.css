@@ -50,7 +50,7 @@ p { margin: 0; }
 .topnav a { color: var(--ink-2); text-decoration: none; font-weight: 600; font-size: 13px; padding: 6px 12px; border-radius: 999px; }
 .topnav a:hover { background: var(--card); color: var(--accent-dark); }
 .topnav a[aria-current="page"] { color: var(--accent-dark); background: var(--accent-wash); }
-.titleblock { flex: none; display: flex; align-items: baseline; margin: 0; padding: 12px 18px; border-bottom: 1px solid var(--line-soft); font-size: 13.5px; min-width: 0; }
+.titleblock { flex: 0 1 auto; display: flex; align-items: baseline; margin: 0 auto 0 0; padding: 0; font-size: 13.5px; min-width: 0; }
 .titleblock > div { display: flex; align-items: baseline; gap: 6px; flex: 0 0 auto; min-width: 0; }
 .titleblock > div + div::before { content: "·"; margin: 0 12px; color: var(--ink-2); opacity: 0.6; }
 .titleblock dt { color: var(--ink-2); }
@@ -181,7 +181,6 @@ td.muted { color: var(--ink-2); }
 /* Drawing pane: a card with a toolbar, a viewport that scrolls and zooms, and a floating zoom control */
 .sheetpane { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--card); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
 .toolbar { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 52px; padding: 8px 18px; border-bottom: 1px solid var(--line-soft); }
-.toolbar .tip { color: var(--ink-2); font-size: 13px; margin-left: auto; }
 .readout { font-weight: 700; font-variant-numeric: tabular-nums; min-width: 15ch; text-align: right; }
 
 .viewport { flex: 1; min-height: 0; overflow: auto; display: flex; background: #fafbfd; scrollbar-width: thin; scrollbar-color: #b4bdcd transparent; overscroll-behavior: contain; }
@@ -315,7 +314,8 @@ td input[type="text"]:hover, td input[type="text"]:focus { border-color: var(--l
   .topnav { padding: 0 10px; justify-content: flex-start; }
   .masthead { flex-direction: column; align-items: stretch; gap: 12px; padding: 14px 16px; height: auto; }
   .masthead-right { flex-wrap: wrap; }
-  .titleblock { padding: 10px 14px; }
+  .toolbar { flex-wrap: wrap; }
+  .titleblock { flex: 1 1 100%; }
   .titleblock .tb-name { flex: 1 1 auto; }
   .titleblock .tb-name dd { max-width: none; }
   .titleblock > div + div::before { margin: 0 8px; }
@@ -326,7 +326,6 @@ td input[type="text"]:hover, td input[type="text"]:focus { border-color: var(--l
   .pinlist { order: 1; }
   .viewport { flex: none; height: clamp(280px, calc(100vw - 32px), 62vh); }
   .dropzone { min-height: 240px; }
-  .toolbar .tip { display: none; }
 }
 
 /* ---- symbol rules ---- */

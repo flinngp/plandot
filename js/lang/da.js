@@ -106,7 +106,6 @@ export default {
  "Download pin image (PNG)": "Hent billede af nåle (PNG)",
  "Check pin positions first": "Kontrollér positioner først",
  "Download calibration file": "Hent kalibreringsfil",
- "10% grid": "10 %-gitter",
  "Drop the drawing PDF here": "Slip tegnings-PDF'en her",
  "You can drop the import template too. Nothing leaves your computer.": "Du kan også slippe importskabelonen. Intet forlader din computer.",
  "Include all": "Medtag alle",
@@ -186,7 +185,6 @@ export default {
  "Open setup": "Åbn opsætning",
  "A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.": "En opsætningsfil gemmer dine regler, plannavnet og rumindstillingerne, så du kan genbruge dem på andre tegninger eller dele dem.",
  "Preview what will be exported": "Vis, hvad der eksporteres",
- "Scroll to pan · Ctrl + scroll to zoom": "Rul for at flytte · Ctrl + rul for at zoome",
  "Fit": "Tilpas",
  "Try with a sample drawing": "Prøv med en eksempeltegning",
  "Current drawing": "Nuværende tegning",
@@ -280,4 +278,5 @@ export default {
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Hver regel gør hver henvisning eller hvert symbol, der findes, til en nål. Skriv den tekst, der skal findes, eller tegn en ramme om et symbol.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Tryk på Kopiér rækker og indsæt i Fieldwires opgaveimport, op til 500 nåle ad gangen. Eller download importfilen.",
  "Back to the pins": "Tilbage til nålene",
+ "Gridlines": "Gitterlinjer",
 };

@@ -106,7 +106,6 @@ export default {
  "Download pin image (PNG)": "Afbeelding met spelden downloaden (PNG)",
  "Check pin positions first": "Eerst posities controleren",
  "Download calibration file": "Kalibratiebestand downloaden",
- "10% grid": "Raster van 10%",
  "Drop the drawing PDF here": "Zet hier de tekening (pdf) neer",
  "You can drop the import template too. Nothing leaves your computer.": "U kunt ook de importsjabloon neerzetten. Er verlaat niets uw computer.",
  "Include all": "Alles opnemen",
@@ -186,7 +185,6 @@ export default {
  "Open setup": "Setup openen",
  "A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.": "Een setupbestand bewaart uw regels, de plannaam en de ruimte-instellingen, zodat u ze op andere tekeningen kunt hergebruiken of kunt delen.",
  "Preview what will be exported": "Voorbeeld van wat wordt geëxporteerd",
- "Scroll to pan · Ctrl + scroll to zoom": "Scrol om te verschuiven · Ctrl + scrollen om te zoomen",
  "Fit": "Passend",
  "Try with a sample drawing": "Probeer met een voorbeeldtekening",
  "Current drawing": "Huidige tekening",
@@ -280,4 +278,5 @@ export default {
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Elke regel maakt van elke aanduiding of elk symbool dat wordt gevonden een speld. Typ de tekst die je zoekt of teken een kader om een symbool.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Klik op Rijen kopiëren en plak in de taakimporter van Fieldwire, maximaal 500 spelden per keer. Of download het importbestand.",
  "Back to the pins": "Terug naar de spelden",
+ "Gridlines": "Rasterlijnen",
 };

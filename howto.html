@@ -25,7 +25,7 @@
 </head>
 <body data-guide="howto">
 <nav class="topnav" id="topnav" aria-label="More about Plandot">
-  <div class="langmenu"><button type="button" id="lang-btn" class="lang-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="lang-list" aria-label="Language"></button><ul id="lang-list" class="lang-list" role="listbox" tabindex="-1" aria-label="Language" hidden></ul></div>
+  <div class="langmenu"><button type="button" id="lang-btn" class="lang-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="lang-list" aria-label="Language">Language</button><ul id="lang-list" class="lang-list" role="listbox" tabindex="-1" aria-label="Language" hidden></ul></div>
 </nav>
 <header class="help-head">
   <a class="brand" href="index.html"><svg class="mark" viewBox="0 0 38 38" width="46" height="46" aria-hidden="true"><rect width="38" height="38" rx="11" fill="currentColor"/><path d="M11 28V10M11 28h17" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/><circle cx="24.5" cy="13.5" r="4.6" fill="#ffd24a"/></svg><div><h1>Plandot</h1></div></a>
@@ -37,11 +37,11 @@
   <p data-h="2">Want to see it work first? Open Plandot and press <strong>Try with a sample drawing</strong>. It loads a made-up drawing and some rules, and nothing is uploaded.</p>
 
   <ul class="toc" aria-label="On this page">
-    <li><a href="#s1" data-h="3">1 Load your files</a></li>
-    <li><a href="#s2" data-h="4">2 Make a rule</a></li>
-    <li><a href="#s3" data-h="5">3 Check the sheet</a></li>
-    <li><a href="#s4" data-h="6">4 Fix or skip pins</a></li>
-    <li><a href="#s5" data-h="7">5 Download</a></li>
+    <li><a href="#s1" data-h="3">Load your files</a></li>
+    <li><a href="#s2" data-h="4">Make a rule</a></li>
+    <li><a href="#s3" data-h="5">Check the sheet</a></li>
+    <li><a href="#s4" data-h="6">Fix or skip pins</a></li>
+    <li><a href="#s5" data-h="7">Download</a></li>
     <li><a href="#symbols" data-h="8">Finding symbols</a></li>
     <li><a href="#reuse" data-h="9">Reuse your setup</a></li>
     <li><a href="#keys" data-h="10">Keyboard</a></li>
@@ -73,119 +73,109 @@
           <li data-h="22"><strong>Look for.</strong> Choose <em>Text callout</em> to find words on the drawing, such as door or socket tags.</li>
           <li data-h="23"><strong>Text to find.</strong> Type the exact text, for example <code>A1, A2, A3</code>. Separate several with commas. Tick the pattern box if you would rather match a pattern such as <code>A[1-3]</code>.</li>
           <li data-h="24"><strong>Pin title.</strong> Type a title, then press the blue buttons to drop in the callout text, the nearest room or a running number. For example <code>Install socket outlet {tag} {room_label}</code>.</li>
-          <li data-h="25"><strong>Check the example.</strong> The line underneath shows the title of the first pin the rule found.</li>
         </ol>
-        <p data-h="26">Under <strong>Pin placed on</strong>, choose whether the pin sits where the leader line points (<em>On the location</em>) or on the callout text itself.</p>
-        <p data-h="27">Use <strong>Add rule</strong> for another kind of callout. Each rule gets its own pin colour. Press <strong>Undo</strong> if you change your mind.</p>
+        <p data-h="25">Under <strong>Pin placed on</strong>, choose whether the pin sits where the leader line points (<em>On the location</em>) or on the callout text itself.</p>
+        <p data-h="26">Use <strong>Add rule</strong> for another kind of callout. Each rule gets its own pin colour. Press <strong>Undo</strong> if you change your mind.</p>
     <div class="media">
-      <figure class="shot narrow"><img src="help/img/howto-2-rule.png" width="372" alt="A rule card. Numbers mark the Look for list, the Text to find box, the title buttons and the example line." data-ha="28" loading="lazy"><figcaption data-h="29">One rule, ready to find three kinds of socket callout.</figcaption></figure>
+      <figure class="shot narrow"><img src="help/img/howto-2-rule.png" width="372" alt="A rule card. Numbers mark the Look for list, the Text to find box, the title buttons and the example line." data-ha="27" loading="lazy"><figcaption data-h="28">One rule, ready to find three kinds of socket callout.</figcaption></figure>
       <figure class="clip">
-      <div class="clip-box"><video class="clip-video" width="960" height="600" muted loop playsinline controls preload="none" poster="help/vid/clip-2-rule.jpg" aria-label="Short silent clip: typing A1, A2, A3 in the Text to find box and pins appearing on the drawing." data-hl="30"><source src="help/vid/clip-2-rule.mp4" type="video/mp4"><source src="help/vid/clip-2-rule.webm" type="video/webm"></video></div>
-      <figcaption data-h="31">Watch: type the text to find and the pins appear.</figcaption>
+      <div class="clip-box"><video class="clip-video" width="960" height="600" muted loop playsinline controls preload="none" poster="help/vid/clip-2-rule.jpg" aria-label="Short silent clip: typing A1, A2, A3 in the Text to find box and pins appearing on the drawing." data-hl="29"><source src="help/vid/clip-2-rule.mp4" type="video/mp4"><source src="help/vid/clip-2-rule.webm" type="video/webm"></video></div>
+      <figcaption data-h="30">Watch: type the text to find and the pins appear.</figcaption>
     </figure>
     </div>
   </section>
 
   <section class="card" id="s3">
-    <h2><span class="num">3</span> <span data-h="32">Check the sheet</span></h2>
-    <p data-h="33">Pins appear on the drawing as soon as a rule finds something. Scroll to pan. Hold <kbd>Ctrl</kbd> (or <kbd>⌘</kbd>) and scroll to zoom in on the pointer, or use the <strong>+</strong>, <strong>−</strong> and <strong>Fit</strong> buttons. Turn on the <strong>10% grid</strong> to judge positions. The rulers along the edges show the same percentages that go into the import file.</p>
+    <h2><span class="num">3</span> <span data-h="31">Check the sheet</span></h2>
+    <p data-h="32">Pins appear on the drawing as soon as a rule finds something. Scroll to pan. Hold <kbd>Ctrl</kbd> (or <kbd>⌘</kbd>) and scroll to zoom in on the pointer, or use the <strong>+</strong>, <strong>−</strong> and <strong>Fit</strong> buttons. Turn on <strong>Gridlines</strong> to judge positions. The rulers along the edges show the same percentages that go into the import file.</p>
     <div class="media">
-      <figure class="shot"><img src="help/img/howto-3-sheet.png" width="738" alt="The drawing with coloured pins. Numbers mark a pin, the zoom buttons and the grid tick box." data-ha="34" loading="lazy"><figcaption data-h="35">Each colour is one rule. Click a row in the pin list below to jump to that pin.</figcaption></figure>
+      <figure class="shot"><img src="help/img/howto-3-sheet.png" width="738" alt="The drawing with coloured pins. Numbers mark a pin, the zoom buttons and the grid tick box." data-ha="33" loading="lazy"><figcaption data-h="34">Each colour is one rule. Click a row in the pin list below to jump to that pin.</figcaption></figure>
     </div>
   </section>
 
   <section class="card" id="s4">
-    <h2><span class="num">4</span> <span data-h="36">Fix or skip pins</span></h2>
-    <p data-h="37">Under the sheet, the pin list shows every pin. Untick a pin to leave it out, or edit its title in place. <strong>Include all</strong> and <strong>Exclude all</strong> do what they say.</p>
+    <h2><span class="num">4</span> <span data-h="35">Fix or skip pins</span></h2>
+    <p data-h="36">Under the sheet, the pin list shows every pin. Untick a pin to leave it out, or edit its title in place. <strong>Include all</strong> and <strong>Exclude all</strong> do what they say.</p>
     <div class="media">
-      <figure class="shot"><img src="help/img/howto-4-pins.png" width="1050" alt="The pin list. Number one marks a ticked-off box that excludes a pin and number two marks an editable title." data-ha="38" loading="lazy"><figcaption data-h="39">The unticked pin is struck through and won't be exported.</figcaption></figure>
+      <figure class="shot"><img src="help/img/howto-4-pins.png" width="1050" alt="The pin list. Number one marks a ticked-off box that excludes a pin and number two marks an editable title." data-ha="37" loading="lazy"><figcaption data-h="38">The unticked pin is struck through and won't be exported.</figcaption></figure>
     </div>
-    <p data-h="40">To ignore a keynote list or the title block, open <strong>Search area and room labels</strong> and draw an area, so only that part of the sheet is searched.</p>
+    <p data-h="39">To ignore a keynote list or the title block, open <strong>Search area and room labels</strong> and draw an area, so only that part of the sheet is searched.</p>
   </section>
 
   <section class="card" id="s5">
-    <h2><span class="num">5</span> <span data-h="41">Download</span></h2>
+    <h2><span class="num">5</span> <span data-h="40">Download</span></h2>
     
         <ol>
-          <li data-h="42"><strong>Read the summary</strong> to see how many pins will go onto which plan.</li>
-          <li data-h="43"><strong>Open the preview</strong> to see the first few rows exactly as they will be in the file.</li>
-          <li data-h="44"><strong>Copy rows</strong>, then paste them into the task importer in your Fieldwire project. With more than 500 pins there is one button for each batch.</li>
-          <li data-h="45">Prefer a spreadsheet? <strong>Download import file</strong>, open it, then copy the pin rows from there instead.</li>
+          <li data-h="41"><strong>Read the summary</strong> to see how many pins will go onto which plan.</li>
+          <li data-h="42"><strong>Open the preview</strong> to see the first few rows exactly as they will be in the file.</li>
+          <li data-h="43"><strong>Copy rows</strong>, then paste them into the task importer in your Fieldwire project. With more than 500 pins there is one button for each batch.</li>
         </ol>
-        <p data-h="46">Pins are always added as new items with a blank ID, so nothing already in your project is changed. Fieldwire's task importer takes up to 500 rows pasted at a time. If there are more pins than that, Plandot shows one Copy rows button for each batch of up to 500, and the same batches apply to the downloaded file. For example, 1,200 pins means 3 batches: pins 1–500, then 501–1,000, then 1,001–1,200.</p>
-        <p data-h="47">The marked-up PDF and the pin image are handy for checking or sharing before you import. For a first run on a new kind of drawing, try <strong>Check pin positions first</strong>: it makes nine test pins on the 10%, 50% and 90% lines so you can confirm they land where you expect.</p>
-        <p data-h="48"><strong>Always check the pins before importing.</strong></p>
+        <p data-h="44">Pins are always added as new items with a blank ID, so nothing already in your project is changed. Fieldwire's task importer takes up to 500 rows pasted at a time. If there are more pins than that, Plandot shows one Copy rows button for each batch of up to 500, and the same batches apply to the downloaded file. For example, 1,200 pins means 3 batches: pins 1–500, then 501–1,000, then 1,001–1,200.</p>
+        <p data-h="45"><strong>Always check the pins before importing.</strong></p>
     <div class="media">
-      <figure class="shot narrow"><img src="help/img/howto-5-download.png" width="384" alt="The Download card. Numbers mark the summary line, the preview, the Copy rows button and the Download import file button." data-ha="49" loading="lazy"><figcaption data-h="50">The export summary and preview.</figcaption></figure>
+      <figure class="shot narrow"><img src="help/img/howto-5-download.png" width="384" alt="The Download card. Numbers mark the summary line, the preview, the Copy rows button and the Download import file button." data-ha="46" loading="lazy"><figcaption data-h="47">The export summary and preview.</figcaption></figure>
       <figure class="clip">
-      <div class="clip-box"><video class="clip-video" width="960" height="600" muted loop playsinline controls preload="none" poster="help/vid/clip-4-download.jpg" aria-label="Short silent clip: opening the export preview, clicking Copy rows and then Download import file." data-hl="51"><source src="help/vid/clip-4-download.mp4" type="video/mp4"><source src="help/vid/clip-4-download.webm" type="video/webm"></video></div>
-      <figcaption data-h="52">Watch: open the preview, copy the rows, or download the import file.</figcaption>
+      <div class="clip-box"><video class="clip-video" width="960" height="600" muted loop playsinline controls preload="none" poster="help/vid/clip-4-download.jpg" aria-label="Short silent clip: opening the export preview, clicking Copy rows and then Download import file." data-hl="48"><source src="help/vid/clip-4-download.mp4" type="video/mp4"><source src="help/vid/clip-4-download.webm" type="video/webm"></video></div>
+      <figcaption data-h="49">Watch: open the preview, copy the rows, or download the import file.</figcaption>
     </figure>
     </div>
   </section>
 
   <section class="card" id="symbols">
-    <h2 data-h="53">Finding symbols</h2>
-    <p data-h="54">Some things on a drawing have no text, such as a patio door or a fire extinguisher symbol. Plandot can find those too. Here it is with a made-up floor plan (<code>samples/sample-symbols.pdf</code>, included with the project). Five patio doors are set into the outside walls, some turned, mirrored or upside down, along with three windows that look a little like them.</p>
+    <h2 data-h="50">Finding symbols</h2>
+    <p data-h="51">Some things on a drawing have no text, such as a patio door or a fire extinguisher symbol. Plandot can find those too. Here it is with a made-up floor plan (<code>samples/sample-symbols.pdf</code>, included with the project). Five patio doors are set into the outside walls, some turned, mirrored or upside down, along with three windows that look a little like them.</p>
 
-    <h3 data-h="55">1. Choose Draw box</h3>
+    <h3 data-h="52">1. Choose Draw box</h3>
     
-        <p data-h="56">Load the drawing, then in a rule change <strong>Look for</strong> to <em>Draw box</em> and press <strong>Draw a box around the symbol</strong>.</p>
+        <p data-h="53">Load the drawing, then in a rule change <strong>Look for</strong> to <em>Draw box</em> and press <strong>Draw a box around the symbol</strong>.</p>
     <div class="media">
-      <figure class="shot narrow"><img src="help/img/symbols-1-start.png" width="376" alt="A rule set to Draw box. Number one marks the Look for list and number two marks the Draw a box around the symbol button." data-ha="57" loading="lazy"><figcaption data-h="58">Switch the rule to Draw box.</figcaption></figure>
+      <figure class="shot narrow"><img src="help/img/symbols-1-start.png" width="376" alt="A rule set to Draw box. Number one marks the Look for list and number two marks the Draw a box around the symbol button." data-ha="54" loading="lazy"><figcaption data-h="55">Switch the rule to Draw box.</figcaption></figure>
     </div>
 
-    <h3 data-h="59">2. Box one example</h3>
-    <p data-h="60">Drag a box on the sheet that fully contains one door. Lines that stick out of the box, such as the wall behind the door, are left out. Choose a clean example with nothing else inside the box.</p>
+    <h3 data-h="56">2. Box one example</h3>
+    <p data-h="57">Drag a box on the sheet that fully contains one door. Lines that stick out of the box, such as the wall behind the door, are left out. Choose a clean example with nothing else inside the box.</p>
     <div class="media">
-      <figure class="shot"><img src="help/img/symbols-2-box.png" width="738" alt="A floor plan with rooms, walls and furniture, and a dashed blue box being dragged around the first patio door. Number one marks the box." data-ha="61" loading="lazy"><figcaption data-h="62">The dashed box goes around one door.</figcaption></figure>
+      <figure class="shot"><img src="help/img/symbols-2-box.png" width="738" alt="A floor plan with rooms, walls and furniture, and a dashed blue box being dragged around the first patio door. Number one marks the box." data-ha="58" loading="lazy"><figcaption data-h="59">The dashed box goes around one door.</figcaption></figure>
       <figure class="clip">
-      <div class="clip-box"><video class="clip-video" width="960" height="600" muted loop playsinline controls preload="none" poster="help/vid/clip-3-symbol.jpg" aria-label="Short silent clip: switching the rule to Draw box, dragging a box around one patio door, and pins appearing on all five doors." data-hl="63"><source src="help/vid/clip-3-symbol.mp4" type="video/mp4"><source src="help/vid/clip-3-symbol.webm" type="video/webm"></video></div>
-      <figcaption data-h="64">Watch: drag a box around one door and every copy gets a pin.</figcaption>
+      <div class="clip-box"><video class="clip-video" width="960" height="600" muted loop playsinline controls preload="none" poster="help/vid/clip-3-symbol.jpg" aria-label="Short silent clip: switching the rule to Draw box, dragging a box around one patio door, and pins appearing on all five doors." data-hl="60"><source src="help/vid/clip-3-symbol.mp4" type="video/mp4"><source src="help/vid/clip-3-symbol.webm" type="video/webm"></video></div>
+      <figcaption data-h="61">Watch: drag a box around one door and every copy gets a pin.</figcaption>
     </figure>
     </div>
 
-    <h3 data-h="65">3. Every copy gets a pin</h3>
-    <p data-h="66">Plandot looks for the same shape everywhere on the sheet. It finds all five doors, including the turned, mirrored and upside-down ones, and leaves the windows alone.</p>
-    <div class="media">
-      <figure class="shot"><img src="help/img/symbols-3-found.png" width="738" alt="The same floor plan with a blue pin on each of the five patio doors. Number one marks two of the doors. Number two marks the three look-alike windows, which have no pins." data-ha="67" loading="lazy"><figcaption data-h="68">1: a pin on every door. 2: the look-alike windows are left alone.</figcaption></figure>
-    </div>
 
-    <h3 data-h="69">4. Tune the match</h3>
+    <h3 data-h="62">4. Tune the match</h3>
     
-        <p data-h="70">After you box the symbol, the rule shows a picture of it. Click the picture to move where the pin goes on the symbol.</p>
+        <p data-h="63">After you box the symbol, the rule shows a picture of it. Click the picture to move where the pin goes on the symbol.</p>
         <ul>
-          <li data-h="71">If copies are missed, slide <strong>How closely a copy must match</strong> towards Loose. If wrong things are picked up, slide it towards Exact.</li>
-          <li data-h="72"><strong>Also find copies that are turned or mirrored</strong> is on by default.</li>
-          <li data-h="73">Tick <strong>Also find copies drawn bigger or smaller</strong> when the same symbol appears at different sizes. That search takes longer, and a progress bar shows while it runs.</li>
+          <li data-h="64">If copies are missed, slide <strong>How closely a copy must match</strong> towards Loose. If wrong things are picked up, slide it towards Exact.</li>
+          <li data-h="65">Tick <strong>Also find copies drawn bigger or smaller</strong> when the same symbol appears at different sizes. That search takes longer, and a progress bar shows while it runs.</li>
         </ul>
-        <p data-h="74">Symbol finding reads the drawn lines, so it needs a PDF exported from CAD or Revit, not a scan.</p>
+        <p data-h="66">Symbol finding reads the drawn lines, so it needs a PDF exported from CAD or Revit, not a scan.</p>
     <div class="media">
-      <figure class="shot narrow"><img src="help/img/symbols-4-settings.png" width="376" alt="The rule after boxing a door. Number one marks the picture of the symbol with its pin, number two the match slider, number three the turned or mirrored tick box and number four the bigger or smaller tick box." data-ha="75" loading="lazy"><figcaption data-h="76">The symbol picture and the match settings.</figcaption></figure>
+      <figure class="shot narrow"><img src="help/img/symbols-4-settings.png" width="376" alt="The rule after boxing a door. Number one marks the picture of the symbol with its pin, number two the match slider, number three the turned or mirrored tick box and number four the bigger or smaller tick box." data-ha="67" loading="lazy"><figcaption data-h="68">The symbol picture and the match settings.</figcaption></figure>
     </div>
   </section>
 
   <section class="card" id="reuse">
-    <h2 data-h="77">Reuse your setup</h2>
-    <p data-h="78"><strong>Save setup</strong> makes a small file with your rules, plan name and room settings. <strong>Open setup</strong> loads it again on the next drawing, so you only build the rules once. You can share a setup file with a colleague or customer. It doesn't contain any drawing.</p>
+    <h2 data-h="69">Reuse your setup</h2>
+    <p data-h="70"><strong>Save setup</strong> makes a small file with your rules, plan name and room settings. <strong>Open setup</strong> loads it again on the next drawing, so you only build the rules once. You can share a setup file with a colleague or customer. It doesn't contain any drawing.</p>
     <div class="media">
-      <figure class="shot narrow"><img src="help/img/howto-6-reuse.png" width="384" alt="The buttons under the rules. Number one marks Save setup and number two marks Open setup." data-ha="86" loading="lazy"><figcaption data-h="85">Save setup and Open setup sit under your rules.</figcaption></figure>
+      <figure class="shot narrow"><img src="help/img/howto-6-reuse.png" width="384" alt="The buttons under the rules. Number one marks Save setup and number two marks Open setup." data-ha="77" loading="lazy"><figcaption data-h="76">Save setup and Open setup sit under your rules.</figcaption></figure>
       <figure class="clip">
-        <div class="clip-box"><video class="clip-video" width="960" height="600" muted loop playsinline controls preload="none" poster="help/vid/clip-5-reuse.jpg" aria-label="Short silent clip: pressing Save setup, then Open setup, and the rules coming back." data-hl="87"><source src="help/vid/clip-5-reuse.mp4" type="video/mp4"><source src="help/vid/clip-5-reuse.webm" type="video/webm"></video></div>
-        <figcaption data-h="88">Watch: save the setup, then open it again.</figcaption>
+        <div class="clip-box"><video class="clip-video" width="960" height="600" muted loop playsinline controls preload="none" poster="help/vid/clip-5-reuse.jpg" aria-label="Short silent clip: pressing Save setup, then Open setup, and the rules coming back." data-hl="78"><source src="help/vid/clip-5-reuse.mp4" type="video/mp4"><source src="help/vid/clip-5-reuse.webm" type="video/webm"></video></div>
+        <figcaption data-h="79">Watch: save the setup, then open it again.</figcaption>
       </figure>
     </div>
   </section>
 
   <section class="card" id="keys">
-    <h2 data-h="79">Keyboard</h2>
+    <h2 data-h="71">Keyboard</h2>
     <ul>
-      <li data-h="80"><kbd>+</kbd> <kbd>−</kbd> zoom in and out, <kbd>0</kbd> fits the sheet, with the drawing focused.</li>
-      <li data-h="81"><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Z</kbd> undoes the last rule change, add <kbd>Shift</kbd> to redo.</li>
-      <li data-h="82">To draw a box without a mouse, focus the drawing, move with the arrow keys (hold <kbd>Shift</kbd> or <kbd>Alt</kbd> to change the step), press <kbd>Enter</kbd> for each corner and <kbd>Esc</kbd> to cancel.</li>
-      <li data-h="83">Press the small <strong>(i)</strong> next to a field for a one-line explanation.</li>
+      <li data-h="72"><kbd>+</kbd> <kbd>−</kbd> zoom in and out, <kbd>0</kbd> fits the sheet, with the drawing focused.</li>
+      <li data-h="73"><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Z</kbd> undoes the last rule change, add <kbd>Shift</kbd> to redo.</li>
+      <li data-h="74">To draw a box without a mouse, focus the drawing, move with the arrow keys (hold <kbd>Shift</kbd> or <kbd>Alt</kbd> to change the step), press <kbd>Enter</kbd> for each corner and <kbd>Esc</kbd> to cancel.</li>
     </ul>
-    <p data-h="84">Something not working? See the <a href="faq.html">FAQ</a>.</p>
+    <p data-h="75">Something not working? See the <a href="faq.html">FAQ</a>.</p>
   </section>
 </main>
 <footer class="sitefoot" id="sitefoot"></footer>

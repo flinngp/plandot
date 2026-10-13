@@ -106,7 +106,6 @@ export default {
  "Download pin image (PNG)": "Pobierz obraz z pinezkami (PNG)",
  "Check pin positions first": "Najpierw sprawdź położenia",
  "Download calibration file": "Pobierz plik kalibracyjny",
- "10% grid": "Siatka 10%",
  "Drop the drawing PDF here": "Upuść tutaj PDF rysunku",
  "You can drop the import template too. Nothing leaves your computer.": "Możesz też upuścić szablon importu. Nic nie opuszcza Twojego komputera.",
  "Include all": "Uwzględnij wszystkie",
@@ -186,7 +185,6 @@ export default {
  "Open setup": "Otwórz konfigurację",
  "A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.": "Plik konfiguracji zachowuje reguły, nazwę planu i ustawienia pomieszczeń, aby użyć ich przy innych rysunkach lub udostępnić.",
  "Preview what will be exported": "Podgląd tego, co zostanie wyeksportowane",
- "Scroll to pan · Ctrl + scroll to zoom": "Przewijaj, aby przesuwać · Ctrl + przewijanie, aby powiększać",
  "Fit": "Dopasuj",
  "Try with a sample drawing": "Wypróbuj na przykładowym rysunku",
  "Current drawing": "Bieżący rysunek",
@@ -280,4 +278,5 @@ export default {
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Każda reguła zamienia każde znalezione oznaczenie lub symbol w pinezkę. Wpisz tekst do wyszukania albo narysuj ramkę wokół symbolu.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Kliknij Kopiuj wiersze i wklej do importera zadań Fieldwire, po najwyżej 500 pinezek naraz. Albo pobierz plik importu.",
  "Back to the pins": "Wróć do pinezek",
+ "Gridlines": "Linie siatki",
 };

@@ -1130,7 +1130,7 @@ function renderTable() {
       h("td", { class: "num-col", text: round2(p.px).toFixed(2) }), h("td", { class: "num-col", text: round2(p.py).toFixed(2) }));
     row.addEventListener("pointerenter", () => hot(p.key, true));
     row.addEventListener("pointerleave", () => hot(p.key, false));
-    row.addEventListener("click", (ev) => { if (!ev.target.closest("input, button")) showPin(p.key); });
+    row.addEventListener("click", (ev) => { if (!ev.target.closest("input[type=checkbox], button")) showPin(p.key); }); // anywhere on the line, including the title box
     row.title = tr("Click to find this pin on the drawing");
     body.append(row);
   });

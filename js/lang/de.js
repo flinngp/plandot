@@ -106,7 +106,6 @@ export default {
  "Download pin image (PNG)": "Bild der Markierungen herunterladen (PNG)",
  "Check pin positions first": "Positionen zuerst prüfen",
  "Download calibration file": "Kalibrierungsdatei herunterladen",
- "10% grid": "10-%-Raster",
  "Drop the drawing PDF here": "PDF der Zeichnung hier ablegen",
  "You can drop the import template too. Nothing leaves your computer.": "Sie können auch die Importvorlage ablegen. Nichts verlässt Ihren Computer.",
  "Include all": "Alle einbeziehen",
@@ -186,7 +185,6 @@ export default {
  "Open setup": "Setup öffnen",
  "A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.": "Eine Setup-Datei enthält Ihre Regeln, den Plannamen und die Raumeinstellungen, damit Sie sie für andere Zeichnungen wiederverwenden oder teilen können.",
  "Preview what will be exported": "Vorschau des Exports",
- "Scroll to pan · Ctrl + scroll to zoom": "Scrollen zum Verschieben · Strg + Scrollen zum Zoomen",
  "Fit": "Einpassen",
  "Try with a sample drawing": "Mit einer Beispielzeichnung ausprobieren",
  "Current drawing": "Aktuelle Zeichnung",
@@ -280,4 +278,5 @@ export default {
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Jede Regel macht aus jeder gefundenen Beschriftung oder jedem Symbol eine Markierung. Geben Sie den gesuchten Text ein oder ziehen Sie einen Rahmen um ein Symbol.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Klicken Sie auf Zeilen kopieren und fügen Sie sie in den Aufgaben-Import von Fieldwire ein, höchstens 500 Markierungen auf einmal. Oder laden Sie die Importdatei herunter.",
  "Back to the pins": "Zurück zu den Markierungen",
+ "Gridlines": "Raster",
 };

@@ -160,7 +160,7 @@ await markAt(sym, 1140, 560, 1, { r: 40, dx: -62, dy: -58 });
 await markAt(sym, 1000, 150, 2, { r: 36, dx: -48, dy: -42 });
 await markAt(sym, 60, 560, 2, { r: 36, dx: 24, dy: -62 });
 await markAt(sym, 500, 700, 2, { r: 36, dx: -48, dy: 16 });
-await sym.screenshot({ path: OUT + "symbols-3-found.png", clip: symPane });
+// (the guide no longer shows a separate "found" picture)
 await sym.evaluate(() => document.querySelectorAll(".ann").forEach((e) => e.remove()));
 
 // the rule card after the box: picture of the symbol and the match settings

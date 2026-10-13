@@ -106,7 +106,6 @@ export default {
  "Download pin image (PNG)": "Stáhnout obrázek se špendlíky (PNG)",
  "Check pin positions first": "Nejprve zkontrolovat polohy",
  "Download calibration file": "Stáhnout kalibrační soubor",
- "10% grid": "Mřížka 10 %",
  "Drop the drawing PDF here": "Pusťte sem PDF výkresu",
  "You can drop the import template too. Nothing leaves your computer.": "Můžete pustit i importní šablonu. Nic neopustí váš počítač.",
  "Include all": "Zahrnout vše",
@@ -186,7 +185,6 @@ export default {
  "Open setup": "Otevřít nastavení",
  "A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.": "Soubor nastavení uchovává vaše pravidla, název plánu a nastavení místností, abyste je mohli použít u dalších výkresů nebo sdílet.",
  "Preview what will be exported": "Náhled toho, co se exportuje",
- "Scroll to pan · Ctrl + scroll to zoom": "Posouvejte rolováním · Ctrl + rolování přibližuje",
  "Fit": "Přizpůsobit",
  "Try with a sample drawing": "Vyzkoušet na ukázkovém výkresu",
  "Current drawing": "Aktuální výkres",
@@ -280,4 +278,5 @@ export default {
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Každé pravidlo změní každý nalezený popisek nebo symbol v bod. Zadejte hledaný text nebo nakreslete rámeček kolem symbolu.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Klikněte na Kopírovat řádky a vložte do importu úkolů ve Fieldwire, nejvýše 500 bodů najednou. Nebo stáhněte importní soubor.",
  "Back to the pins": "Zpět na špendlíky",
+ "Gridlines": "Mřížka",
 };

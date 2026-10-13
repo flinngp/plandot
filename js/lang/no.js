@@ -106,7 +106,6 @@ export default {
  "Download pin image (PNG)": "Last ned bilde med nåler (PNG)",
  "Check pin positions first": "Kontroller posisjonene først",
  "Download calibration file": "Last ned kalibreringsfil",
- "10% grid": "10 %-rutenett",
  "Drop the drawing PDF here": "Slipp tegnings-PDF-en her",
  "You can drop the import template too. Nothing leaves your computer.": "Du kan også slippe importmalen. Ingenting forlater datamaskinen din.",
  "Include all": "Ta med alle",
@@ -186,7 +185,6 @@ export default {
  "Open setup": "Åpne oppsett",
  "A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.": "En oppsettfil lagrer reglene dine, plannavnet og romvalgene, slik at du kan bruke dem på andre tegninger eller dele dem.",
  "Preview what will be exported": "Forhåndsvis det som eksporteres",
- "Scroll to pan · Ctrl + scroll to zoom": "Rull for å flytte · Ctrl + rull for å zoome",
  "Fit": "Tilpass",
  "Try with a sample drawing": "Prøv med en eksempeltegning",
  "Current drawing": "Gjeldende tegning",
@@ -280,4 +278,5 @@ export default {
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Hver regel gjør hver henvisning eller hvert symbol som blir funnet, til en nål. Skriv teksten som skal søkes etter, eller tegn en boks rundt et symbol.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Trykk på Kopier rader og lim inn i Fieldwires oppgaveimport, opptil 500 nåler om gangen. Eller last ned importfilen.",
  "Back to the pins": "Tilbake til nålene",
+ "Gridlines": "Rutenett",
 };

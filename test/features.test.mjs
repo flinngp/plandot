@@ -545,7 +545,7 @@ test("clicking a pin row jumps up to the drawing, and a button brings you back t
   await page.waitForTimeout(300);
   const vb = await page.evaluate(() => document.querySelector("#viewport").getBoundingClientRect().bottom);
   assert.ok(vb < 250, `the drawing is scrolled out of sight (bottom ${vb})`);
-  await page.click("#pin-rows tr:nth-child(3) td:nth-child(4)");
+  await page.click("#pin-rows tr:nth-child(3) td:nth-child(7) input"); // the title box counts as part of the line
   await page.waitForFunction(() => { const r = document.querySelector("#viewport").getBoundingClientRect(); return r.top >= -2 && r.top < innerHeight * 0.5; }, null, { timeout: 5000 });
   await page.waitForSelector("#back-to-pins:not([hidden])");
   await page.click("#back-to-pins");
@@ -559,9 +559,9 @@ test("the header: language sits in the top bar and the drawing details sit above
   const page = await fresh({ width: 1280, height: 700 });
   const r = await page.evaluate(() => {
     const b = (s) => document.querySelector(s).getBoundingClientRect();
-    return { langInNav: !!document.querySelector("#topnav #lang-btn"), tbInPane: !!document.querySelector(".sheetpane > .titleblock"), mastLang: !!document.querySelector(".masthead #lang-btn"), tbAboveToolbar: b(".titleblock").bottom <= b(".toolbar").top + 1 };
+    return { langInNav: !!document.querySelector("#topnav #lang-btn"), tbInPane: !!document.querySelector(".sheetpane .titleblock"), mastLang: !!document.querySelector(".masthead #lang-btn"), tbInToolbar: !!document.querySelector(".toolbar > .titleblock"), noPanText: !document.querySelector(".toolbar .tip") };
   });
-  assert.deepEqual(r, { langInNav: true, tbInPane: true, mastLang: false, tbAboveToolbar: true });
+  assert.deepEqual(r, { langInNav: true, tbInPane: true, mastLang: false, tbInToolbar: true, noPanText: true });
   await page.click("#lang-btn"); await page.click("#lang-fr");
   await page.waitForFunction(() => document.querySelector("#topnav .feedback-link").textContent === "Envoyer un avis");
   await page.close();

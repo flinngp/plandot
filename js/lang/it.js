@@ -106,7 +106,6 @@ export default {
  "Download pin image (PNG)": "Scarica l'immagine dei segnaposto (PNG)",
  "Check pin positions first": "Verifica prima le posizioni",
  "Download calibration file": "Scarica il file di calibrazione",
- "10% grid": "Griglia al 10%",
  "Drop the drawing PDF here": "Trascina qui il PDF del disegno",
  "You can drop the import template too. Nothing leaves your computer.": "Puoi trascinare anche il modello di importazione. Nulla lascia il tuo computer.",
  "Include all": "Includi tutti",
@@ -186,7 +185,6 @@ export default {
  "Open setup": "Apri configurazione",
  "A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.": "Un file di configurazione conserva le regole, il nome della planimetria e le impostazioni dei locali, così puoi riutilizzarli su altri disegni o condividerli.",
  "Preview what will be exported": "Anteprima di ciò che verrà esportato",
- "Scroll to pan · Ctrl + scroll to zoom": "Scorri per spostare · Ctrl + scorrimento per ingrandire",
  "Fit": "Adatta",
  "Try with a sample drawing": "Prova con un disegno di esempio",
  "Current drawing": "Disegno attuale",
@@ -280,4 +278,5 @@ export default {
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Ogni regola trasforma in segnaposto ogni richiamo o simbolo trovato. Scrivi il testo da cercare oppure disegna un riquadro attorno a un simbolo.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Premi Copia righe e incolla nell'importatore di attività di Fieldwire, fino a 500 segnaposto alla volta. Oppure scarica il file di importazione.",
  "Back to the pins": "Torna ai segnaposto",
+ "Gridlines": "Griglia",
 };

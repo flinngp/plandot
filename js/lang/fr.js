@@ -106,7 +106,6 @@ export default {
  "Download pin image (PNG)": "Télécharger l'image des épingles (PNG)",
  "Check pin positions first": "Vérifier d'abord les positions",
  "Download calibration file": "Télécharger le fichier de calibrage",
- "10% grid": "Grille à 10 %",
  "Drop the drawing PDF here": "Déposez ici le PDF du plan",
  "You can drop the import template too. Nothing leaves your computer.": "Vous pouvez aussi déposer le modèle d'import. Rien ne quitte votre ordinateur.",
  "Include all": "Tout inclure",
@@ -186,7 +185,6 @@ export default {
  "Open setup": "Ouvrir une configuration",
  "A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.": "Un fichier de configuration conserve vos règles, le nom du plan et les réglages de pièces, pour les réutiliser sur d'autres plans ou les partager.",
  "Preview what will be exported": "Aperçu de ce qui sera exporté",
- "Scroll to pan · Ctrl + scroll to zoom": "Faites défiler pour déplacer · Ctrl + molette pour zoomer",
  "Fit": "Ajuster",
  "Try with a sample drawing": "Essayer avec un plan d'exemple",
  "Current drawing": "Plan actuel",
@@ -280,4 +278,5 @@ export default {
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Chaque règle transforme chaque repère ou symbole trouvé en épingle. Saisissez le texte à chercher, ou dessinez un cadre autour d'un symbole.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Cliquez sur Copier les lignes et collez dans l'importateur de tâches de Fieldwire, 500 épingles à la fois au maximum. Ou téléchargez le fichier d'import.",
  "Back to the pins": "Retour aux épingles",
+ "Gridlines": "Quadrillage",
 };

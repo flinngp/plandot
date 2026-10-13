@@ -106,7 +106,6 @@ export default {
  "Download pin image (PNG)": "Lataa nastakuva (PNG)",
  "Check pin positions first": "Tarkista ensin sijainnit",
  "Download calibration file": "Lataa kalibrointitiedosto",
- "10% grid": "10 %:n ruudukko",
  "Drop the drawing PDF here": "Pudota piirustuksen PDF tähän",
  "You can drop the import template too. Nothing leaves your computer.": "Voit pudottaa myös tuontimallin. Mikään ei poistu tietokoneeltasi.",
  "Include all": "Ota kaikki mukaan",
@@ -186,7 +185,6 @@ export default {
  "Open setup": "Avaa asetukset",
  "A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.": "Asetustiedosto säilyttää säännöt, pohjakuvan nimen ja huoneasetukset, jotta voit käyttää niitä uudelleen muissa piirustuksissa tai jakaa ne.",
  "Preview what will be exported": "Esikatsele, mitä viedään",
- "Scroll to pan · Ctrl + scroll to zoom": "Vieritä siirtääksesi · Ctrl + vieritys zoomaa",
  "Fit": "Sovita",
  "Try with a sample drawing": "Kokeile esimerkkipiirustuksella",
  "Current drawing": "Nykyinen piirustus",
@@ -280,4 +278,5 @@ export default {
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Jokainen sääntö muuttaa jokaisen löydetyn merkinnän tai symbolin nastaksi. Kirjoita haettava teksti tai piirrä ruutu symbolin ympärille.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Paina Kopioi rivit ja liitä Fieldwiren tehtävien tuontityökaluun, enintään 500 nastaa kerrallaan. Tai lataa tuontitiedosto.",
  "Back to the pins": "Takaisin nastoihin",
+ "Gridlines": "Ruudukkoviivat",
 };

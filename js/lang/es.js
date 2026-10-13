@@ -106,7 +106,6 @@ export default {
  "Download pin image (PNG)": "Descargar imagen de chinchetas (PNG)",
  "Check pin positions first": "Comprobar antes las posiciones",
  "Download calibration file": "Descargar archivo de calibración",
- "10% grid": "Cuadrícula del 10 %",
  "Drop the drawing PDF here": "Suelte aquí el PDF del plano",
  "You can drop the import template too. Nothing leaves your computer.": "También puede soltar la plantilla de importación. Nada sale de su ordenador.",
  "Include all": "Incluir todas",
@@ -186,7 +185,6 @@ export default {
  "Open setup": "Abrir configuración",
  "A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.": "Un archivo de configuración guarda sus reglas, el nombre del plano y los ajustes de sala, para reutilizarlos en otros planos o compartirlos.",
  "Preview what will be exported": "Vista previa de lo que se exportará",
- "Scroll to pan · Ctrl + scroll to zoom": "Desplácese para mover · Ctrl + rueda para ampliar",
  "Fit": "Ajustar",
  "Try with a sample drawing": "Probar con un plano de ejemplo",
  "Current drawing": "Plano actual",
@@ -280,4 +278,5 @@ export default {
  "Each rule turns every callout or symbol it finds into a pin. Type the text to find, or draw a box round a symbol.": "Cada regla convierte en chincheta cada referencia o símbolo que encuentra. Escribe el texto que buscar o dibuja un recuadro alrededor de un símbolo.",
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Pulsa Copiar filas y pega en el importador de tareas de Fieldwire, hasta 500 chinchetas cada vez. O descarga el archivo de importación.",
  "Back to the pins": "Volver a las chinchetas",
+ "Gridlines": "Cuadrícula",
 };

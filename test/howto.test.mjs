@@ -29,7 +29,7 @@ for (const code of CODES) {
       if (i !== 24) assert.equal(codeOf(pack[i]), codeOf(english[i]), `entry ${i}: the example text changed`);
     }
     assert.ok(pack[24].includes("{tag}") && pack[24].includes("{room_label}"), "the title example keeps the real placeholders");
-    assert.match(pack[84], /faq\.html/, "the FAQ link is kept");
+    assert.match(pack[english.findIndex((e) => /href="faq\.html"/.test(e))], /faq\.html/, "the FAQ link is kept");
   });
 
   test(`how to guide, ${code}: button names match the app's own wording`, async () => {

@@ -1,9 +1,9 @@
 /* How to use and FAQ pages. They reuse the app's colours and fonts from app.css. */
-.help-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 920px; margin: 0 auto; padding: 18px 28px 6px; }
+.help-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 1000px; margin: 0 auto; padding: 18px 28px 6px; }
 .help-head .brand { text-decoration: none; color: inherit; flex: none; }
 .help-head .brand .mark { color: var(--accent); }
 .help-head .btn { text-decoration: none; display: inline-block; }
-.doc { max-width: 920px; margin: 0 auto; padding: 8px 28px 8px; }
+.doc { max-width: 1000px; margin: 0 auto; padding: 8px 28px 8px; }
 .doc > h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin: 18px 0 6px; }
 .doc .lede { color: var(--ink-2); font-size: 16px; max-width: 62ch; margin-bottom: 22px; }
 .doc .note { background: var(--accent-wash); color: var(--accent-dark); border-radius: 10px; padding: 8px 12px; margin-bottom: 18px; font-weight: 600; font-size: 13px; }
@@ -16,10 +16,10 @@
 .doc code, .doc kbd { font: 600 13px ui-monospace, Menlo, Consolas, monospace; background: var(--soft); border: 1px solid var(--line-soft); border-radius: 6px; padding: 1px 6px; }
 .doc a { color: var(--accent-dark); font-weight: 600; }
 /* every screenshot and clip sits in a media row: two equal columns, or one wide picture across both */
-.media { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 22px; align-items: start; margin: 16px 0 4px; }
+.media { display: grid; grid-template-columns: minmax(0, 384px) minmax(0, 1fr); gap: 16px 24px; align-items: start; margin: 16px 0 4px; }
 .media > figure { margin: 0; min-width: 0; }
 .media > .shot:not(.narrow) { grid-column: 1 / -1; }
-.media > .shot:not(.narrow) + .clip { grid-column: 1 / -1; max-width: 640px; }
+.media > .shot:not(.narrow) + .clip { grid-column: 1 / -1; max-width: 760px; }
 .media figcaption { color: var(--ink-2); font-size: 13px; line-height: 1.4; margin-top: 8px; }
 .media .shot img, .media .clip-video { width: 100%; max-width: 100%; height: auto; }
 .media .shot.narrow img { width: auto; max-width: 100%; }
@@ -42,7 +42,7 @@
 .doc h3 { font-size: 16px; margin: 20px 0 4px; }
 
 /* short silent clips next to the screenshots */
-.clip { margin: 14px 0 6px; max-width: 640px; }
+.clip { margin: 14px 0 6px; max-width: 760px; }
 .clip-box { position: relative; }
 .clip-video { display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); box-shadow: var(--shadow); background: var(--canvas, #eef1f6); }
 .clip-btn { position: absolute; right: 10px; bottom: 10px; border: 0; border-radius: 999px; padding: 7px 14px; font: 600 13px/1 inherit; background: rgba(23, 32, 51, .86); color: #fff; cursor: pointer; }
