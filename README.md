@@ -178,6 +178,11 @@ The guide's screenshots have orange outlines but no number badges (the picture d
 
 ## Page header and link previews
 
-- The top bar holds the page links and the language menu. The drawing name, sheet size, pin count, Gridlines tick box and the X/Y readout share one row above the drawing (`.toolbar`, with `.titleblock` inside it), and Start over is the only button in the header.
+- The top bar holds the page links and the language menu. The drawing name, sheet size, pin count, Gridlines tick box and the X/Y readout share one row above the drawing (`.toolbar`, with `.titleblock` inside it), and Start over sits at the right end of that row, after the X/Y readout.
 - Clicking a pin row jumps up to the drawing when it is off screen, and a floating "Back to the pins" button returns to the list.
 - Link previews (WhatsApp, Slack, iMessage and so on) come from the Open Graph tags on all three pages and `docs/preview.png` (1200 x 630, 25 KB). The image address must stay absolute (`https://plandot.uk/...`). These apps cache previews, so a changed image can take a while to appear; a new address (for example `preview.png?v=2`) forces a refresh.
+
+
+## Why `samples/.gitignore` exists
+
+The top-level `.gitignore` blocks every PDF so real drawings can't be committed by accident. `samples/.gitignore` allows the made-up `sample-symbols.pdf`, which the symbol tests and the guide need; without it, GitHub Desktop skips the file and the test run on GitHub fails.

@@ -26,8 +26,8 @@
   --radius-s: 9px;
   --shadow: 0 1px 3px rgba(23, 32, 51, 0.08);
   --panel: 380px; /* the left panel never changes width */
-  --head: 72px;
-  --nav: 40px; /* the menu bar above the page header */
+  --head: 78px;
+  --nav: 44px; /* the menu bar above the page header */
   --body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color-scheme: light;
 }
@@ -46,7 +46,7 @@ p { margin: 0; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 /* Masthead */
-.topnav { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 4px 6px; min-height: var(--nav); padding: 0 22px; }
+.topnav { display: flex; align-items: flex-end; justify-content: flex-end; flex-wrap: wrap; gap: 4px 6px; min-height: var(--nav); padding: 0 22px 4px; }
 .topnav a { color: var(--ink-2); text-decoration: none; font-weight: 600; font-size: 13px; padding: 6px 12px; border-radius: 999px; }
 .topnav a:hover { background: var(--card); color: var(--accent-dark); }
 .topnav a[aria-current="page"] { color: var(--accent-dark); background: var(--accent-wash); }
@@ -60,12 +60,12 @@ p { margin: 0; }
 .topnav .langmenu { margin-left: 6px; }
 .topnav .nav-app { margin-right: auto; color: var(--accent-dark); }
 .notice { background: var(--accent-wash); color: #1f3399; border-radius: 10px; padding: 9px 12px; font-size: 13px; font-weight: 600; line-height: 1.4; }
-.masthead { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: var(--head); padding: 10px 28px; } /* a fixed height, so nothing below it ever moves */
-.brand { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1 1 0; }
+.masthead { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: var(--head); padding: 2px 28px 8px; } /* a fixed height, so nothing below it ever moves */
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; flex: 1 1 0; }
 .brand > div { min-width: 0; }
-.mark { width: 46px; height: 46px; flex: none; color: var(--accent); }
-.brand h1 { font-weight: 800; font-size: 26px; letter-spacing: -0.02em; line-height: 1.1; }
-.brand p { color: var(--ink-2); font-size: 13px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mark { width: 56px; height: 56px; flex: none; color: var(--accent); }
+.brand h1 { font-weight: 800; font-size: 32px; letter-spacing: -0.02em; line-height: 1.1; }
+.brand p { color: var(--ink-2); font-size: 15px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .masthead-right { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 0 1 auto; }
 
 /* Layout */
@@ -113,7 +113,9 @@ input::placeholder { color: #6b7788; }
 .btn.dark:hover:not(:disabled) { background: #2a3550; border-color: #2a3550; }
 .btn.dark.start-over { background: #fff; border: 1.5px solid #c9d0de; color: var(--ink); box-shadow: var(--shadow); }
 .btn.dark.start-over:disabled { background: #fff; color: var(--ink-2); opacity: 1; }
-.btn.dark.start-over:hover:not(:disabled) { background: var(--soft); border-color: var(--ink); }
+.btn.dark.start-over:hover:not(:disabled) { background: #fff; border-color: var(--ink); }
+.toolbar .start-over { height: 32px; padding: 0 14px; font-size: 13px; white-space: nowrap; flex: none; }
+.toolbar .readout { min-width: 0; }
 .btn.quiet { padding: 8px 12px; }
 .btn.quiet:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-dark); background: var(--accent-wash); }
 .btn.link { border: 0; background: transparent; color: var(--accent-dark); padding: 6px 8px; border-radius: 7px; }
@@ -314,10 +316,10 @@ td input[type="text"]:hover, td input[type="text"]:focus { border-color: var(--l
   .brand p { white-space: normal; overflow: visible; text-overflow: clip; }
   .topnav { padding: 0 10px; justify-content: flex-start; }
   .masthead { flex-direction: column; align-items: stretch; gap: 12px; padding: 14px 16px; height: auto; }
-  .masthead-right { flex-wrap: wrap; }
   .toolbar { flex-wrap: wrap; }
-  .titleblock { flex: 1 1 100%; }
-  .titleblock .tb-name { flex: 1 1 auto; }
+  .titleblock { flex: 1 1 100%; flex-wrap: wrap; row-gap: 2px; }
+  .titleblock .tb-name { flex: 1 1 100%; }
+  .titleblock > div:nth-child(2)::before { display: none; }
   .titleblock .tb-name dd { max-width: none; }
   .titleblock > div + div::before { margin: 0 8px; }
   .layout { padding: 4px 16px 20px; }

@@ -1,0 +1,2 @@
+# Allow the made-up symbol sample, even though the top-level .gitignore blocks other PDFs.
+!sample-symbols.pdf

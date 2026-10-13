@@ -412,10 +412,9 @@ test("the clips play while they are on screen, can be paused, and stay still for
   assert.equal(await page.$eval(".clip-video", (v) => v.hasAttribute("controls")), false, "the page's own button replaces the browser controls");
   await page.locator(".clip-video").first().scrollIntoViewIfNeeded();
   await page.waitForFunction(() => !document.querySelector(".clip-video").paused, null, { timeout: 8000 });
-  assert.equal(await page.textContent(".clip-btn"), "Pause");
+  await page.waitForFunction(() => document.querySelector(".clip-btn").textContent === "Pause");
   await page.click(".clip-btn");
-  assert.equal(await page.$eval(".clip-video", (v) => v.paused), true);
-  assert.equal(await page.textContent(".clip-btn"), "Play");
+  await page.waitForFunction(() => document.querySelector(".clip-video").paused && document.querySelector(".clip-btn").textContent === "Play"); // the label follows the pause event a moment later
   await page.close();
 
   const ctx = await env.browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
@@ -424,6 +423,6 @@ test("the clips play while they are on screen, can be paused, and stay still for
   await calm.locator(".clip-video").first().scrollIntoViewIfNeeded();
   await calm.waitForTimeout(1500);
   assert.equal(await calm.$eval(".clip-video", (v) => v.paused), true);
-  assert.equal(await calm.textContent(".clip-btn"), "Play");
+  await calm.waitForFunction(() => document.querySelector(".clip-btn").textContent === "Play");
   await ctx.close();
 });
