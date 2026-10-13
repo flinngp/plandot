@@ -242,7 +242,7 @@ export default {
  "Draws grid lines every 10% across the sheet, to help you check where pins land.": "Zeichnet alle 10 % Rasterlinien über das Blatt, damit Sie prüfen können, wo die Markierungen landen.",
  "Progress": "Fortschritt",
  "Download it from your project's import screen in Fieldwire. Load a fresh copy whenever custom attributes change.": "Laden Sie sie im Importbildschirm Ihres Projekts in Fieldwire herunter. Laden Sie eine neue Kopie, wenn sich benutzerdefinierte Attribute ändern.",
- "Open Plandot": "Plandot öffnen",
+ "Home": "Startseite",
  "How to guide": "Anleitung",
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Öffnen Sie die Datei, kopieren Sie die Markierungszeilen und fügen Sie sie stapelweise in den Aufgaben-Import von Fieldwire ein.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "Der Aufgaben-Import von Fieldwire nimmt höchstens {limit} Markierungen auf einmal an. Fügen Sie diese Datei daher in {n} Stapeln ein (Markierungen {ranges}).",

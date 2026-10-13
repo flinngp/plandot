@@ -58,7 +58,8 @@ p { margin: 0; }
 .titleblock .tb-name { flex: 0 1 auto; }
 .titleblock .tb-name dd { max-width: 340px; }
 .topnav .langmenu { margin-left: 6px; }
-.topnav .nav-app { margin-right: auto; color: var(--accent-dark); }
+.topnav .nav-app { margin-right: auto; display: inline-flex; align-items: center; gap: 7px; background: var(--card); color: var(--accent-dark); font-size: 14px; font-weight: 700; padding: 7px 16px 7px 12px; box-shadow: var(--shadow); }
+.topnav .nav-app:hover { background: var(--accent-wash); }
 .notice { background: var(--accent-wash); color: #1f3399; border-radius: 10px; padding: 9px 12px; font-size: 13px; font-weight: 600; line-height: 1.4; }
 .masthead { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: var(--head); padding: 2px 28px 8px; } /* a fixed height, so nothing below it ever moves */
 .brand { display: flex; align-items: center; gap: 16px; min-width: 0; flex: 1 1 0; }

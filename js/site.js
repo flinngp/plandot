@@ -175,6 +175,15 @@ let tourHandler = null;
 /** The app registers what "Take the tour" does; help pages have no tour, so they show no link. */
 export function setTourHandler(fn) { tourHandler = fn; renderNav(); }
 
+const HOME_ICON = '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M3 9.5 10 3l7 6.5M5 8.5V16h10V8.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+/** The "Home" button on help pages: an icon and a word, as a clear pill. */
+function homeLink() {
+  const a = h("a", { href: "index.html", class: "nav-app" });
+  a.innerHTML = `${HOME_ICON}<span></span>`;
+  a.lastChild.textContent = tr("Home");
+  return a;
+}
+
 export function renderNav() {
   const nav = document.getElementById("topnav");
   if (!nav) return;
@@ -185,7 +194,7 @@ export function renderNav() {
   nav.setAttribute("aria-label", tr("More about Plandot"));
   nav.querySelectorAll(":scope > a").forEach((a) => a.remove()); // the language menu stays
   nav.prepend(
-    ...(onApp ? [] : [link("index.html", tr("Open Plandot"), { class: "nav-app" })]),
+    ...(onApp ? [] : [homeLink()]),
     ...(onApp && tourHandler ? [h("a", { href: "#", class: "tour-link", text: tr("Take the tour"), onclick: (e) => { e.preventDefault(); tourHandler(); } })] : []),
     link("howto.html", tr("How to guide")),
     link("faq.html", tr("FAQ")),

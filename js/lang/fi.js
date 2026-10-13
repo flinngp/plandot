@@ -242,7 +242,7 @@ export default {
  "Draws grid lines every 10% across the sheet, to help you check where pins land.": "Piirtää ruudukon viivat 10 %:n välein arkin yli, jotta näet, mihin nastat osuvat.",
  "Progress": "Edistyminen",
  "Download it from your project's import screen in Fieldwire. Load a fresh copy whenever custom attributes change.": "Lataa se projektisi tuontinäkymästä Fieldwiressä. Lataa uusi kopio aina, kun mukautetut ominaisuudet muuttuvat.",
- "Open Plandot": "Avaa Plandot",
+ "Home": "Etusivu",
  "How to guide": "Käyttöopas",
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Avaa tiedosto, kopioi nastarivit ja liitä ne Fieldwiren tehtävien tuontityökaluun yksi erä kerrallaan.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "Fieldwiren tehtävien tuonti ottaa enintään {limit} nastaa kerrallaan, joten liitä tiedosto {n} erässä (nastat {ranges}).",

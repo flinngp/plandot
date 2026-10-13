@@ -242,7 +242,7 @@ export default {
  "Draws grid lines every 10% across the sheet, to help you check where pins land.": "Trace une ligne de grille tous les 10 % sur la feuille, pour vérifier où tombent les épingles.",
  "Progress": "Progression",
  "Download it from your project's import screen in Fieldwire. Load a fresh copy whenever custom attributes change.": "Téléchargez-le depuis l'écran d'import de votre projet dans Fieldwire. Chargez une copie récente à chaque modification des attributs personnalisés.",
- "Open Plandot": "Ouvrir Plandot",
+ "Home": "Accueil",
  "How to guide": "Guide d'utilisation",
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Ouvrez le fichier, copiez les lignes d'épingles et collez-les dans l'importateur de tâches de Fieldwire, un lot à la fois.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "L'importateur de tâches de Fieldwire accepte jusqu'à {limit} épingles à la fois : collez ce fichier en {n} lots (épingles {ranges}).",

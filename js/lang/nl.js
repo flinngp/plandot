@@ -242,7 +242,7 @@ export default {
  "Draws grid lines every 10% across the sheet, to help you check where pins land.": "Tekent om de 10% rasterlijnen over het blad, zodat je kunt controleren waar de spelden landen.",
  "Progress": "Voortgang",
  "Download it from your project's import screen in Fieldwire. Load a fresh copy whenever custom attributes change.": "Download het vanaf het importscherm van je project in Fieldwire. Laad een nieuwe kopie wanneer aangepaste kenmerken wijzigen.",
- "Open Plandot": "Plandot openen",
+ "Home": "Home",
  "How to guide": "Handleiding",
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Open het bestand, kopieer de rijen met spelden en plak ze in de taakimporter van Fieldwire, steeds één groep tegelijk.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "De taakimporter van Fieldwire neemt maximaal {limit} spelden tegelijk aan, dus plak dit bestand in {n} groepen (spelden {ranges}).",

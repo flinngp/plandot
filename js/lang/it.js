@@ -242,7 +242,7 @@ export default {
  "Draws grid lines every 10% across the sheet, to help you check where pins land.": "Traccia una linea di griglia ogni 10% sul foglio, per controllare dove cadono i segnaposto.",
  "Progress": "Avanzamento",
  "Download it from your project's import screen in Fieldwire. Load a fresh copy whenever custom attributes change.": "Scaricalo dalla schermata di importazione del tuo progetto in Fieldwire. Carica una copia aggiornata ogni volta che cambiano gli attributi personalizzati.",
- "Open Plandot": "Apri Plandot",
+ "Home": "Home",
  "How to guide": "Guida all'uso",
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Apri il file, copia le righe dei segnaposto e incollale nell'importatore di attività di Fieldwire, un gruppo alla volta.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "L'importatore di attività di Fieldwire accetta fino a {limit} segnaposto alla volta, quindi incolla questo file in {n} gruppi (segnaposto {ranges}).",

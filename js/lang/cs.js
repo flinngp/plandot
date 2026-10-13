@@ -242,7 +242,7 @@ export default {
  "Draws grid lines every 10% across the sheet, to help you check where pins land.": "Vykreslí na list čáry mřížky po 10 %, abyste mohli zkontrolovat, kam špendlíky padnou.",
  "Progress": "Průběh",
  "Download it from your project's import screen in Fieldwire. Load a fresh copy whenever custom attributes change.": "Stáhněte ji z importní obrazovky svého projektu ve Fieldwire. Načtěte novou kopii, kdykoli se změní vlastní atributy.",
- "Open Plandot": "Otevřít Plandot",
+ "Home": "Domů",
  "How to guide": "Návod k použití",
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Otevřete soubor, zkopírujte řádky se špendlíky a vložte je do importu úkolů ve Fieldwire, vždy jednu dávku.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "Import úkolů ve Fieldwire přijme najednou nejvýš {limit} špendlíků, takže vložte tento soubor v {n} dávkách (špendlíky {ranges}).",

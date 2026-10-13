@@ -242,7 +242,7 @@ export default {
  "Draws grid lines every 10% across the sheet, to help you check where pins land.": "Rysuje linie siatki co 10% na arkuszu, aby łatwiej sprawdzić, gdzie trafiają pinezki.",
  "Progress": "Postęp",
  "Download it from your project's import screen in Fieldwire. Load a fresh copy whenever custom attributes change.": "Pobierz go z ekranu importu swojego projektu w Fieldwire. Wczytaj nową kopię, gdy zmienią się atrybuty niestandardowe.",
- "Open Plandot": "Otwórz Plandot",
+ "Home": "Strona główna",
  "How to guide": "Przewodnik",
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Otwórz plik, skopiuj wiersze z pinezkami i wklej je do importera zadań Fieldwire, jedna partia po drugiej.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "Importer zadań Fieldwire przyjmuje do {limit} pinezek naraz, więc wklej ten plik w {n} partiach (pinezki {ranges}).",

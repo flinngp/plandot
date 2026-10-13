@@ -242,7 +242,7 @@ export default {
  "Draws grid lines every 10% across the sheet, to help you check where pins land.": "Tegner gitterlinjer for hver 10 % hen over arket, så du kan kontrollere, hvor nålene lander.",
  "Progress": "Fremdrift",
  "Download it from your project's import screen in Fieldwire. Load a fresh copy whenever custom attributes change.": "Download den fra importskærmen i dit projekt i Fieldwire. Indlæs en ny kopi, hver gang tilpassede attributter ændres.",
- "Open Plandot": "Åbn Plandot",
+ "Home": "Hjem",
  "How to guide": "Brugervejledning",
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Åbn filen, kopiér nålerækkerne og indsæt dem i Fieldwires opgaveimport, én gruppe ad gangen.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "Fieldwires opgaveimport tager op til {limit} nåle ad gangen, så indsæt denne fil i {n} grupper (nåle {ranges}).",

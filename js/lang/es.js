@@ -242,7 +242,7 @@ export default {
  "Draws grid lines every 10% across the sheet, to help you check where pins land.": "Dibuja líneas de cuadrícula cada 10 % sobre la hoja, para comprobar dónde caen las chinchetas.",
  "Progress": "Progreso",
  "Download it from your project's import screen in Fieldwire. Load a fresh copy whenever custom attributes change.": "Descárgala desde la pantalla de importación de tu proyecto en Fieldwire. Carga una copia nueva cada vez que cambien los atributos personalizados.",
- "Open Plandot": "Abrir Plandot",
+ "Home": "Inicio",
  "How to guide": "Guía de uso",
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Abre el archivo, copia las filas de chinchetas y pégalas en el importador de tareas de Fieldwire, un lote cada vez.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "El importador de tareas de Fieldwire admite hasta {limit} chinchetas a la vez, así que pega este archivo en {n} lotes (chinchetas {ranges}).",

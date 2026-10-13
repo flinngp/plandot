@@ -242,7 +242,7 @@ export default {
  "Draws grid lines every 10% across the sheet, to help you check where pins land.": "Desenha linhas de grelha a cada 10% na folha, para ajudar a verificar onde caem os alfinetes.",
  "Progress": "Progresso",
  "Download it from your project's import screen in Fieldwire. Load a fresh copy whenever custom attributes change.": "Transfira-o a partir do ecrã de importação do seu projeto no Fieldwire. Carregue uma cópia nova sempre que os atributos personalizados mudarem.",
- "Open Plandot": "Abrir o Plandot",
+ "Home": "Início",
  "How to guide": "Guia de utilização",
  "Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.": "Abra o ficheiro, copie as linhas dos alfinetes e cole-as no importador de tarefas do Fieldwire, um lote de cada vez.",
  "Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).": "O importador de tarefas do Fieldwire aceita até {limit} alfinetes de cada vez, por isso cole este ficheiro em {n} lotes (alfinetes {ranges}).",
