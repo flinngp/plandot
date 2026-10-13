@@ -519,6 +519,9 @@ test("the tour is a bottom card on a phone and the page still fits", async () =>
   await page.click(".tour-link");
   const r = await page.evaluate(() => { const c = document.querySelector(".tour-card").getBoundingClientRect(); return { inside: c.left >= 0 && c.right <= innerWidth && c.bottom <= innerHeight, ring: document.querySelector(".tour-ring").hidden, fits: document.documentElement.scrollWidth <= innerWidth }; });
   assert.deepEqual(r, { inside: true, ring: true, fits: true });
+  // the card's text uses the whole card (it once picked up the drawing's grid class and squashed into a column)
+  const w = await page.evaluate(() => ({ p: document.querySelector(".tour-card p").getBoundingClientRect().width, card: document.querySelector(".tour-card").getBoundingClientRect().width }));
+  assert.ok(w.p > w.card * 0.7, `tour text is squashed: ${w.p} of ${w.card}`);
   await page.close();
 });
 

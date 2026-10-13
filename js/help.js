@@ -9,17 +9,19 @@ async function translateGuide() {
   const lang = currentLanguage();
   if (lang === "en" || !document.querySelector("[data-h]")) return null;
   let pack;
-  try { pack = (await import(`./lang/howto/${lang}.js`)).default; } catch { return null; }
+  const folder = document.body.dataset.guide === "faq" ? "faq" : "howto";
+  try { pack = (await import(`./lang/${folder}/${lang}.js`)).default; } catch { return null; }
   for (const [attr, set] of [["h", (el, v) => { el.dataset.hEn ??= el.innerHTML; el.innerHTML = v; }], ["ha", (el, v) => el.setAttribute("alt", v)], ["hl", (el, v) => el.setAttribute("aria-label", v)]]) {
     for (const el of document.querySelectorAll(`[data-${attr}]`)) { const v = pack[Number(el.dataset[attr])]; if (typeof v === "string") set(el, v); }
   }
   document.title = `${pack[0]} · Plandot`;
-  return pack[pack.length - 1];
+  return pack[pack.length - 1] ?? "";
 }
 const guideNote = await translateGuide();
 const note = document.getElementById("lang-note");
 if (note) {
-  if (guideNote) { note.hidden = false; note.textContent = guideNote; }
+  if (guideNote === "") note.hidden = true;
+  else if (guideNote) { note.hidden = false; note.textContent = guideNote; }
   else {
     note.hidden = currentLanguage() === "en";
     note.textContent = tr("This page is in English for now. The app itself is available in 13 languages.");

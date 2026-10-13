@@ -43,10 +43,10 @@ export function startTour({ force = false } = {}) {
     const r = t.getBoundingClientRect();
     if (narrow()) {
       ring.hidden = true;
-      card.classList.add("sheet"); card.style.left = card.style.top = "";
+      card.classList.add("tour-bottom"); card.style.left = card.style.top = "";
       return;
     }
-    ring.hidden = false; card.classList.remove("sheet");
+    ring.hidden = false; card.classList.remove("tour-bottom");
     Object.assign(ring.style, { left: `${r.left - 6}px`, top: `${r.top - 6}px`, width: `${r.width + 12}px`, height: `${r.height + 12}px` });
     const w = card.offsetWidth, hgt = card.offsetHeight;
     const left = Math.min(r.right + 24, innerWidth - w - 12);

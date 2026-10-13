@@ -300,9 +300,9 @@ test("the share preview tags and image exist", async () => {
 
 test("the FAQ says what it should and leaves out what it shouldn't", async () => {
   const html = await readFile(`${root}faq.html`, "utf8");
-  assert.match(html, /<summary>What does Plandot cost\?<\/summary>\s*<p>It's completely free!<\/p>/);
-  assert.match(html, /<summary>Which browsers and languages does Plandot support\?<\/summary>/);
-  assert.match(html, /<summary>Something went wrong\? Let us know<\/summary>/);
+  assert.match(html, /<summary[^>]*>What does Plandot cost\?<\/summary>\s*<p[^>]*>It.s completely free!<\/p>/);
+  assert.match(html, /<summary[^>]*>Which browsers and languages does Plandot support\?<\/summary>/);
+  assert.match(html, /<summary[^>]*>Something went wrong\? Let us know<\/summary>/);
   assert.match(html, /<a id="faq-feedback" href="https:\/\/forms\.gle\//);
   assert.doesNotMatch(html, /usage|statistic|analytic|visits|counts? |cookie/i);
   assert.doesNotMatch(html, /haven't been tested|hasn't been tested|not been tested|untested/i);
