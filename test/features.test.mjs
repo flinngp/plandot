@@ -479,3 +479,12 @@ test("the page works at phone width: one column, the drawing first, nothing side
   assert.equal(await level(page), "140%");
   await page.close();
 });
+
+test("the drawing still opens in a browser whose streams can't be looped over (Safari)", async () => {
+  const page = await env.browser.newPage();
+  await page.addInitScript(() => { delete ReadableStream.prototype[Symbol.asyncIterator]; delete ReadableStream.prototype.values; });
+  await page.goto(`${env.server.url}/index.html`);
+  await page.setInputFiles("#file-pdf", SAMPLE.pdf);
+  await page.waitForFunction(() => window.planTasks?.state.pdf?.tokens?.length > 0, null, { timeout: 20000 });
+  await page.close();
+});

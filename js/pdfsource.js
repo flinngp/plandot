@@ -1,4 +1,5 @@
 // Thin wrapper around pdf.js: open a drawing, read one page's text as tokens, draw it to a canvas.
+import "./polyfills.js"; // must come first: pdf.js needs it as soon as it loads
 import * as pdfjs from "../vendor/pdf.min.mjs";
 import { extractTokens } from "./core.js";
 import { buildGeometry, findAnchors, shapesFromOperatorList } from "./leaders.js";
