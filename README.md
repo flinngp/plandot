@@ -23,7 +23,7 @@ drawing.pdf  +  import template.xlsx  +  rules   ->   check the pins   ->   impo
 2. Drop the **import template** (.xlsx) downloaded from your project.
 3. Type the **plan name** exactly as it appears in the project.
 4. Add **rules**. Each has a *Look for* choice (*Text callout* or *Draw box*), the *Text to find*, a *Pin title*, where the *Pin placed on* goes (*On the location* or *On the callout*), and any other column to fill (category, assignee, a custom attribute).
-5. Untick any pin you don't want, look at **Preview what will be exported**, then **Download import file** and import it.
+5. Untick any pin you don't want, look at **Preview what will be exported**, then **Download import file**, open it and paste the pin rows into Fieldwire's task importer.
 
 **Try it without your own files:** press *Try with a sample drawing* on the empty page. It loads a made-up drawing, template and rules in one click (needs the page opened from its web address, not as a file). The same three files are in `samples/`.
 
@@ -70,8 +70,9 @@ It matches the drawing's line work, so like the leader dots it needs a vector PD
 ## Help, pop-ups and feedback
 
 - A small **(i)** beside the main fields explains each one in a sentence. It opens with a click, Enter or Space, and closes with Escape or a click elsewhere.
-- A menu bar at the top links to the **How to guide** (`howto.html`, step by step with annotated screenshots, including finding symbols with the patio door sample; retaken with `node scripts/make-howto-shots.mjs`) and the **FAQ** (`faq.html`). Both pages are English only for now; the menu and footer are translated.
-- The footer carries the not-affiliated notice, the privacy line, an as-is note and the version number (set in `js/config.js`).
+- A menu bar at the top links to the **How to guide** (`howto.html`, step by step with annotated screenshots, including finding symbols with the patio door sample; retaken with `node scripts/make-howto-shots.mjs`; four short silent clips in `help/vid/` are re-recorded with `node scripts/make-howto-videos.mjs`, which needs ffmpeg) and the **FAQ** (`faq.html`). Both pages are English only for now; the menu and footer are translated.
+- The footer is two short lines (not made by Fieldwire by Hilti, drawings stay in your browser) plus the copyright. The version number (set in `js/config.js`) appears in **Copy details**, not on the page.
+- Anonymous visit counts use GoatCounter, switched on only at plandot.uk (`js/analytics.js`): no cookies, and only page views and a few named events (exported, symbol box drawn, a pin-count range) are counted, never anything from a drawing.
 - **Send feedback** (in the menu bar) appears when `FEEDBACK` in `js/config.js` has a form address (`url`) or a shared email (`email`). Leave both empty and the link is hidden. Use a shared address, not a personal one.
 - Slow searches show a progress bar over the drawing, and error messages have a **Copy details** button (version, browser and settings, never a file name).
 - The language list shows a flag beside each language. A flag stands for a country, so the language name is always shown with it.
@@ -103,7 +104,7 @@ An import template differs from project to project: adding a custom attribute ad
 - If a column the import needs (Title, Plan, X Pos, Y Pos) is missing, the page says so instead of producing a bad file.
 - Everything else in the template (formatting, widths, the header block) is left exactly as it was.
 - Pre-filled IDs in the template are left out of the import file, and new pins have a blank ID, so existing items are never touched.
-- The importer takes up to 500 rows per file, so bigger exports are split into numbered parts. Plandot says how many imports that needs (1,200 pins is 3 imports: 500 + 500 + 200) and labels the button *Download 3 import files*.
+- Fieldwire's task importer takes up to 500 rows pasted at a time. Plandot keeps everything in the one file and says how many batches to paste (1,200 pins is 3 batches: pins 1–500, 501–1,000 and 1,001–1,200).
 
 ## Privacy
 
@@ -136,7 +137,7 @@ Opening `index.html` by double-clicking does not work, because browsers block th
 npm install
 npx playwright install chromium
 python3 -m pip install openpyxl     # the tests read the import file back with it
-npm test                            # 150 tests
+npm test                            # 154 tests
 ```
 
 GitHub runs the same tests on every push (`.github/workflows/tests.yml`). The tests build their own drawings and templates, or use the made-up files in `samples/`.

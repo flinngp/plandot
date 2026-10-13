@@ -1,7 +1,8 @@
 // Parts shared by the app and the help pages: the footer, the (i) pop-ups and the language menu.
 import { tr, LANGUAGES, currentLanguage, setLanguage, initialLanguage, translateDom } from "./i18n.js";
 import { FLAGS } from "./flags.js";
-import { VERSION, FEEDBACK, feedbackHref } from "./config.js";
+import { startAnalytics } from "./analytics.js";
+import { FEEDBACK, feedbackHref } from "./config.js";
 
 function h(tag, props = {}, ...kids) {
   const e = document.createElement(tag);
@@ -189,14 +190,14 @@ export function renderFooter() {
   const foot = document.getElementById("sitefoot");
   if (!foot) return;
   foot.replaceChildren(
-    h("p", { text: tr("Plandot is an independent tool. It is not made, endorsed or supported by Fieldwire or Hilti. Fieldwire and Hilti are trademarks of their owners.") }),
+    h("p", { text: tr("Plandot is an independent tool, not made or endorsed by Fieldwire by Hilti.") }),
     h("p", { text: tr("Your drawings stay in your browser and are never uploaded.") }),
-    h("p", { text: tr("Check the pins before you import them. Plandot is provided as is, with no guarantee.") }),
-    h("p", { class: "copy", text: `${tr("© 2026 Plandot. All rights reserved.")} · ${tr("Version {v}", { v: VERSION })}` }));
+    h("p", { class: "copy", text: tr("© 2026 Plandot. All rights reserved.") }));
 }
 
 /** Pages other than the app call this: it applies the saved language and draws the menu and footer. */
 export async function initSite() {
+  startAnalytics();
   await setLanguage(initialLanguage(), { remember: false });
   translateDom();
   hydrateInfo();

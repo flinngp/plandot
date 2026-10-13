@@ -1,6 +1,6 @@
 // Settings you may want to change without touching the rest of the code.
 
-export const VERSION = "0.5.2";
+export const VERSION = "1.0.0";
 
 // Where "Send feedback" goes. Use ONE of these:
 //   url:   a form link (for example a Google Form). It opens in a new tab.

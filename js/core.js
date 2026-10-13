@@ -187,13 +187,13 @@ export function detect({ tokens, width, height, rules, settings = {}, anchorFor 
 
 export const round2 = (v) => Math.round(v * 100) / 100;
 
-/** Fieldwire imports at most this many tasks from one file. */
+/** Fieldwire's task importer takes at most this many rows pasted in at a time. */
 export const IMPORT_LIMIT = 500;
 
-/** Split rows into groups of at most `size`, keeping their order. */
-export function chunk(rows, size = IMPORT_LIMIT) {
+/** The pin ranges to paste one after another: batchRanges(1200) is [[1, 500], [501, 1000], [1001, 1200]]. */
+export function batchRanges(total, size = IMPORT_LIMIT) {
   const out = [];
-  for (let i = 0; i < rows.length; i += size) out.push(rows.slice(i, i + size));
+  for (let from = 1; from <= total; from += size) out.push([from, Math.min(from + size - 1, total)]);
   return out;
 }
 

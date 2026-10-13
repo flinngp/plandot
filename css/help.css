@@ -35,3 +35,12 @@
 .help-head .btn { display: inline-flex; align-items: center; }
 .doc .toc { padding: 0; max-width: none; }
 .doc h3 { font-size: 16px; margin: 20px 0 4px; }
+
+/* short silent clips next to the screenshots */
+.clip { margin: 14px 0 6px; max-width: 640px; }
+.clip-box { position: relative; }
+.clip-video { display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); box-shadow: var(--shadow); background: var(--canvas, #eef1f6); }
+.clip-btn { position: absolute; right: 10px; bottom: 10px; border: 0; border-radius: 999px; padding: 7px 14px; font: 600 13px/1 inherit; background: rgba(23, 32, 51, .86); color: #fff; cursor: pointer; }
+.clip-btn:hover { background: #172033; }
+.clip-btn:focus-visible { outline: 3px solid var(--accent, #3355ff); outline-offset: 2px; }
+.clip figcaption { color: var(--ink-2); font-size: 13px; margin-top: 6px; }

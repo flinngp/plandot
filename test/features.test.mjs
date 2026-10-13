@@ -426,7 +426,7 @@ test("a symbol box can be drawn with the keyboard alone", async () => {
   await page.keyboard.press("ArrowLeft"); // wakes the cursor
   await goto((130 / 1200) * 100, (135 / 800) * 100);
   await page.keyboard.press("Enter");
-  assert.match(await page.textContent("#status"), /First corner set/);
+  await page.waitForFunction(() => /First corner set/.test(document.querySelector("#status").textContent)); // the message can lag when the machine is busy
   await goto((232 / 1200) * 100, (200 / 800) * 100);
   await page.keyboard.press("Enter");
   await page.waitForFunction(() => window.planTasks.state.rules[0].symbol, null, { timeout: 8000 });

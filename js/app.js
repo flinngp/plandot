@@ -1,11 +1,12 @@
 // Plandot: drawing PDF + rules + import template -> task import workbook.
 // Everything happens in the browser. Nothing is uploaded.
-import { detect, newRule, round2, chunk, IMPORT_LIMIT, pinMode, ruleKind, renderTemplate } from "./core.js";
+import { detect, newRule, round2, batchRanges, IMPORT_LIMIT, pinMode, ruleKind, renderTemplate } from "./core.js";
 import { openPdf, readPage, readShapes, readGeometry, anchorFinder, renderRegion, renderFull, MAX_SIDE } from "./pdfsource.js";
 import { captureSymbol, findSymbolsAsync, sanitizeTemplate } from "./symbols.js";
 import { readTemplate, writeImport, buildRows, buildCalibrationRows, extraColumns, orphanedColumns, applyMapping, TemplateError } from "./template.js";
 import { markedUpPdf, pinsPng, download } from "./markup.js";
 import { tr, translateDom, currentLanguage } from "./i18n.js";
+import { startAnalytics, track, pinBucket } from "./analytics.js";
 import { VERSION } from "./config.js";
 import { hydrateInfo, infoSlot, initLanguageMenu, renderFooter, renderNav } from "./site.js";
 
@@ -1023,6 +1024,7 @@ async function finishSymbolBox() {
     if (error) { say(tr(error), "err"); return; }
     rule.symbol = template;
     rule.kind = "symbol";
+    track("symbol-box");
     save();
     renderRules();
     runDetect();
@@ -1117,6 +1119,8 @@ function updateTitleBlock() {
   $("#tb-pins").textContent = state.pins.length ? `${included().length} / ${state.pins.length}` : "0";
 }
 
+const listAnd = (items) => (items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} ${tr("and")} ${items[items.length - 1]}`);
+
 function updateExport() {
   const t = state.tpl?.parsed;
   const plan = hasText(state.settings.planName);
@@ -1129,19 +1133,22 @@ function updateExport() {
   if (!plan) need.push(tr("enter the plan name"));
   if (state.busy) need.push(tr("wait for the drawing's lines to finish loading"));
   $("#dl-import").disabled = need.length > 0;
-  const parts = Math.ceil(inc / IMPORT_LIMIT);
+  const batches = batchRanges(inc);
   $("#import-why").textContent = need.length
     ? tr("Still needed: {list}.", { list: need.join(", ") })
-    : parts > 1
-      ? tr("Import the files one after another. Your browser may ask you to allow several downloads.")
+    : batches.length > 1
+      ? tr("Open the file, copy the pin rows and paste them into Fieldwire's task importer, one batch at a time.")
       : tr("Pins import with a blank ID, so they are always created as new pins.");
-  $("#dl-import").textContent = parts > 1 ? tr("Download {files} import files", { files: parts }) : tr("Download import file");
+  $("#dl-import").textContent = tr("Download import file");
   const split = $("#export-split");
-  split.hidden = need.length > 0 || parts < 2;
+  split.hidden = need.length > 0 || batches.length < 2;
   if (!split.hidden) {
-    const last = inc - (parts - 1) * IMPORT_LIMIT;
-    const sizes = parts <= 6 ? [...Array(parts - 1).fill(IMPORT_LIMIT), last].join(" + ") : `${IMPORT_LIMIT} × ${parts - 1} + ${last}`;
-    split.textContent = tr("Fieldwire takes up to {limit} pins per import, so this needs {files} imports ({sizes}).", { limit: IMPORT_LIMIT, files: parts, sizes });
+    const nf = new Intl.NumberFormat(currentLanguage());
+    const span = ([a, b]) => `${nf.format(a)}–${nf.format(b)}`;
+    const ranges = batches.length <= 6
+      ? listAnd(batches.map(span))
+      : `${span(batches[0])}, ${span(batches[1])} … ${span(batches[batches.length - 1])}`;
+    split.textContent = tr("Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).", { limit: IMPORT_LIMIT, n: batches.length, ranges });
   }
   renderExportPreview(need.length === 0);
   $("#dl-pdf").disabled = !(state.pdf && inc) || state.busy;
@@ -1175,17 +1182,12 @@ async function exportImport() {
   const pins = included().map((p) => ({ ...p, title: hasText(p.title) ? p.title : p.tag }));
   const rulesById = Object.fromEntries(state.rules.map((r) => [r.id, r]));
   const rows = buildRows(t, pins, { planName: state.settings.planName.trim(), rulesById });
-  const groups = chunk(rows);
-  for (const [i, group] of groups.entries()) {
-    const bytes = await writeImport(t, group);
-    const suffix = groups.length > 1 ? ` (part ${i + 1} of ${groups.length})` : ""; // file names stay English so they sort the same for everyone
-    download(bytes, `${baseName(state.pdf.name)} - pin import${suffix}.xlsx`, XLSX_MIME);
-    if (i < groups.length - 1) await new Promise((r) => setTimeout(r, 350)); // browsers cope better with downloads that are spaced out
-  }
+  const bytes = await writeImport(t, rows);
+  download(bytes, `${baseName(state.pdf.name)} - pin import.xlsx`, XLSX_MIME);
+  track("exported");
+  track(`export-pins-${pinBucket(rows.length)}`);
   const plan = state.settings.planName.trim();
-  say(groups.length > 1
-    ? tr("Downloaded {n} pins in {files} files for plan \"{plan}\".", { n: rows.length, files: groups.length, plan })
-    : rows.length === 1 ? tr("Downloaded 1 pin for plan \"{plan}\".", { plan }) : tr("Downloaded {n} pins for plan \"{plan}\".", { n: rows.length, plan }), "ok");
+  say(rows.length === 1 ? tr("Downloaded 1 pin for plan \"{plan}\".", { plan }) : tr("Downloaded {n} pins for plan \"{plan}\".", { n: rows.length, plan }), "ok");
 }
 
 async function exportPdf() {
@@ -1384,6 +1386,7 @@ $("#room-distance").value = state.settings.roomDistance || 10;
 $("#show-grid").checked = !!state.settings.showGrid;
 wire();
 setupStage();
+startAnalytics();
 await initLanguageMenu({
   onChange: async () => {
     renderPdfInfo(); renderTplInfo(); renderTemplateInfo(); renderRules(); updateAreaInfo(); refresh();

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { extractTokens, compileMatcher, detect, renderTemplate, dedupeTokens, chunk, IMPORT_LIMIT, pinMode, newRule } from "../js/core.js";
+import { extractTokens, compileMatcher, detect, renderTemplate, dedupeTokens, batchRanges, IMPORT_LIMIT, pinMode, newRule } from "../js/core.js";
 
 const W = 600, H = 400;
 // Fake pdf.js items on an upright page; user space origin bottom-left, viewport top-left.
@@ -105,14 +105,13 @@ test("detect: a bad room pattern is reported and room matching is skipped", () =
   assert.equal(pins.length, 3);
 });
 
-test("chunk: Fieldwire's 500-task limit splits big exports and keeps order", () => {
+test("batchRanges: Fieldwire's 500-row paste limit gives the pin ranges, in order", () => {
   assert.equal(IMPORT_LIMIT, 500);
-  const rows = Array.from({ length: 1203 }, (_, i) => i);
-  const parts = chunk(rows);
-  assert.deepEqual(parts.map((p) => p.length), [500, 500, 203]);
-  assert.deepEqual(parts.flat(), rows);
-  assert.deepEqual(chunk(rows.slice(0, 500)).length, 1);
-  assert.deepEqual(chunk([]), []);
+  assert.deepEqual(batchRanges(1200), [[1, 500], [501, 1000], [1001, 1200]]);
+  assert.deepEqual(batchRanges(500), [[1, 500]]);
+  assert.deepEqual(batchRanges(501), [[1, 500], [501, 501]]);
+  assert.deepEqual(batchRanges(1), [[1, 1]]);
+  assert.deepEqual(batchRanges(0), []);
 });
 
 // ---- pinning on the dot at the end of the leader ----------------------------------------------------

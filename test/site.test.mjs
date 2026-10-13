@@ -152,16 +152,16 @@ test("the menu opens fully on screen on a phone", async () => {
 });
 
 // ---------------------------------------------------------------- footer, feedback, what's new
-test("the footer carries the disclaimer, privacy line, as-is note and version", async () => {
+test("the footer is short: independent-tool note, privacy line and copyright, with no version", async () => {
   const page = await fresh();
   const text = await page.textContent("#sitefoot");
-  assert.match(text, /not made, endorsed or supported by Fieldwire or Hilti/);
+  assert.match(text, /independent tool, not made or endorsed by Fieldwire by Hilti/);
   assert.match(text, /never uploaded/);
-  assert.match(text, /Check the pins before you import them/);
   assert.match(text, /All rights reserved/);
+  assert.doesNotMatch(text, /as is|Version|Check the pins/);
   const pkg = JSON.parse(await readFile(`${root}package.json`, "utf8"));
   assert.equal(pkg.version, VERSION, "package.json and js/config.js disagree");
-  assert.match(text, new RegExp(`Version ${VERSION.replaceAll(".", "\\.")}`));
+  assert.equal(VERSION, "1.0.0");
   assert.equal(await page.$(".whatsnew-btn, #whatsnew"), null, "the What's new box is gone");
   await page.ctx.close();
 });
@@ -257,7 +257,7 @@ for (const name of ["howto", "faq"]) {
       assert.deepEqual(broken, []);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `sideways scroll at ${w}`);
       assert.ok(await page.$("h1"));
-      assert.match(await page.textContent("#sitefoot"), /not made, endorsed or supported by Fieldwire or Hilti/);
+      assert.match(await page.textContent("#sitefoot"), /independent tool, not made or endorsed by Fieldwire by Hilti/);
       assert.deepEqual(errors, []);
       await page.close();
     }
@@ -275,7 +275,7 @@ test("the FAQ answers can be opened", async () => {
   const page = await env.browser.newPage({ viewport: { width: 1280, height: 900 } });
   await page.goto(`${env.server.url}/faq.html`);
   const n = await page.$$eval("details", (d) => d.length);
-  assert.ok(n >= 12);
+  assert.equal(n, 9);
   await page.click("summary >> nth=0");
   assert.equal(await page.$eval("details", (d) => d.open), true);
   assert.match(await page.textContent("details[open]"), /never sent to a server|runs entirely in your browser/);
@@ -300,11 +300,22 @@ test("the share preview tags and image exist", async () => {
 
 test("the FAQ says what it should and leaves out what it shouldn't", async () => {
   const html = await readFile(`${root}faq.html`, "utf8");
-  assert.match(html, /<summary>What does it cost\?<\/summary>\s*<p>It's completely free!<\/p>/);
+  assert.match(html, /<summary>What does Plandot cost\?<\/summary>\s*<p>It's completely free!<\/p>/);
+  assert.match(html, /<summary>Which browsers and languages does Plandot support\?<\/summary>/);
   assert.match(html, /<summary>Something went wrong\? Let us know<\/summary>/);
-  assert.doesNotMatch(html, /usage statistics/i);
+  assert.match(html, /<a id="faq-feedback" href="https:\/\/forms\.gle\//);
+  assert.doesNotMatch(html, /usage|statistic|analytic|visits|counts? |cookie/i);
   assert.doesNotMatch(html, /haven't been tested|hasn't been tested|not been tested|untested/i);
-  assert.doesNotMatch(html, /How to use/);
+  assert.doesNotMatch(html, /How to use|who makes it/);
+});
+
+test("the FAQ's feedback link follows the setting in config.js", async () => {
+  const page = await env.browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await page.goto(`${env.server.url}/faq.html`);
+  await page.click("summary:has-text('Something went wrong')");
+  assert.equal(await page.getAttribute("#faq-feedback", "href"), feedbackHref());
+  assert.equal(await page.getAttribute("#faq-feedback", "target"), "_blank");
+  await page.close();
 });
 
 test("the how to guide walks through finding symbols with pictures", async () => {
@@ -315,7 +326,7 @@ test("the how to guide walks through finding symbols with pictures", async () =>
 });
 
 // ---------------------------------------------------------------- more than 500 pins
-test("1,200 pins say they need 3 Fieldwire imports, label the button, and download 3 files", async () => {
+test("1,200 pins download as one file and say to paste it in 3 batches of up to 500", async () => {
   globalThis.self ??= globalThis;
   await import("../vendor/pdf-lib.min.js");
   const { PDFDocument, StandardFonts } = globalThis.PDFLib;
@@ -333,18 +344,69 @@ test("1,200 pins say they need 3 Fieldwire imports, label the button, and downlo
   await page.selectOption(".rule:first-child select[id$='-pin']", "text");
   await page.waitForFunction(() => window.planTasks.state.pins.length === 1200 && !window.planTasks.state.busy);
   await page.waitForFunction(() => !document.querySelector("#export-split").hidden);
-  assert.equal(await page.textContent("#export-split"), "Fieldwire takes up to 500 pins per import, so this needs 3 imports (500 + 500 + 200).");
-  assert.equal(await page.textContent("#dl-import"), "Download 3 import files");
+  assert.equal(await page.textContent("#export-split"), "Fieldwire's task importer takes up to 500 pins at a time, so paste this file in 3 batches (pins 1–500, 501–1,000 and 1,001–1,200).");
+  assert.equal(await page.textContent("#dl-import"), "Download import file");
   assert.match(await page.textContent("#export-summary"), /^1200 pins will go onto plan "Big plan"\.$/);
   const names = [];
   page.on("download", (d) => names.push(d.suggestedFilename()));
   await page.click("#dl-import");
-  await page.waitForFunction(() => /Downloaded 1200 pins in 3 files/.test(document.querySelector("#status").textContent));
+  await page.waitForFunction(() => /Downloaded 1200 pins for plan/.test(document.querySelector("#status").textContent));
   await page.waitForTimeout(300);
-  assert.deepEqual(names.sort(), ["big - pin import (part 1 of 3).xlsx", "big - pin import (part 2 of 3).xlsx", "big - pin import (part 3 of 3).xlsx"]);
-  // fewer pins: the notice goes away and the button goes back
+  assert.deepEqual(names, ["big - pin import.xlsx"]);
+  // fewer pins: the notice goes away
   await page.click("#all-off");
   await page.waitForFunction(() => document.querySelector("#export-split").hidden);
   assert.equal(await page.textContent("#dl-import"), "Download import file");
   await page.ctx.close();
+});
+
+test("counting visits switches on only for the live site, and events never throw", async () => {
+  const { startAnalytics, track, pinBucket, isLiveSite } = await import("../js/analytics.js");
+  assert.ok(isLiveSite("plandot.uk") && isLiveSite("www.plandot.uk"));
+  assert.ok(!isLiveSite("localhost") && !isLiveSite("flinngp.github.io"));
+  const made = [];
+  const doc = { querySelector: () => null, createElement: () => ({ dataset: {} }), head: { append: (e) => made.push(e) } };
+  assert.equal(startAnalytics({ hostname: "localhost" }, doc), false);
+  assert.equal(made.length, 0);
+  assert.equal(startAnalytics({ hostname: "plandot.uk" }, doc), true);
+  assert.equal(made[0].src, "https://gc.zgo.at/count.js");
+  assert.equal(made[0].dataset.goatcounter, "https://plandot.goatcounter.com/count");
+  track("exported"); // no counter on the page: nothing happens
+  assert.deepEqual([1, 50, 51, 200, 201, 500, 501].map(pinBucket), ["1-50", "1-50", "51-200", "51-200", "201-500", "201-500", "over-500"]);
+});
+
+// ---------------------------------------------------------------- short clips in the how to guide
+test("the how to guide has four short clips, each with a poster and two video formats", async () => {
+  const html = await readFile(`${root}howto.html`, "utf8");
+  const tags = html.match(/<video\b[^>]*>[\s\S]*?<\/video>/g) || [];
+  assert.equal(tags.length, 4);
+  for (const t of tags) {
+    assert.match(t, /aria-label="[^"]{30,}"/);
+    assert.match(t, /\bmuted\b/);
+    for (const f of [t.match(/poster="([^"]+)"/)[1], ...[...t.matchAll(/src="([^"]+)"/g)].map((m) => m[1])]) await readFile(`${root}${f}`); // each file exists
+    assert.equal([...t.matchAll(/<source /g)].length, 2);
+  }
+});
+
+test("the clips play while they are on screen, can be paused, and stay still for reduced motion", async () => {
+  const page = await env.browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await page.goto(`${env.server.url}/howto.html`);
+  await page.waitForSelector(".clip-btn");
+  assert.equal(await page.$eval(".clip-video", (v) => v.hasAttribute("controls")), false, "the page's own button replaces the browser controls");
+  await page.locator(".clip-video").first().scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => !document.querySelector(".clip-video").paused, null, { timeout: 8000 });
+  assert.equal(await page.textContent(".clip-btn"), "Pause");
+  await page.click(".clip-btn");
+  assert.equal(await page.$eval(".clip-video", (v) => v.paused), true);
+  assert.equal(await page.textContent(".clip-btn"), "Play");
+  await page.close();
+
+  const ctx = await env.browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
+  const calm = await ctx.newPage();
+  await calm.goto(`${env.server.url}/howto.html`);
+  await calm.locator(".clip-video").first().scrollIntoViewIfNeeded();
+  await calm.waitForTimeout(1500);
+  assert.equal(await calm.$eval(".clip-video", (v) => v.paused), true);
+  assert.equal(await calm.textContent(".clip-btn"), "Play");
+  await ctx.close();
 });
