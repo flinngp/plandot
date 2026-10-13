@@ -70,10 +70,10 @@ p { margin: 0; }
 /* Layout */
 .layout { padding: 4px 28px 28px; }
 .workspace { display: grid; grid-template-columns: var(--panel) minmax(0, 1fr); gap: 20px; align-items: start; }
-.maincol { min-width: 0; display: flex; flex-direction: column; }
-.maincol .sheetpane { flex: none; height: max(560px, calc(100vh - var(--nav) - var(--head) - 32px)); height: max(560px, calc(100dvh - var(--nav) - var(--head) - 32px)); }
-/* The setup panel stays on screen while the page scrolls, and always reaches the bottom of the window (app.js sets its height). */
-.controls { position: sticky; top: 12px; height: max(560px, calc(100dvh - var(--nav) - var(--head) - 32px)); display: flex; flex-direction: column; gap: 14px; overflow-y: auto; overflow-x: hidden; padding: 2px 6px 2px 2px; scrollbar-width: thin; scrollbar-color: #c3cad8 transparent; }
+/* The setup panel is as tall as the sheet and scrolls inside itself; the pin list runs full width underneath. */
+.controls { height: max(560px, calc(100dvh - var(--nav) - var(--head) - 32px)); display: flex; flex-direction: column; gap: 14px; overflow-y: auto; overflow-x: hidden; padding: 2px 6px 2px 2px; scrollbar-width: thin; scrollbar-color: #c3cad8 transparent; }
+.workspace > .sheetpane { height: max(560px, calc(100dvh - var(--nav) - var(--head) - 32px)); }
+.workspace > .pinlist { grid-column: 1 / -1; margin-top: 0; }
 .step { flex: none; background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 16px 18px 18px; }
 .step h2 { font-size: 16px; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .step-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -316,9 +316,8 @@ td input[type="text"]:hover, td input[type="text"]:focus { border-color: var(--l
   .titleblock .tb-name { flex: 1; max-width: none; }
   .layout { padding: 4px 16px 20px; }
   .workspace { grid-template-columns: minmax(0, 1fr); }
-  .maincol { display: contents; }
-  .controls { position: static; height: auto !important; overflow: visible; padding: 0; margin: 0; }
-  .maincol .sheetpane { order: -1; height: auto; }
+  .controls { height: auto; overflow: visible; padding: 0; margin: 0; }
+  .workspace > .sheetpane { order: -1; height: auto; }
   .pinlist { order: 1; }
   .viewport { flex: none; height: clamp(280px, calc(100vw - 32px), 62vh); }
   .dropzone { min-height: 240px; }

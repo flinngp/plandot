@@ -1389,16 +1389,6 @@ $("#room-distance").value = state.settings.roomDistance || 10;
 $("#show-grid").checked = !!state.settings.showGrid;
 wire();
 setupStage();
-// The setup panel sticks to the top of the window as the page scrolls, and stretches to the bottom of it.
-{
-  const panel = $(".controls");
-  let queued = false;
-  const fit = () => { queued = false; if (getComputedStyle(panel).position === "sticky") panel.style.height = `${Math.max(360, innerHeight - panel.getBoundingClientRect().top - 16)}px`; };
-  const queue = () => { if (!queued) { queued = true; requestAnimationFrame(fit); } };
-  addEventListener("scroll", queue, { passive: true });
-  addEventListener("resize", queue);
-  fit();
-}
 startAnalytics();
 await initLanguageMenu({
   onChange: async () => {

@@ -51,36 +51,26 @@ for (const [w, h] of [[1440, 780], [1280, 720], [1920, 1080], [820, 1100], [390,
   });
 }
 
-test("the pin list sits under the sheet, and the setup panel stays on screen down to the bottom of the window", async () => {
+test("the pin list runs under both columns, and the setup panel is as tall as the sheet and scrolls inside itself", async () => {
   const page = await env.browser.newPage({ viewport: { width: 1440, height: 780 } });
   await loadSample(page);
-  const ok = await page.evaluate(() => {
-    const pane = document.querySelector(".sheetpane"), list = document.querySelector("#pinlist"), panel = document.querySelector(".controls");
-    const a = pane.getBoundingClientRect(), b = list.getBoundingClientRect(), c = panel.getBoundingClientRect();
-    return { under: b.top >= a.bottom - 1 && Math.abs(b.left - a.left) < 2, besideX: c.right <= a.left + 1 };
+  const r = await page.evaluate(() => {
+    const pane = document.querySelector(".sheetpane").getBoundingClientRect(), list = document.querySelector("#pinlist").getBoundingClientRect(), panel = document.querySelector(".controls");
+    const c = panel.getBoundingClientRect();
+    return { under: list.top >= Math.max(pane.bottom, c.bottom) - 1, full: list.left <= c.left + 2 && list.right >= pane.right - 2, same: Math.abs(c.height - pane.height) < 2, scrolls: panel.scrollHeight > panel.clientHeight, pos: getComputedStyle(panel).position };
   });
-  assert.ok(ok.under, "the pin list is directly under the sheet");
-  assert.ok(ok.besideX, "the setup panel is in its own column");
-  for (const y of [0, 200, 420, 700]) {
-    await page.evaluate((y) => scrollTo(0, y), y);
-    await page.waitForTimeout(150);
-    const r = await page.evaluate(() => { const c = document.querySelector(".controls").getBoundingClientRect(); return { top: c.top, bottom: c.bottom, h: innerHeight }; });
-    assert.ok(r.bottom <= r.h + 1 && r.bottom >= r.h - 20, `at scroll ${y} the panel ends at ${r.bottom} of ${r.h}`);
-    assert.ok(r.top >= 0, "the panel is never cut off at the top");
-  }
-  // once the page is scrolled down, the panel is pinned near the top and fills the window
-  const pinned = await page.evaluate(() => { const c = document.querySelector(".controls").getBoundingClientRect(); return { top: c.top, height: c.height, h: innerHeight }; });
-  assert.ok(pinned.top <= 14, `pinned near the top, got ${pinned.top}`);
-  assert.ok(pinned.height >= pinned.h - 40, `fills the window, got ${pinned.height} of ${pinned.h}`);
+  assert.ok(r.under && r.full, "the pin list is under both columns");
+  assert.ok(r.same, "panel and sheet are the same height");
+  assert.notEqual(r.pos, "sticky");
   await page.close();
 });
 
-test("on a phone the setup panel is part of the page, not pinned", async () => {
+test("on a phone the sheet comes first and nothing overflows sideways", async () => {
   const page = await env.browser.newPage({ viewport: { width: 390, height: 800 } });
   await loadSample(page);
-  const pos = await page.evaluate(() => { const c = getComputedStyle(document.querySelector(".controls")); return [c.position, document.documentElement.scrollWidth <= innerWidth]; });
+  const r = await page.evaluate(() => ({ sheetFirst: document.querySelector(".sheetpane").getBoundingClientRect().top < document.querySelector(".controls").getBoundingClientRect().top, fits: document.documentElement.scrollWidth <= innerWidth }));
   await page.close();
-  assert.deepEqual(pos, ["static", true]);
+  assert.deepEqual(r, { sheetFirst: true, fits: true });
 });
 
 // ------------------------------------------------------------------ Start over
