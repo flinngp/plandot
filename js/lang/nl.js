@@ -279,4 +279,5 @@ export default {
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Klik op Rijen kopiëren en plak in de taakimporter van Fieldwire, maximaal 500 spelden per keer. Of download het importbestand.",
  "Back to the pins": "Terug naar de spelden",
  "Gridlines": "Rasterlijnen",
+ "Back to top": "Terug naar boven",
 };

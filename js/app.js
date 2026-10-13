@@ -1478,4 +1478,6 @@ renderRules();
 refresh();
 
 // A new visitor gets the short tour once. Not for returning visitors with work saved, and not for automated browsers.
-if (!navigator.webdriver && !hasWork()) setTimeout(() => { if (!hasWork()) startTour(); }, 600);
+const wantsSample = new URLSearchParams(location.search).get("sample") === "1"; // the guide's "Try with a sample drawing" button
+if (wantsSample) { window.history.replaceState(null, "", location.pathname); trySample(); }
+else if (!navigator.webdriver && !hasWork()) setTimeout(() => { if (!hasWork()) startTour(); }, 600);

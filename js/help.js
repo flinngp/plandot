@@ -28,6 +28,14 @@ if (note) {
     note.textContent = tr("This page is in English for now. The app itself is available in 13 languages.");
   }
 }
+// A "Back to top" link at the end of each card, and on the guide a button that opens the app with the sample loaded.
+for (const card of document.querySelectorAll("main .card, .doc > .card")) {
+  const a = Object.assign(document.createElement("a"), { href: "#", textContent: `↑ ${tr("Back to top")}` });
+  a.addEventListener("click", (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); });
+  const p = document.createElement("p"); p.className = "card-top"; p.append(a); card.append(p);
+}
+const sampleSlot = document.getElementById("try-sample-slot");
+if (sampleSlot) sampleSlot.replaceWith(Object.assign(document.createElement("a"), { className: "btn primary try-sample", href: "index.html?sample=1", textContent: tr("Try with a sample drawing") }));
 // The feedback link in the FAQ follows the setting in js/config.js (a form, or an email, or nothing).
 const fb = document.getElementById("faq-feedback");
 if (fb) {

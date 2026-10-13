@@ -174,6 +174,8 @@ If you change the English guide, the numbers can shift, so re-number the page an
 
 Both help pages have the language menu in the top bar; choosing a language reloads the page in it.
 
+The guide's screenshots have orange outlines but no number badges (the picture descriptions are one sentence each). Each card ends with a "Back to top" link, and the "Try with a sample drawing" button opens `index.html?sample=1`, which loads the sample in the app. The clips for steps 1, 4 and 5 are cropped to the left-hand panel (`crop` in `scripts/make-howto-videos.mjs`).
+
 ## Page header and link previews
 
 - The top bar holds the page links and the language menu. The drawing name, sheet size, pin count, Gridlines tick box and the X/Y readout share one row above the drawing (`.toolbar`, with `.titleblock` inside it), and Start over is the only button in the header.

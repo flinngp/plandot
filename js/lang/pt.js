@@ -279,4 +279,5 @@ export default {
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Prima Copiar linhas e cole no importador de tarefas do Fieldwire, até 500 alfinetes de cada vez. Ou transfira o ficheiro de importação.",
  "Back to the pins": "Voltar aos alfinetes",
  "Gridlines": "Linhas de grelha",
+ "Back to top": "Voltar ao topo",
 };

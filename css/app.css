@@ -111,8 +111,9 @@ input::placeholder { color: #6b7788; }
 .btn.primary:disabled { background: #dfe4ef; color: #7d889b; border-color: transparent; }
 .btn.dark { background: var(--ink); border-color: var(--ink); color: #fff; border-radius: 999px; height: 36px; padding: 0 18px; font-weight: 700; font-size: 14px; }
 .btn.dark:hover:not(:disabled) { background: #2a3550; border-color: #2a3550; }
-.btn.dark.start-over { background: transparent; border: 1.5px solid #c9d0de; color: var(--ink); }
-.btn.dark.start-over:hover:not(:disabled) { background: var(--card); border-color: var(--ink); }
+.btn.dark.start-over { background: #fff; border: 1.5px solid #c9d0de; color: var(--ink); box-shadow: var(--shadow); }
+.btn.dark.start-over:disabled { background: #fff; color: var(--ink-2); opacity: 1; }
+.btn.dark.start-over:hover:not(:disabled) { background: var(--soft); border-color: var(--ink); }
 .btn.quiet { padding: 8px 12px; }
 .btn.quiet:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-dark); background: var(--accent-wash); }
 .btn.link { border: 0; background: transparent; color: var(--accent-dark); padding: 6px 8px; border-radius: 7px; }

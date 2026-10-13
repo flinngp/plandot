@@ -279,4 +279,5 @@ export default {
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Cliquez sur Copier les lignes et collez dans l'importateur de tâches de Fieldwire, 500 épingles à la fois au maximum. Ou téléchargez le fichier d'import.",
  "Back to the pins": "Retour aux épingles",
  "Gridlines": "Quadrillage",
+ "Back to top": "Retour en haut",
 };

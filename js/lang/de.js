@@ -279,4 +279,5 @@ export default {
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Klicken Sie auf Zeilen kopieren und fügen Sie sie in den Aufgaben-Import von Fieldwire ein, höchstens 500 Markierungen auf einmal. Oder laden Sie die Importdatei herunter.",
  "Back to the pins": "Zurück zu den Markierungen",
  "Gridlines": "Raster",
+ "Back to top": "Nach oben",
 };

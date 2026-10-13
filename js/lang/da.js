@@ -279,4 +279,5 @@ export default {
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Tryk på Kopiér rækker og indsæt i Fieldwires opgaveimport, op til 500 nåle ad gangen. Eller download importfilen.",
  "Back to the pins": "Tilbage til nålene",
  "Gridlines": "Gitterlinjer",
+ "Back to top": "Tilbage til toppen",
 };

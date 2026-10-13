@@ -279,4 +279,5 @@ export default {
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Pulsa Copiar filas y pega en el importador de tareas de Fieldwire, hasta 500 chinchetas cada vez. O descarga el archivo de importación.",
  "Back to the pins": "Volver a las chinchetas",
  "Gridlines": "Cuadrícula",
+ "Back to top": "Volver arriba",
 };

@@ -279,4 +279,5 @@ export default {
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Kliknij Kopiuj wiersze i wklej do importera zadań Fieldwire, po najwyżej 500 pinezek naraz. Albo pobierz plik importu.",
  "Back to the pins": "Wróć do pinezek",
  "Gridlines": "Linie siatki",
+ "Back to top": "Do góry",
 };

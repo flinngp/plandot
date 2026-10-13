@@ -279,4 +279,5 @@ export default {
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Tryck på Kopiera rader och klistra in i Fieldwires uppgiftsimport, högst 500 nålar åt gången. Eller ladda ner importfilen.",
  "Back to the pins": "Tillbaka till nålarna",
  "Gridlines": "Rutnät",
+ "Back to top": "Till toppen",
 };

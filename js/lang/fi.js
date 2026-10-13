@@ -279,4 +279,5 @@ export default {
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Paina Kopioi rivit ja liitä Fieldwiren tehtävien tuontityökaluun, enintään 500 nastaa kerrallaan. Tai lataa tuontitiedosto.",
  "Back to the pins": "Takaisin nastoihin",
  "Gridlines": "Ruudukkoviivat",
+ "Back to top": "Takaisin ylös",
 };

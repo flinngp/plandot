@@ -54,7 +54,7 @@ const pickFile = async (page, sel, file) => {
 const scrollPanelTo = async (page, sel) => { await page.evaluate((sel) => { const c = document.querySelector(".controls"); c.scrollTo({ top: document.querySelector(sel).offsetTop - 10, behavior: "smooth" }); }, sel); await sleep(900); };
 
 const only = process.argv[2]; // optional: record just one clip, e.g. clip-4-download
-async function record(name, { setup, act }) {
+async function record(name, { setup, act, crop }) {  // crop: [x, y, w, h] zooms in on part of the 1280 x 800 recording
   if (only && only !== name) return;
   const ctx = await browser.newContext({ viewport: { width: W, height: H }, recordVideo: { dir: tmp, size: { width: W, height: H } } });
   await ctx.addInitScript(POINTER);
@@ -74,10 +74,11 @@ async function record(name, { setup, act }) {
   await ctx.close();
   const src = await video.path();
   const dur = (end - start).toFixed(2);
-  const common = ["-y", "-loglevel", "error", "-ss", start.toFixed(2), "-t", dur, "-i", src, "-an", "-vf", "scale=960:-2,fps=20"];
+  const cropF = crop ? `crop=${crop[2]}:${crop[3]}:${crop[0]}:${crop[1]}` : "null";
+  const common = ["-y", "-loglevel", "error", "-ss", start.toFixed(2), "-t", dur, "-i", src, "-an", "-vf", `${cropF},scale=960:-2,fps=20`];
   execFileSync("ffmpeg", [...common, "-c:v", "libx264", "-crf", "31", "-preset", "slow", "-pix_fmt", "yuv420p", "-movflags", "+faststart", OUT + name + ".mp4"]);
   execFileSync("ffmpeg", [...common, "-c:v", "libvpx-vp9", "-crf", "40", "-b:v", "0", OUT + name + ".webm"]);
-  execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-ss", (start + Math.min(dur * 0.75, dur - 0.5)).toFixed(2), "-i", src, "-frames:v", "1", "-vf", "scale=960:-2", "-q:v", "5", OUT + name + ".jpg"]);
+  execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-ss", (start + Math.min(dur * 0.75, dur - 0.5)).toFixed(2), "-i", src, "-frames:v", "1", "-vf", `${cropF},scale=960:-2`, "-q:v", "5", OUT + name + ".jpg"]);
   console.log(name, dur + "s", Math.round(statSync(OUT + name + ".mp4").size / 1024) + " KB mp4", Math.round(statSync(OUT + name + ".webm").size / 1024) + " KB webm");
 }
 
@@ -85,6 +86,7 @@ const ready = (page) => page.waitForFunction(() => window.planTasks.state.pdf?.t
 
 // 1: choose the drawing and the import template, name the plan
 await record("clip-1-files", {
+  crop: [0, 100, 760, 475],
   act: async (page) => {
     await pickFile(page, "#file-pdf", "samples/sample-drawing.pdf");
     await ready(page); await sleep(700);
@@ -143,6 +145,7 @@ await record("clip-3-symbol", {
 
 // 4: open the preview, copy the rows, then download the import file
 await record("clip-4-download", {
+  crop: [0, 110, 760, 475],
   setup: async (page) => {
     await page.setInputFiles("#file-pdf", root + "samples/sample-drawing.pdf"); await ready(page);
     await page.setInputFiles("#file-xlsx", root + "samples/sample-import-template.xlsx");
@@ -165,6 +168,7 @@ await record("clip-4-download", {
 
 // 5: save the setup, then open it again
 await record("clip-5-reuse", {
+  crop: [0, 190, 760, 475],
   setup: async (page) => {
     await page.setInputFiles("#file-pdf", root + "samples/sample-drawing.pdf"); await ready(page);
     await page.setInputFiles("#file-xlsx", root + "samples/sample-import-template.xlsx");

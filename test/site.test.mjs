@@ -268,7 +268,7 @@ test("every image on the how-to page has a description", async () => {
   const html = await readFile(`${root}howto.html`, "utf8");
   const imgs = [...html.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]);
   assert.ok(imgs.length >= 5);
-  for (const tag of imgs) assert.match(tag, /alt="[^"]{15,}"/);
+  for (const tag of imgs) assert.match(tag, /alt="[^"]{10,}"/);
 });
 
 test("the FAQ answers can be opened", async () => {

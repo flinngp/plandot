@@ -17,7 +17,7 @@ const mark = (sel, n, { outline = true, dx = -12, dy = -12, nth = 0 } = {}) => p
   if (outline) { const o = document.createElement("div"); o.className = "ann"; o.style.cssText = `position:fixed;z-index:99998;pointer-events:none;left:${r.left - 4}px;top:${r.top - 4}px;width:${r.width + 8}px;height:${r.height + 8}px;border:2.5px solid #ff7a1a;border-radius:10px;`; document.body.append(o); }
   const b = document.createElement("div"); b.className = "ann"; b.textContent = n;
   b.style.cssText = `position:fixed;z-index:99999;pointer-events:none;left:${r.left + dx}px;top:${r.top + dy}px;width:26px;height:26px;border-radius:50%;background:#ff7a1a;color:#fff;font:800 14px/26px Inter,system-ui,sans-serif;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.35);`;
-  document.body.append(b);
+  /* outlines only, no number badges */
 }, [sel, n, outline, dx, dy, nth]);
 const clear = () => page.evaluate(() => document.querySelectorAll(".ann").forEach((e) => e.remove()));
 const rectOf = (sel, pad = 0) => page.$eval(sel, (e, pad) => { const r = e.getBoundingClientRect(); return { x: Math.max(0, r.left - pad), y: Math.max(0, r.top - pad), width: r.width + pad * 2, height: r.height + pad * 2 }; }, pad);
@@ -51,16 +51,18 @@ await mark(".rule .pair .field:nth-child(2)", 2, { dx: -14, dy: -16 });
 await mark(".rule .insert", 3, { dx: -14, dy: -12 });
 await mark(".rule .becomes", 4, { dx: -14, dy: -12 });
 a = await rectOf(".rule");
-await shot("howto-2-rule.png", { x: a.x - 20, y: a.y - 22, width: a.width + 36, height: Math.min(a.height + 34, 520) });
+const panel = await rectOf(".controls");
+const ry = Math.max(a.y - 18, panel.y + 2);
+await shot("howto-2-rule.png", { x: a.x - 10, y: ry, width: a.width + 20, height: Math.min(a.y + a.height + 14 - ry, 440) });
 
 // 3 sheet
 await page.evaluate(() => document.querySelector(".controls").scrollTop = 0);
 await page.mouse.move(5, 5);
 const sp = await rectOf(".sheetpane");
 const pin = await page.$eval("#overlay .pin", (e) => { const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; });
-await page.evaluate(([x, y]) => { const o = document.createElement("div"); o.className = "ann"; o.style.cssText = `position:fixed;z-index:99998;pointer-events:none;left:${x - 22}px;top:${y - 22}px;width:44px;height:44px;border:2.5px solid #ff7a1a;border-radius:50%;`; document.body.append(o); const b = document.createElement("div"); b.className = "ann"; b.textContent = "1"; b.style.cssText = `position:fixed;z-index:99999;left:${x - 46}px;top:${y - 34}px;width:26px;height:26px;border-radius:50%;background:#ff7a1a;color:#fff;font:800 14px/26px Inter,sans-serif;text-align:center;`; document.body.append(b); }, pin);
+await page.evaluate(([x, y]) => { const o = document.createElement("div"); o.className = "ann"; o.style.cssText = `position:fixed;z-index:99998;pointer-events:none;left:${x - 22}px;top:${y - 22}px;width:44px;height:44px;border:2.5px solid #ff7a1a;border-radius:50%;`; document.body.append(o); const b = document.createElement("div"); b.className = "ann"; b.textContent = "1"; b.style.cssText = `position:fixed;z-index:99999;left:${x - 46}px;top:${y - 34}px;width:26px;height:26px;border-radius:50%;background:#ff7a1a;color:#fff;font:800 14px/26px Inter,sans-serif;text-align:center;`; /* outlines only, no number badges */ }, pin);
 await mark("#zoombar", 2, { dx: -16, dy: -16 });
-await mark("#show-grid", 3, { outline: false, dx: 150, dy: -4 });
+await mark("#show-grid", 3, { dx: -4, dy: -4 });
 await shot("howto-3-sheet.png", sp);
 
 // 4 pin table with one pin switched off
@@ -85,7 +87,7 @@ await page.waitForSelector("#preview-table th");
 await page.waitForTimeout(300);
 await page.evaluate(() => { const c = document.querySelector(".controls"); c.scrollTop = document.querySelector("#step-export").offsetTop - 10; });
 await mark("#export-summary", 1, { dx: -24, dy: -16 });
-await mark("#export-preview summary", 2, { dx: -14, dy: -16, outline: false });
+await mark("#export-preview summary", 2, { dx: -14, dy: -16 });
 await mark("#batches .btn", 3, { dx: -14, dy: -16 });
 await mark("#dl-import", 4, { dx: -14, dy: -16 });
 a = await rectOf("#step-export");
@@ -113,7 +115,7 @@ const markOn = (pg, sel, n, { outline = true, dx = -12, dy = -12, nth = 0 } = {}
   if (outline) { const o = document.createElement("div"); o.className = "ann"; o.style.cssText = `position:fixed;z-index:99998;pointer-events:none;left:${r.left - 4}px;top:${r.top - 4}px;width:${r.width + 8}px;height:${r.height + 8}px;border:2.5px solid #ff7a1a;border-radius:10px;`; document.body.append(o); }
   const b = document.createElement("div"); b.className = "ann"; b.textContent = n;
   b.style.cssText = `position:fixed;z-index:99999;pointer-events:none;left:${r.left + dx}px;top:${r.top + dy}px;width:26px;height:26px;border-radius:50%;background:#ff7a1a;color:#fff;font:800 14px/26px Inter,system-ui,sans-serif;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.35);`;
-  document.body.append(b);
+  /* outlines only, no number badges */
 }, [sel, n, outline, dx, dy, nth]);
 // a ring and badge at a spot on the 1200 x 800 sample, in PDF points from the top-left
 const markAt = (pg, x, y, n, { r = 34, dx = -r - 8, dy = -r - 8, ring = true } = {}) => pg.evaluate(async ([x, y, n, r, dx, dy, ring]) => {
@@ -122,7 +124,7 @@ const markAt = (pg, x, y, n, { r = 34, dx = -r - 8, dy = -r - 8, ring = true } =
   if (ring) { const o = document.createElement("div"); o.className = "ann"; o.style.cssText = `position:fixed;z-index:99998;pointer-events:none;left:${cx - r}px;top:${cy - r}px;width:${r * 2}px;height:${r * 2}px;border:2.5px solid #ff7a1a;border-radius:50%;`; document.body.append(o); }
   const b = document.createElement("div"); b.className = "ann"; b.textContent = n;
   b.style.cssText = `position:fixed;z-index:99999;pointer-events:none;left:${cx + dx}px;top:${cy + dy}px;width:26px;height:26px;border-radius:50%;background:#ff7a1a;color:#fff;font:800 14px/26px Inter,system-ui,sans-serif;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.35);`;
-  document.body.append(b);
+  /* outlines only, no number badges */
 }, [x, y, n, r, dx, dy, ring]);
 await sym.goto(server.url + "/index.html"); await sym.evaluate(() => localStorage.clear()); await sym.reload();
 await sym.setInputFiles("#file-pdf", root + "samples/sample-symbols.pdf");
@@ -133,7 +135,7 @@ await sym.evaluate(() => { document.querySelector(".controls").scrollTop = docum
 await sym.waitForTimeout(900);
 await markOn(sym, ".rule .field:has(select[id$=-kind])", 1, { dx: -14, dy: -16 });
 await markOn(sym, await tagEl(sym, ".rule button:has-text('Draw a box around the symbol')", "drawbtn"), 2, { dx: -14, dy: -16 });
-let r1 = await sym.$eval(".rule", (e) => { const b = e.getBoundingClientRect(); const top = Math.max(b.top - 20, document.querySelector(".controls").getBoundingClientRect().top); return { x: b.left - 20, y: top, width: b.width + 40, height: Math.min(b.bottom + 10 - top, 380) }; });
+let r1 = await sym.$eval(".rule", (e) => { const b = e.getBoundingClientRect(); const top = Math.max(b.top - 20, document.querySelector(".controls").getBoundingClientRect().top); return { x: b.left - 10, y: top + 2, width: b.width + 20, height: Math.min(b.bottom + 10 - top, 380) }; });
 await sym.screenshot({ path: OUT + "symbols-1-start.png", clip: r1 });
 await sym.evaluate(() => document.querySelectorAll(".ann").forEach((e) => e.remove()));
 

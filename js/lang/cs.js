@@ -279,4 +279,5 @@ export default {
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Klikněte na Kopírovat řádky a vložte do importu úkolů ve Fieldwire, nejvýše 500 bodů najednou. Nebo stáhněte importní soubor.",
  "Back to the pins": "Zpět na špendlíky",
  "Gridlines": "Mřížka",
+ "Back to top": "Zpět nahoru",
 };

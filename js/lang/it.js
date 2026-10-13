@@ -279,4 +279,5 @@ export default {
  "Press Copy rows and paste into Fieldwire's task importer, up to 500 pins at a time. Or download the import file.": "Premi Copia righe e incolla nell'importatore di attività di Fieldwire, fino a 500 segnaposto alla volta. Oppure scarica il file di importazione.",
  "Back to the pins": "Torna ai segnaposto",
  "Gridlines": "Griglia",
+ "Back to top": "Torna su",
 };

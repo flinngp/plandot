@@ -102,3 +102,30 @@ test("the translated guide fits a small phone screen in every language", async (
     await ctx.close();
   }
 });
+
+test("the guide's text lines up with its cards, the contents sit on one row, and each card has a Back to top link", async () => {
+  const page = await env.browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await page.goto(`${env.server.url}/howto.html`);
+  await page.waitForSelector(".card-top a");
+  const r = await page.evaluate(() => {
+    const card = document.querySelector("#s1").getBoundingClientRect();
+    const right = (sel) => document.querySelector(sel).getBoundingClientRect().right;
+    const tops = new Set([...document.querySelectorAll(".toc a")].map((a) => Math.round(a.getBoundingClientRect().top)));
+    return { ledeRight: right(".lede"), pRight: right("#s1 > p"), cardRight: card.right, tocRows: tops.size, backLinks: document.querySelectorAll(".card-top a").length, cards: document.querySelectorAll("main .card").length, sample: document.querySelector("a.try-sample")?.getAttribute("href") };
+  });
+  assert.ok(r.ledeRight > r.cardRight - 60, `intro stops short of the cards (${r.ledeRight} vs ${r.cardRight})`);
+  assert.ok(r.pRight > r.cardRight - 60, "card text stops short of the card edge");
+  assert.equal(r.tocRows, 1, "the contents links wrap onto a second row");
+  assert.equal(r.backLinks, r.cards);
+  assert.equal(r.sample, "index.html?sample=1");
+  await page.close();
+});
+
+test("the guide's sample button opens the app with the sample loaded", async () => {
+  const page = await env.browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await page.goto(`${env.server.url}/index.html?sample=1`);
+  await page.waitForFunction(() => window.planTasks.state.pins.length === 13 && !window.planTasks.state.busy, null, { timeout: 20000 });
+  assert.equal(new URL(page.url()).search, "", "the address is tidied afterwards");
+  assert.equal(await page.locator(".tour-card").count(), 0, "no tour on top of the sample");
+  await page.close();
+});
