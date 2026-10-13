@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://plandot.goatcounter.com; font-src 'self'; media-src 'self'; connect-src 'self' blob: data: https://plandot.goatcounter.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>Plandot</title>
 <meta name="description" content="Turn callouts and symbols on a plan into pins, ready to import. Everything runs in your browser; drawings are never uploaded.">
 <meta name="theme-color" content="#eef1f6">
@@ -124,6 +125,8 @@
       <div class="stack">
         <p class="export-summary" id="export-summary" role="status"></p>
         <p class="notice" id="export-split" role="status" hidden></p>
+        <div class="batches" id="batches" hidden></div>
+        <label class="check small" id="batch-heads-wrap" hidden><input type="checkbox" id="batch-heads"> <span data-i18n>Include column headings</span></label>
         <details class="settings flat" id="export-preview">
           <summary data-i18n>Preview what will be exported</summary>
           <div class="preview-wrap" id="preview-table"></div>

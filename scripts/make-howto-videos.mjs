@@ -53,7 +53,9 @@ const pickFile = async (page, sel, file) => {
 };
 const scrollPanelTo = async (page, sel) => { await page.evaluate((sel) => { const c = document.querySelector(".controls"); c.scrollTo({ top: document.querySelector(sel).offsetTop - 10, behavior: "smooth" }); }, sel); await sleep(900); };
 
+const only = process.argv[2]; // optional: record just one clip, e.g. clip-4-download
 async function record(name, { setup, act }) {
+  if (only && only !== name) return;
   const ctx = await browser.newContext({ viewport: { width: W, height: H }, recordVideo: { dir: tmp, size: { width: W, height: H } } });
   await ctx.addInitScript(POINTER);
   const page = await ctx.newPage();
@@ -139,7 +141,7 @@ await record("clip-3-symbol", {
   },
 });
 
-// 4: open the preview, then download the import file
+// 4: open the preview, copy the rows, then download the import file
 await record("clip-4-download", {
   setup: async (page) => {
     await page.setInputFiles("#file-pdf", root + "samples/sample-drawing.pdf"); await ready(page);
@@ -155,6 +157,7 @@ await record("clip-4-download", {
     await to(page, "#export-summary", 700); await sleep(700);
     await click(page, "#export-preview summary"); await sleep(1200);
     await scrollPanelTo(page, "#step-export");
+    await click(page, "#batches .btn"); await sleep(1500); // Copy rows
     await Promise.all([page.waitForEvent("download"), click(page, "#dl-import")]);
     await sleep(1600);
   },

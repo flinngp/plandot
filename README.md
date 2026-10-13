@@ -73,6 +73,7 @@ It matches the drawing's line work, so like the leader dots it needs a vector PD
 - A menu bar at the top links to the **How to guide** (`howto.html`, step by step with annotated screenshots, including finding symbols with the patio door sample; retaken with `node scripts/make-howto-shots.mjs`; four short silent clips in `help/vid/` are re-recorded with `node scripts/make-howto-videos.mjs`, which needs ffmpeg) and the **FAQ** (`faq.html`). Both pages are English only for now; the menu and footer are translated.
 - The footer is two short lines (not made by Fieldwire by Hilti, drawings stay in your browser) plus the copyright. The version number (set in `js/config.js`) appears in **Copy details**, not on the page.
 - Anonymous visit counts use GoatCounter, switched on only at plandot.uk (`js/analytics.js`): no cookies, and only page views and a few named events (exported, symbol box drawn, a pin-count range) are counted, never anything from a drawing.
+- Each page carries a Content Security Policy (a `<meta>` tag): scripts only from this site and GoatCounter, no inline scripts, no eval, nothing else loaded from outside. If you add a new outside resource, widen the policy in `index.html`, `howto.html` and `faq.html`; the tests fail on any blocked request.
 - **Send feedback** (in the menu bar) appears when `FEEDBACK` in `js/config.js` has a form address (`url`) or a shared email (`email`). Leave both empty and the link is hidden. Use a shared address, not a personal one.
 - Slow searches show a progress bar over the drawing, and error messages have a **Copy details** button (version, browser and settings, never a file name).
 - The language list shows a flag beside each language. A flag stands for a country, so the language name is always shown with it.
@@ -137,7 +138,7 @@ Opening `index.html` by double-clicking does not work, because browsers block th
 npm install
 npx playwright install chromium
 python3 -m pip install openpyxl     # the tests read the import file back with it
-npm test                            # 154 tests
+npm test                            # 186 tests
 ```
 
 GitHub runs the same tests on every push (`.github/workflows/tests.yml`). The tests build their own drawings and templates, or use the made-up files in `samples/`.
@@ -159,3 +160,14 @@ To rebuild the samples: `python3 samples/make_sample_drawing.py` and `python3 sa
 Plandot is an independent project by Flinn Ginder-Poulsen. It is not an official Fieldwire product; Fieldwire is a trademark of its owner and is named here only to say which import format the tool writes.
 
 All rights reserved: see `LICENSE`. Third-party libraries in `vendor/` keep their own licences: [pdf.js](https://github.com/mozilla/pdf.js) (Apache-2.0), [pdf-lib](https://github.com/Hopding/pdf-lib) (MIT), [JSZip](https://github.com/Stuk/jszip) (MIT or GPL-3.0), and subsets of the Inter (SIL OFL 1.1) and TeX Gyre Heros (GUST) fonts.
+
+## Copy rows and the tour
+
+- **Copy rows** (`js/batches.js`, `renderBatches` in `js/app.js`): one button per batch of up to 500 pins. It copies tab-separated rows in the template's column order, with an optional heading line, ready to paste into Fieldwire's task importer. Worth trying a first batch on a real project, because the importer can't be tested from here.
+- **Quick tour** (`js/tour.js`): four steps, shown once to a new visitor (never to automated browsers or anyone with saved work). Closing it with "Don't show this again" ticked remembers that in the browser; "Take the tour" in the menu brings it back.
+
+## The how to guide in other languages
+
+`howto.html` is written in English, and each piece of text carries a number (`data-h`, plus `data-ha` for picture descriptions and `data-hl` for video labels). `js/lang/howto/<code>.js` holds the same pieces in the same order for each of the 12 other languages, with one extra last entry: the note that the screenshots are in English. `js/help.js` swaps them in when the app language isn't English. The tests check that every language has every piece, the same bold, code and link markup as English, and the app's own button names.
+
+If you change the English guide, the numbers can shift, so re-number the page and update all 12 packs (the tests will tell you which entry is wrong). The FAQ is still English only. The screenshots and clips show the English app.

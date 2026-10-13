@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://plandot.goatcounter.com; font-src 'self'; media-src 'self'; connect-src 'self' blob: data: https://plandot.goatcounter.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>Plandot FAQ</title>
 <meta name="description" content="Answers about privacy, supported drawings, browsers and common problems with Plandot.">
 <meta name="theme-color" content="#eef1f6">
@@ -48,7 +49,7 @@
 
   <details><summary>Are the pins in exactly the right place?</summary>
 <p>Pins are placed by percentage across and down the sheet, which is how Fieldwire reads the import file. They should land on the callout or the dot at the end of its leader line, but always look before you import. For a new kind of drawing, use <strong>Check pin positions first</strong>: it makes nine test pins you can import to confirm positions.</p>
-<p>Fieldwire's task importer takes up to 500 rows at a time. If you have more pins than that, Plandot tells you how many batches to paste from the same file.</p>
+<p>Fieldwire's task importer takes up to 500 rows at a time. If you have more pins than that, Plandot shows a Copy rows button for each batch of up to 500.</p>
 </details>
 
   <details><summary>Which browsers and languages does Plandot support?</summary>

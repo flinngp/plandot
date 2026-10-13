@@ -30,7 +30,7 @@ async function englishTexts() {
 }
 
 test("there is a pack for each of the twelve languages and no stray ones", async () => {
-  const files = (await readdir(`${root}js/lang`)).map((f) => f.replace(".js", "")).sort();
+  const files = (await readdir(`${root}js/lang`)).filter((f) => f.endsWith(".js")).map((f) => f.replace(".js", "")).sort(); // (howto/ holds the guide translations)
   assert.deepEqual(files, [...CODES].sort());
 });
 

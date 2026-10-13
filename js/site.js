@@ -171,6 +171,10 @@ export async function initLanguageMenu({ onChange } = {}) {
 
 // ---------------------------------------------------------------- top menu and footer
 /** The menu bar at the top of every page. */
+let tourHandler = null;
+/** The app registers what "Take the tour" does; help pages have no tour, so they show no link. */
+export function setTourHandler(fn) { tourHandler = fn; renderNav(); }
+
 export function renderNav() {
   const nav = document.getElementById("topnav");
   if (!nav) return;
@@ -181,6 +185,7 @@ export function renderNav() {
   nav.setAttribute("aria-label", tr("More about Plandot"));
   nav.replaceChildren(
     ...(onApp ? [] : [link("index.html", tr("Open Plandot"), { class: "nav-app" })]),
+    ...(onApp && tourHandler ? [h("a", { href: "#", class: "tour-link", text: tr("Take the tour"), onclick: (e) => { e.preventDefault(); tourHandler(); } })] : []),
     link("howto.html", tr("How to guide")),
     link("faq.html", tr("FAQ")),
     ...(href ? [h("a", { href, class: "feedback-link", ...(FEEDBACK.url ? { target: "_blank", rel: "noopener" } : {}), text: tr("Send feedback") })] : []));

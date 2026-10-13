@@ -169,7 +169,7 @@ test("the footer is short: independent-tool note, privacy line and copyright, wi
 test("the menu bar at the top links to the how to guide and the FAQ, on every page", async () => {
   const page = await fresh();
   const links = await page.$$eval("#topnav a", (a) => a.map((x) => [x.textContent, x.getAttribute("href")]));
-  assert.deepEqual(links.slice(0, 2), [["How to guide", "howto.html"], ["FAQ", "faq.html"]]);
+  assert.deepEqual(links.slice(0, 3), [["Take the tour", "#"], ["How to guide", "howto.html"], ["FAQ", "faq.html"]]);
   assert.ok(!/null|undefined/.test(await page.textContent("#topnav")), "stray text in the menu");
   assert.ok(await page.$eval("#topnav", (n) => n.getBoundingClientRect().bottom <= document.querySelector(".masthead").getBoundingClientRect().top + 1), "the menu sits above the header");
   await page.click("#topnav a[href='howto.html']");
@@ -353,6 +353,23 @@ test("1,200 pins download as one file and say to paste it in 3 batches of up to 
   await page.waitForFunction(() => /Downloaded 1200 pins for plan/.test(document.querySelector("#status").textContent));
   await page.waitForTimeout(300);
   assert.deepEqual(names, ["big - pin import.xlsx"]);
+  // Copy rows: one button per batch, 500 / 500 / 200 lines, tab-separated, no headings unless asked
+  await page.ctx.grantPermissions(["clipboard-read", "clipboard-write"]);
+  assert.equal(await page.locator("#batches .batch").count(), 3);
+  assert.deepEqual(await page.locator("#batches .batch .t span").allTextContents(), ["Pins 1–500", "Pins 501–1,000", "Pins 1,001–1,200"]);
+  const copy = async (n) => { await page.locator("#batches .batch").nth(n).locator("button").click(); await page.waitForFunction(() => /^Copied \d+ rows/.test(document.querySelector("#status").textContent)); return page.evaluate(() => navigator.clipboard.readText()); };
+  let text = await copy(0);
+  assert.equal(text.split("\n").length, 500);
+  assert.ok(text.split("\n")[0].includes("\t"), "columns are tab-separated");
+  assert.ok(!/^ID\t/.test(text), "no headings by default");
+  assert.equal(await page.locator("#batches .batch.done").count(), 1);
+  assert.match(await page.locator("#batches .batch").first().textContent(), /copied/);
+  assert.equal((await copy(2)).split("\n").length, 200);
+  await page.check("#batch-heads");
+  assert.equal(await page.locator("#batches .batch.done").count(), 0, "changing the option starts the batches again");
+  text = await copy(1);
+  assert.equal(text.split("\n").length, 501, "500 rows plus the heading line");
+  assert.match(text.split("\n")[0], /Title/);
   // fewer pins: the notice goes away
   await page.click("#all-off");
   await page.waitForFunction(() => document.querySelector("#export-split").hidden);

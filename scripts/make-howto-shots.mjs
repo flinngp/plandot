@@ -86,7 +86,8 @@ await page.waitForTimeout(300);
 await page.evaluate(() => { const c = document.querySelector(".controls"); c.scrollTop = document.querySelector("#step-export").offsetTop - 10; });
 await mark("#export-summary", 1, { dx: -24, dy: -16 });
 await mark("#export-preview summary", 2, { dx: -14, dy: -16, outline: false });
-await mark("#dl-import", 3, { dx: -14, dy: -16 });
+await mark("#batches .btn", 3, { dx: -14, dy: -16 });
+await mark("#dl-import", 4, { dx: -14, dy: -16 });
 a = await rectOf("#step-export");
 await shot("howto-5-download.png", { x: a.x - 6, y: a.y - 6, width: a.width + 12, height: Math.min(a.height + 12, 700) });
 

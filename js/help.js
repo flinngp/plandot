@@ -3,10 +3,27 @@ import { initSite } from "./site.js";
 import { currentLanguage, tr } from "./i18n.js";
 import { FEEDBACK, feedbackHref } from "./config.js";
 await initSite();
+// The how to guide has a translation for each app language (js/lang/howto/<code>.js): one entry for each
+// data-h / data-ha / data-hl number in the page, with the last entry holding the note about the screenshots.
+async function translateGuide() {
+  const lang = currentLanguage();
+  if (lang === "en" || !document.querySelector("[data-h]")) return null;
+  let pack;
+  try { pack = (await import(`./lang/howto/${lang}.js`)).default; } catch { return null; }
+  for (const [attr, set] of [["h", (el, v) => { el.dataset.hEn ??= el.innerHTML; el.innerHTML = v; }], ["ha", (el, v) => el.setAttribute("alt", v)], ["hl", (el, v) => el.setAttribute("aria-label", v)]]) {
+    for (const el of document.querySelectorAll(`[data-${attr}]`)) { const v = pack[Number(el.dataset[attr])]; if (typeof v === "string") set(el, v); }
+  }
+  document.title = `${pack[0]} · Plandot`;
+  return pack[pack.length - 1];
+}
+const guideNote = await translateGuide();
 const note = document.getElementById("lang-note");
 if (note) {
-  note.hidden = currentLanguage() === "en";
-  note.textContent = tr("This page is in English for now. The app itself is available in 13 languages.");
+  if (guideNote) { note.hidden = false; note.textContent = guideNote; }
+  else {
+    note.hidden = currentLanguage() === "en";
+    note.textContent = tr("This page is in English for now. The app itself is available in 13 languages.");
+  }
 }
 // The feedback link in the FAQ follows the setting in js/config.js (a form, or an email, or nothing).
 const fb = document.getElementById("faq-feedback");

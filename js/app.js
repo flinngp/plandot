@@ -4,11 +4,13 @@ import { detect, newRule, round2, batchRanges, IMPORT_LIMIT, pinMode, ruleKind, 
 import { openPdf, readPage, readShapes, readGeometry, anchorFinder, renderRegion, renderFull, MAX_SIDE } from "./pdfsource.js";
 import { captureSymbol, findSymbolsAsync, sanitizeTemplate } from "./symbols.js";
 import { readTemplate, writeImport, buildRows, buildCalibrationRows, extraColumns, orphanedColumns, applyMapping, TemplateError } from "./template.js";
+import { startTour } from "./tour.js";
+import { rowsToTsv, copyText } from "./batches.js";
 import { markedUpPdf, pinsPng, download } from "./markup.js";
 import { tr, translateDom, currentLanguage } from "./i18n.js";
 import { startAnalytics, track, pinBucket } from "./analytics.js";
 import { VERSION } from "./config.js";
-import { hydrateInfo, infoSlot, initLanguageMenu, renderFooter, renderNav } from "./site.js";
+import { hydrateInfo, infoSlot, initLanguageMenu, renderFooter, setTourHandler } from "./site.js";
 
 const COLORS = ["#3355ff", "#e08a00", "#1f9d6b", "#8a4fff", "#0fa3b8", "#d6336c", "#7a8a14", "#5b6b7a"];
 const colorOf = (i) => COLORS[i % COLORS.length];
@@ -1151,6 +1153,7 @@ function updateExport() {
     split.textContent = tr("Fieldwire's task importer takes up to {limit} pins at a time, so paste this file in {n} batches (pins {ranges}).", { limit: IMPORT_LIMIT, n: batches.length, ranges });
   }
   renderExportPreview(need.length === 0);
+  renderBatches(need.length === 0, batches);
   $("#dl-pdf").disabled = !(state.pdf && inc) || state.busy;
   $("#dl-png").disabled = !(state.pdf && inc) || state.busy;
   $("#dl-calibration").disabled = !(t && !t.missing.length && plan);
@@ -1175,6 +1178,45 @@ function renderExportPreview(ready) {
     h("thead", {}, h("tr", {}, heads.map((x) => h("th", { scope: "col", text: x })))),
     h("tbody", {}, rows.map((r) => h("tr", {}, heads.map((x) => h("td", { text: r[x] == null ? "" : String(r[x]), title: r[x] == null ? "" : String(r[x]) })))))),
     inc.length > PREVIEW_ROWS ? h("p", { class: "more-rows", text: tr("…and {n} more.", { n: inc.length - PREVIEW_ROWS }) }) : null);
+}
+
+/** One "Copy rows" button per batch of up to 500 pins, so nothing has to be selected by hand. */
+const copiedBatches = new Set();
+let batchSignature = "";
+function renderBatches(ready, batches) {
+  const box = $("#batches"), wrap = $("#batch-heads-wrap");
+  box.hidden = wrap.hidden = !ready || !batches.length;
+  if (box.hidden) { box.replaceChildren(); return; }
+  const sig = `${$("#plan-name").value}|${included().map((p) => `${p.n}:${p.title}:${p.px}:${p.py}`).join(",")}`;
+  if (sig !== batchSignature) { batchSignature = sig; copiedBatches.clear(); }
+  const nf = new Intl.NumberFormat(currentLanguage());
+  const next = batches.findIndex((_, i) => !copiedBatches.has(i));
+  box.replaceChildren(...batches.map(([from, to], i) => {
+    const done = copiedBatches.has(i);
+    const range = from === to ? nf.format(from) : `${nf.format(from)}–${nf.format(to)}`;
+    const sub = batches.length === 1
+      ? (to === 1 ? tr("1 pin", {}) : tr("All {n} pins", { n: nf.format(to) }))
+      : tr("Pins {range}", { range });
+    const btn = h("button", { type: "button", class: `btn${i === next || batches.length === 1 && !done ? " primary" : ""}`, text: done ? tr("Copy again") : tr("Copy rows") });
+    btn.addEventListener("click", () => copyBatch(i, from, to));
+    return h("div", { class: `batch${done ? " done" : ""}` },
+      h("div", { class: "n", text: done ? "✓" : String(i + 1) }),
+      h("div", { class: "t" }, h("b", { text: batches.length === 1 ? tr("Pin rows") : tr("Batch {n}", { n: i + 1 }) }), h("span", { text: done ? `${sub} · ${tr("copied")}` : sub })),
+      btn);
+  }));
+}
+
+async function copyBatch(i, from, to) {
+  const t = state.tpl.parsed;
+  const pins = included().map((p) => ({ ...p, title: hasText(p.title) ? p.title : p.tag }));
+  const rulesById = Object.fromEntries(state.rules.map((r) => [r.id, r]));
+  const rows = buildRows(t, pins, { planName: state.settings.planName.trim(), rulesById }).slice(from - 1, to);
+  const ok = await copyText(rowsToTsv(t, rows, { headings: $("#batch-heads").checked }));
+  if (!ok) { say(tr("The browser wouldn't let Plandot copy. Use Download import file instead."), "err"); return; }
+  track("copied-rows");
+  copiedBatches.add(i);
+  updateExport();
+  say(tr("Copied {n} rows. Paste them into Fieldwire's task importer.", { n: rows.length }), "ok");
 }
 
 async function exportImport() {
@@ -1344,6 +1386,7 @@ function wire() {
   $("#all-on").addEventListener("click", () => { state.pins.forEach((p) => (state.edits[p.key] = { ...(state.edits[p.key] || {}), include: true })); runDetect(); });
   $("#all-off").addEventListener("click", () => { state.pins.forEach((p) => (state.edits[p.key] = { ...(state.edits[p.key] || {}), include: false })); runDetect(); });
   $("#dl-import").addEventListener("click", guarded(exportImport));
+  $("#batch-heads").addEventListener("change", () => copiedBatches.clear() || updateExport());
   $("#dl-pdf").addEventListener("click", guarded(exportPdf));
   $("#dl-png").addEventListener("click", guarded(exportPng));
   $("#dl-calibration").addEventListener("click", guarded(exportCalibration));
@@ -1398,9 +1441,12 @@ await initLanguageMenu({
 });
 translateDom();
 hydrateInfo();
-renderNav();
+setTourHandler(() => startTour({ force: true }));
 renderFooter();
 renderPdfInfo();
 renderTplInfo();
 renderRules();
 refresh();
+
+// A new visitor gets the short tour once. Not for returning visitors with work saved, and not for automated browsers.
+if (!navigator.webdriver && !hasWork()) setTimeout(() => { if (!hasWork()) startTour(); }, 600);

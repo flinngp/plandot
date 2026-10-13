@@ -16,6 +16,7 @@ async function fresh(viewport = { width: 1440, height: 900 }) {
   const page = await env.browser.newPage({ viewport });
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  page.on("console", (m) => { if (/Content Security Policy|Refused to/i.test(m.text())) errors.push(m.text()); });
   await page.goto(`${env.server.url}/index.html`);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
@@ -486,5 +487,49 @@ test("the drawing still opens in a browser whose streams can't be looped over (S
   await page.goto(`${env.server.url}/index.html`);
   await page.setInputFiles("#file-pdf", SAMPLE.pdf);
   await page.waitForFunction(() => window.planTasks?.state.pdf?.tokens?.length > 0, null, { timeout: 20000 });
+  await page.close();
+});
+
+test("the tour is skippable, remembers that it was closed, and can be taken again from the menu", async () => {
+  const page = await fresh();
+  assert.equal(await page.locator(".tour-card").count(), 0, "no tour is forced on automated browsers");
+  await page.click(".tour-link");
+  assert.equal(await page.locator(".tour-card").count(), 1);
+  assert.match(await page.textContent(".tour-k"), /1 of 4/);
+  await page.click(".tour-next");
+  assert.match(await page.textContent(".tour-k"), /2 of 4/);
+  await page.click(".tour-skip >> text=Back");
+  assert.match(await page.textContent(".tour-k"), /1 of 4/);
+  await page.keyboard.press("Escape");
+  assert.equal(await page.locator(".tour-card").count(), 0);
+  assert.equal(await page.evaluate(() => localStorage.getItem("plandot-tour-done")), "1", "closing remembers it");
+  // clicking through to the end works, and un-ticking the box means it can show again
+  await page.click(".tour-link");
+  for (let i = 0; i < 3; i++) await page.click(".tour-next");
+  assert.equal(await page.textContent(".tour-next"), "Done");
+  await page.uncheck(".tour-never input");
+  await page.click(".tour-next");
+  assert.equal(await page.locator(".tour-card").count(), 0);
+  assert.equal(await page.evaluate(() => localStorage.getItem("plandot-tour-done")), null);
+  await page.close();
+});
+
+test("the tour is a bottom card on a phone and the page still fits", async () => {
+  const page = await fresh({ width: 390, height: 800 });
+  await page.click(".tour-link");
+  const r = await page.evaluate(() => { const c = document.querySelector(".tour-card").getBoundingClientRect(); return { inside: c.left >= 0 && c.right <= innerWidth && c.bottom <= innerHeight, ring: document.querySelector(".tour-ring").hidden, fits: document.documentElement.scrollWidth <= innerWidth }; });
+  assert.deepEqual(r, { inside: true, ring: true, fits: true });
+  await page.close();
+});
+
+test("the page's security rules let everything work: sample, downloads, marked-up PDF and pin image", async () => {
+  const page = await fresh();
+  await page.click("#try-sample");
+  await page.waitForFunction(() => window.planTasks.state.pins.length === 13 && !window.planTasks.state.busy, null, { timeout: 20000 });
+  for (const id of ["#dl-import", "#dl-pdf", "#dl-png"]) {
+    const [d] = await Promise.all([page.waitForEvent("download", { timeout: 20000 }), page.click(id)]);
+    assert.ok(d.suggestedFilename());
+  }
+  assert.deepEqual(page.errors, []);
   await page.close();
 });
