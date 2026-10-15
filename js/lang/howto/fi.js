@@ -80,5 +80,8 @@ export default [
 `Sääntöjen alla olevat painikkeet.`,
 `Lyhyt äänetön klippi: painetaan Tallenna asetukset, sitten Avaa asetukset, ja säännöt palaavat.`,
 `Katso: tallenna asetukset ja avaa ne uudelleen.`,
+`Kun tiedosto on ladattu, sen vaihe tiivistyy yhdeksi riviksi, jossa on vihreä valintamerkki. Avaa se uudelleen painamalla <strong>Vaihda</strong>.`,
+`Luettelon yläpuolella olevat värilliset painikkeet näyttävät jokaisen säännön ja sen nastojen määrän. Napsauta painiketta jättääksesi kaikki säännön nastat pois, ja napsauta uudelleen palauttaaksesi ne.`,
+`Piirustuksen alla oleva tumma palkki pitää yhteenvedon sekä painikkeet <strong>Kopioi rivit</strong>, <strong>Lataa tuontitiedosto</strong> ja <strong>Lataa merkitty PDF</strong> aina käden ulottuvilla. Jos vierität pois piirustuksen luota, palkki leijuu ikkunan alareunassa.`,
 `Kuvakaappaukset näyttävät sovelluksen englanniksi.`,
 ];

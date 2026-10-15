@@ -80,5 +80,8 @@ export default [
 `Les boutons sous les règles.`,
 `Courte vidéo sans son : clic sur Enregistrer la configuration, puis sur Ouvrir une configuration, et les règles reviennent.`,
 `À voir : enregistrez la configuration, puis rouvrez-la.`,
+`Dès qu'un fichier est chargé, son étape se réduit à une seule ligne avec une coche verte. Cliquez sur <strong>Modifier</strong> pour la rouvrir.`,
+`Les pastilles colorées au-dessus de la liste montrent chaque règle avec son nombre d'épingles. Cliquez sur une pastille pour exclure toutes les épingles de cette règle, et cliquez de nouveau pour les remettre.`,
+`La barre sombre sous le plan garde le résumé et les boutons <strong>Copier les lignes</strong>, <strong>Télécharger le fichier d'import</strong> et <strong>Télécharger le PDF annoté</strong> toujours à portée de main. Si vous vous éloignez du plan, elle flotte en bas de la fenêtre.`,
 `Les captures d'écran montrent l'application en anglais.`,
 ];

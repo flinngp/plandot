@@ -80,5 +80,8 @@ export default [
 `Tlačítka pod pravidly.`,
 `Krátké video bez zvuku: stisknutí Uložit nastavení, pak Otevřít nastavení a pravidla se vrátí.`,
 `Podívejte se: uložte nastavení a znovu ho otevřete.`,
+`Jakmile je soubor načten, jeho krok se zmenší na jediný řádek se zelenou fajfkou. Kliknutím na <strong>Změnit</strong> ho znovu otevřete.`,
+`Barevná tlačítka nad seznamem ukazují každé pravidlo s počtem špendlíků. Kliknutím na tlačítko vyloučíte všechny špendlíky tohoto pravidla a dalším kliknutím je vrátíte.`,
+`Tmavý pruh pod výkresem drží souhrn a tlačítka <strong>Kopírovat řádky</strong>, <strong>Stáhnout importní soubor</strong> a <strong>Stáhnout označené PDF</strong> vždy po ruce. Pokud odscrollujete od výkresu, vznáší se u dolního okraje okna.`,
 `Snímky obrazovky ukazují aplikaci v angličtině.`,
 ];

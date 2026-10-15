@@ -80,5 +80,8 @@ export default [
 `Die Schaltflächen unter den Regeln.`,
 `Kurzer Clip ohne Ton: Klick auf Setup speichern, dann auf Setup öffnen, und die Regeln sind wieder da.`,
 `Zum Ansehen: Setup speichern und wieder öffnen.`,
+`Sobald eine Datei geladen ist, schrumpft ihr Schritt auf eine einzelne Zeile mit einem grünen Häkchen. Mit <strong>Ändern</strong> öffnen Sie ihn wieder.`,
+`Die farbigen Schaltflächen über der Liste zeigen jede Regel mit ihrer Anzahl an Markierungen. Klicken Sie auf eine, um alle Markierungen dieser Regel auszulassen, und klicken Sie erneut, um sie zurückzuholen.`,
+`Die dunkle Leiste unter der Zeichnung hält die Zusammenfassung sowie die Schaltflächen <strong>Zeilen kopieren</strong>, <strong>Importdatei herunterladen</strong> und <strong>Markiertes PDF herunterladen</strong> stets griffbereit. Wenn Sie von der Zeichnung wegscrollen, schwebt sie am unteren Fensterrand.`,
 `Die Screenshots zeigen die App auf Englisch.`,
 ];

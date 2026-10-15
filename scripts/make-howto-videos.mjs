@@ -94,7 +94,10 @@ await record("clip-1-files", {
     await page.waitForFunction(() => window.planTasks.state.tpl?.parsed); await sleep(600);
     await click(page, "#plan-name");
     await page.keyboard.type("Ground floor plan", { delay: 90 });
-    await sleep(700);
+    await sleep(500);
+    await glide(page, 1000, 150, 500); await sleep(100);
+    await page.mouse.down(); await sleep(80); await page.mouse.up(); // click away: both steps shrink to a line with a tick
+    await sleep(2000);
   },
 });
 

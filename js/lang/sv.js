@@ -280,4 +280,9 @@ export default {
  "Back to the pins": "Tillbaka till nålarna",
  "Gridlines": "Rutnät",
  "Back to top": "Till toppen",
+ "Change": "Ändra",
+ "Drop a file or click to choose": "Släpp en fil eller klicka för att välja den",
+ "Click to leave out this rule's pins": "Klicka för att utesluta nålarna från den här regeln",
+ "Click to include this rule's pins again": "Klicka för att ta med nålarna från den här regeln igen",
+ "Pin colours by rule": "Nålarnas färger per regel",
 };

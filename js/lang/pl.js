@@ -280,4 +280,9 @@ export default {
  "Back to the pins": "Wróć do pinezek",
  "Gridlines": "Linie siatki",
  "Back to top": "Do góry",
+ "Change": "Zmień",
+ "Drop a file or click to choose": "Upuść plik lub kliknij, aby go wybrać",
+ "Click to leave out this rule's pins": "Kliknij, aby wykluczyć pinezki tej reguły",
+ "Click to include this rule's pins again": "Kliknij, aby ponownie uwzględnić pinezki tej reguły",
+ "Pin colours by rule": "Kolory pinezek według reguły",
 };

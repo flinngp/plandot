@@ -80,5 +80,8 @@ export default [
 `I pulsanti sotto le regole.`,
 `Breve clip senza audio: si preme Salva configurazione, poi Apri configurazione e le regole tornano.`,
 `Guarda: salva la configurazione e riaprila.`,
+`Appena un file è caricato, il suo passaggio si riduce a una sola riga con un segno di spunta verde. Clicca su <strong>Cambia</strong> per riaprirlo.`,
+`I pulsanti colorati sopra l'elenco mostrano ogni regola con il numero di segnaposto. Clicca su uno per escludere tutti i segnaposto di quella regola e clicca di nuovo per rimetterli.`,
+`La barra scura sotto il disegno tiene sempre a portata di mano il riepilogo e i pulsanti <strong>Copia righe</strong>, <strong>Scarica il file di importazione</strong> e <strong>Scarica il PDF annotato</strong>. Se ti allontani dal disegno, resta fissa in fondo alla finestra.`,
 `Gli screenshot mostrano l'app in inglese.`,
 ];

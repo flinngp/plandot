@@ -280,4 +280,9 @@ export default {
  "Back to the pins": "Zurück zu den Markierungen",
  "Gridlines": "Raster",
  "Back to top": "Nach oben",
+ "Change": "Ändern",
+ "Drop a file or click to choose": "Datei ablegen oder zum Auswählen klicken",
+ "Click to leave out this rule's pins": "Klicken, um die Markierungen dieser Regel auszulassen",
+ "Click to include this rule's pins again": "Klicken, um die Markierungen dieser Regel wieder einzubeziehen",
+ "Pin colours by rule": "Markierungsfarben nach Regel",
 };

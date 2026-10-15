@@ -80,5 +80,8 @@ export default [
 `Os botões por baixo das regras.`,
 `Vídeo curto sem som: carregar em Guardar configuração, depois em Abrir configuração, e as regras voltam.`,
 `Veja: guarde a configuração e abra-a de novo.`,
+`Assim que um ficheiro é carregado, o seu passo reduz-se a uma única linha com uma marca verde. Clique em <strong>Alterar</strong> para o abrir de novo.`,
+`Os botões coloridos acima da lista mostram cada regra com o número de alfinetes. Clique num deles para excluir todos os alfinetes dessa regra e clique outra vez para os repor.`,
+`A barra escura por baixo da planta mantém o resumo e os botões <strong>Copiar linhas</strong>, <strong>Descarregar ficheiro de importação</strong> e <strong>Descarregar PDF marcado</strong> sempre à mão. Se se afastar da planta, a barra flutua na parte de baixo da janela.`,
 `As capturas de ecrã mostram a aplicação em inglês.`,
 ];

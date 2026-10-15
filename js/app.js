@@ -201,6 +201,7 @@ async function loadPdfFile(file) {
   }
   if (mine !== loadRun) { try { doc.destroy?.(); } catch { /* ignore */ } return; }
   state.pdf = { name: file.name, bytes, doc, pageNo: 1 };
+  ui.drawingOpen = false;
   const select = $("#page-select");
   select.replaceChildren(...Array.from({ length: doc.numPages }, (_, i) => h("option", { value: i + 1, text: tr("Page {n}", { n: i + 1 }) })));
   $("#page-field").hidden = doc.numPages < 2;
@@ -248,6 +249,7 @@ async function loadTemplateFile(f) {
     const parsed = await readTemplate(await f.arrayBuffer());
     state.tpl = { name: f.name, parsed };
     state.tplError = null;
+    ui.templateOpen = false;
     if (!hasText(state.settings.planName)) { /* leave blank: the user has to confirm the exact plan name */ }
     say("");
   } catch (err) {
@@ -604,6 +606,7 @@ function refresh() {
   updateTitleBlock();
   updateExport();
   updateAreaInfo();
+  syncSteps();
   state.animate = false;
 }
 
@@ -871,7 +874,7 @@ function togglePin(key, to) {
   renderOverlay();
   const row = document.querySelector(`tr[data-key="${CSS.escape(key)}"]`);
   if (row) { row.classList.toggle("off", !pin.include); row.querySelector('input[type="checkbox"]').checked = pin.include; }
-  updateTitleBlock(); updateExport(); updateTableHead();
+  updateTitleBlock(); updateExport(); updateTableHead(); renderRuleKey();
 }
 
 // pointer: readout, crosshair, rulers, panning, and drawing the search area or a symbol box
@@ -1136,7 +1139,84 @@ function renderTable() {
   });
   if (state.pins.length > LIMIT) body.append(h("tr", {}, h("td", { colspan: 9, class: "empty", text: tr("Showing the first {limit} of {n} pins. All of them are still exported.", { limit: LIMIT, n: state.pins.length }) })));
   updateTableHead();
+  renderRuleKey();
 }
+
+/** The key above the pin list: one chip per rule (its pin colour, its name, how many pins). Click one to leave that rule's pins out, or put them back. */
+function renderRuleKey() {
+  const box = $("#rulekey");
+  if (!box) return;
+  const byRule = new Map();
+  for (const p of state.pins) {
+    const g = byRule.get(p.ruleIndex) || { name: p.ruleName, total: 0, on: 0 };
+    g.total++; if (p.include) g.on++;
+    byRule.set(p.ruleIndex, g);
+  }
+  box.hidden = !byRule.size;
+  box.replaceChildren(...[...byRule.entries()].sort((a, b) => a[0] - b[0]).map(([index, g]) => {
+    const off = g.on === 0;
+    const chip = h("button", { type: "button", class: `rulechip${off ? " off" : ""}`, "aria-pressed": String(!off), style: `--pin:${colorOf(index)}`, title: off ? tr("Click to include this rule's pins again") : tr("Click to leave out this rule's pins") },
+      h("span", { class: "dot", "aria-hidden": "true" }), h("span", { class: "rn", text: g.name }), h("i", { text: String(g.total) }));
+    chip.addEventListener("click", () => {
+      const to = off;
+      for (const p of state.pins) if (p.ruleIndex === index) { p.include = to; state.edits[p.key] = { ...(state.edits[p.key] || {}), include: to }; }
+      renderOverlay(); renderTable(); updateTitleBlock(); updateExport();
+    });
+    return chip;
+  }));
+}
+
+// ---------------------------------------------------------------- steps 1 and 2 shrink to a tick once they are done
+const ui = { drawingOpen: false, templateOpen: false, planEditing: false };
+function syncSteps() {
+  const t = state.tpl?.parsed;
+  const dDone = !!state.pdf?.tokens && $("#pdf-alert").hidden && !ui.drawingOpen;
+  const tDone = !!t && !t.missing.length && !t.guessed && hasText(state.settings.planName) && !ui.templateOpen && !ui.planEditing;
+  $("#step-drawing").classList.toggle("collapsed", dDone);
+  $("#step-template").classList.toggle("collapsed", tDone);
+  if (dDone) $("#sum-drawing-sub").textContent = file(state.pdf.name);
+  if (tDone) $("#sum-template-sub").textContent = `${state.settings.planName.trim()} · ${file(state.tpl.name)}`;
+}
+
+// ---------------------------------------------------------------- import bar (always in view)
+let barBatches = [];
+function updateImportBar(need, batches) {
+  $("#importslot").hidden = !state.pdf;
+  if (!state.pdf) { document.body.classList.remove("ib-floating"); return; }
+  measureImportBar();
+  const ready = need.length === 0;
+  barBatches = ready ? batches : [];
+  $("#ib-sum").textContent = ready ? $("#export-summary").textContent : tr("Still needed: {list}.", { list: need.join(", ") });
+  $("#ib-file").disabled = !ready;
+  $("#ib-pdf").disabled = $("#dl-pdf").disabled;
+  const copy = $("#ib-copy");
+  copy.disabled = !ready || !batches.length;
+  const next = batches.findIndex((_, i) => !copiedBatches.has(i));
+  copy.textContent = next === -1 ? tr("Copy again") : batches.length > 1 ? `${tr("Copy rows")} · ${tr("Batch {n}", { n: next + 1 })}` : tr("Copy rows");
+  copy.dataset.batch = String(Math.max(next, 0));
+}
+/** The bar sits under the drawing. When that spot is off screen it floats along the bottom of the window instead, so the last step is always in reach. */
+function measureImportBar() {
+  const slot = $("#importslot"), bar = $("#importbar");
+  if (!bar.classList.contains("floating")) slot.style.minHeight = `${bar.offsetHeight}px`;
+  $(".sheetpane").style.setProperty("--ib-h", `${slot.offsetHeight + 12}px`);
+}
+function watchImportBar() {
+  if (!("IntersectionObserver" in window)) return;
+  const slot = $("#importslot"), bar = $("#importbar");
+  new IntersectionObserver(([e]) => {
+    const float = !slot.hidden && !e.isIntersecting;
+    if (!float) measureImportBar();
+    bar.classList.toggle("floating", float);
+    document.body.classList.toggle("ib-floating", float);
+  }, { threshold: 0.99 }).observe(slot);
+  new ResizeObserver(() => measureImportBar()).observe(bar);
+}
+function copyFromBar() {
+  const i = Number($("#ib-copy").dataset.batch || 0), b = barBatches[i];
+  if (b) copyBatch(i, b[0], b[1]);
+}
+
 function updateTableHead() {
   $("#pinlist-title").textContent = tr("Pins · {a} of {b} included", { a: included().length, b: state.pins.length });
 }
@@ -1186,6 +1266,7 @@ function updateExport() {
   $("#dl-pdf").disabled = !(state.pdf && inc) || state.busy;
   $("#dl-png").disabled = !(state.pdf && inc) || state.busy;
   $("#dl-calibration").disabled = !(t && !t.missing.length && plan);
+  updateImportBar(need, batches);
 }
 
 /** What the import file will hold: a sentence, and a small table of the first few tasks. */
@@ -1325,6 +1406,7 @@ function startOver() {
   try { state.pdf?.doc?.destroy?.(); } catch { /* already gone */ }
   Object.assign(state, { pdf: null, tpl: null, rules: [newRule(1)], settings: { ...DEFAULT_SETTINGS }, edits: {}, pins: [], errors: {}, areaMode: false, areaStart: null, areaDraft: null, boxFor: null, boxDraft: null, animate: false, busy: false, zoom: 1 });
   kb.on = false;
+  Object.assign(ui, { drawingOpen: false, templateOpen: false, planEditing: false });
   resetHistory();
   try { localStorage.removeItem(STORE_KEY); } catch { /* storage blocked: nothing to clear */ }
 
@@ -1415,6 +1497,18 @@ function wire() {
   $("#all-on").addEventListener("click", () => { state.pins.forEach((p) => (state.edits[p.key] = { ...(state.edits[p.key] || {}), include: true })); runDetect(); });
   $("#all-off").addEventListener("click", () => { state.pins.forEach((p) => (state.edits[p.key] = { ...(state.edits[p.key] || {}), include: false })); runDetect(); });
   $("#dl-import").addEventListener("click", guarded(exportImport));
+  $("#ib-file").addEventListener("click", guarded(exportImport));
+  $("#ib-pdf").addEventListener("click", guarded(exportPdf));
+  $("#ib-copy").addEventListener("click", copyFromBar);
+  watchImportBar();
+  $("#change-drawing").addEventListener("click", () => { ui.drawingOpen = true; syncSteps(); $("#file-pdf").focus(); });
+  $("#change-template").addEventListener("click", () => { ui.templateOpen = true; syncSteps(); $("#file-xlsx").focus(); });
+  $("#plan-name").addEventListener("focus", () => { ui.planEditing = true; });
+  // The template card shrinks only once the click that left the plan name has finished (and after a pause for the keyboard), so nothing moves under the pointer mid-click.
+  let settle = 0;
+  const settleSteps = () => { clearTimeout(settle); if (document.activeElement === $("#plan-name")) return; ui.planEditing = false; ui.templateOpen = false; syncSteps(); };
+  $("#plan-name").addEventListener("blur", () => { clearTimeout(settle); settle = setTimeout(settleSteps, 1200); });
+  document.addEventListener("click", () => { if (ui.planEditing) setTimeout(settleSteps, 0); }, true);
   $("#batch-heads").addEventListener("change", () => copiedBatches.clear() || updateExport());
   $("#dl-pdf").addEventListener("click", guarded(exportPdf));
   $("#dl-png").addEventListener("click", guarded(exportPng));

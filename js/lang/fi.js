@@ -280,4 +280,9 @@ export default {
  "Back to the pins": "Takaisin nastoihin",
  "Gridlines": "Ruudukkoviivat",
  "Back to top": "Takaisin ylös",
+ "Change": "Vaihda",
+ "Drop a file or click to choose": "Pudota tiedosto tai valitse se napsauttamalla",
+ "Click to leave out this rule's pins": "Napsauta jättääksesi tämän säännön nastat pois",
+ "Click to include this rule's pins again": "Napsauta ottaaksesi tämän säännön nastat takaisin mukaan",
+ "Pin colours by rule": "Nastojen värit säännön mukaan",
 };

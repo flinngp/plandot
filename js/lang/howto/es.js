@@ -80,5 +80,8 @@ export default [
 `Los botones bajo las reglas.`,
 `Clip corto sin sonido: se pulsa Guardar configuración, luego Abrir configuración y las reglas vuelven.`,
 `Mira: guarda la configuración y vuelve a abrirla.`,
+`En cuanto se carga un archivo, su paso se reduce a una sola línea con una marca verde. Pulse <strong>Cambiar</strong> para abrirlo de nuevo.`,
+`Los botones de colores sobre la lista muestran cada regla con su número de chinchetas. Haga clic en uno para excluir todas las chinchetas de esa regla y vuelva a hacer clic para recuperarlas.`,
+`La barra oscura bajo el plano mantiene el resumen y los botones <strong>Copiar filas</strong>, <strong>Descargar archivo de importación</strong> y <strong>Descargar PDF marcado</strong> siempre a mano. Si se aleja del plano, flota en la parte inferior de la ventana.`,
 `Las capturas de pantalla muestran la aplicación en inglés.`,
 ];

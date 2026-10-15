@@ -44,10 +44,11 @@
   <aside class="controls" aria-label="Setup">
 
     <section class="step" id="step-drawing">
+      <div class="step-sum" id="sum-drawing"><span class="tick" aria-hidden="true">✓</span><div class="t"><b data-i18n>Drawing</b><span id="sum-drawing-sub"></span></div><button type="button" class="btn link" id="change-drawing" data-i18n>Change</button></div>
       <h2><span class="num">1</span> <span data-i18n>Drawing</span></h2>
       <div class="field">
         <div class="lab"><label for="file-pdf" data-i18n>Drawing PDF</label><span class="info-slot" data-info="Your drawing, saved as a PDF from your design software. It opens only on this computer and is never uploaded."></span></div>
-        <input id="file-pdf" type="file" accept=".pdf,application/pdf">
+        <div class="filetile"><input id="file-pdf" type="file" accept=".pdf,application/pdf" aria-label="Drawing PDF" data-i18n-aria><span data-i18n>Drop a file or click to choose</span></div>
         <p class="hint" id="pdf-info">Callouts must be real text in the PDF, not part of a scanned image.</p>
         <div class="alert" id="pdf-alert" role="alert" hidden>
           <strong data-i18n>This page has no selectable text.</strong>
@@ -62,10 +63,11 @@
     </section>
 
     <section class="step" id="step-template">
+      <div class="step-sum" id="sum-template"><span class="tick" aria-hidden="true">✓</span><div class="t"><b data-i18n>Import template</b><span id="sum-template-sub"></span></div><button type="button" class="btn link" id="change-template" data-i18n>Change</button></div>
       <h2><span class="num">2</span> <span data-i18n>Import template</span></h2>
       <div class="field">
         <div class="lab"><label for="file-xlsx" data-i18n>Import template file (.xlsx)</label><span class="info-slot" data-info="The blank import spreadsheet from your Fieldwire project. Plandot fills it in, so your own columns carry across."></span></div>
-        <input id="file-xlsx" type="file" accept=".xlsx">
+        <div class="filetile"><input id="file-xlsx" type="file" accept=".xlsx" aria-label="Import template file (.xlsx)" data-i18n-aria><span data-i18n>Drop a file or click to choose</span></div>
         <p class="hint" id="tpl-info">Download it from your project's import screen in Fieldwire. Load a fresh copy whenever custom attributes change.</p>
       </div>
       <div class="chips" id="tpl-chips" aria-label="Template columns"></div>
@@ -168,10 +170,16 @@
       <button type="button" id="zoom-in" aria-label="Zoom in" data-i18n-aria>+</button>
       <button type="button" id="zoom-fit" class="fit" data-i18n>Fit</button>
     </div>
+    <div class="importslot" id="importslot" hidden><div class="importbar" id="importbar" role="group" aria-label="Download" data-i18n-aria>
+      <p class="ib-sum" id="ib-sum" role="status"></p>
+      <button type="button" class="btn ghost" id="ib-pdf" data-i18n>Download marked-up PDF</button>
+      <button type="button" class="btn ghost" id="ib-file" data-i18n>Download import file</button>
+      <button type="button" class="btn primary" id="ib-copy">Copy rows</button>
+    </div></div>
     <div class="dropzone" id="dropzone">
       <p class="dz-title" data-i18n>Drop the drawing PDF here</p>
       <p data-i18n>You can drop the import template too. Nothing leaves your computer.</p>
-      <button type="button" class="btn quiet" id="try-sample" data-i18n>Try with a sample drawing</button>
+      <button type="button" class="btn primary" id="try-sample" data-i18n>Try with a sample drawing</button>
       <p class="dz-help"><a href="howto.html" data-i18n>New here? See how it works</a></p>
     </div>
   </section>
@@ -179,6 +187,7 @@
   <div class="pinlist" id="pinlist" hidden>
       <div class="pinlist-head">
         <h2 id="pinlist-title">Pins</h2>
+        <div class="rulekey" id="rulekey" role="group" aria-label="Pin colours by rule" data-i18n-aria></div>
         <div class="row">
           <button type="button" class="btn quiet" id="all-on" data-i18n>Include all</button>
           <button type="button" class="btn quiet" id="all-off" data-i18n>Exclude all</button>

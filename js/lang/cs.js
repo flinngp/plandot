@@ -280,4 +280,9 @@ export default {
  "Back to the pins": "Zpět na špendlíky",
  "Gridlines": "Mřížka",
  "Back to top": "Zpět nahoru",
+ "Change": "Změnit",
+ "Drop a file or click to choose": "Pusťte soubor nebo na něj klikněte",
+ "Click to leave out this rule's pins": "Kliknutím vyloučíte špendlíky tohoto pravidla",
+ "Click to include this rule's pins again": "Kliknutím špendlíky tohoto pravidla znovu zahrnete",
+ "Pin colours by rule": "Barvy špendlíků podle pravidla",
 };

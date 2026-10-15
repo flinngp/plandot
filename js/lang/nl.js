@@ -280,4 +280,9 @@ export default {
  "Back to the pins": "Terug naar de spelden",
  "Gridlines": "Rasterlijnen",
  "Back to top": "Terug naar boven",
+ "Change": "Wijzigen",
+ "Drop a file or click to choose": "Zet een bestand neer of klik om het te kiezen",
+ "Click to leave out this rule's pins": "Klik om de spelden van deze regel weg te laten",
+ "Click to include this rule's pins again": "Klik om de spelden van deze regel weer op te nemen",
+ "Pin colours by rule": "Kleuren van de spelden per regel",
 };

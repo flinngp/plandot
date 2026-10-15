@@ -280,4 +280,9 @@ export default {
  "Back to the pins": "Volver a las chinchetas",
  "Gridlines": "Cuadrícula",
  "Back to top": "Volver arriba",
+ "Change": "Cambiar",
+ "Drop a file or click to choose": "Suelte un archivo o haga clic para elegirlo",
+ "Click to leave out this rule's pins": "Haga clic para excluir las chinchetas de esta regla",
+ "Click to include this rule's pins again": "Haga clic para volver a incluir las chinchetas de esta regla",
+ "Pin colours by rule": "Colores de las chinchetas por regla",
 };

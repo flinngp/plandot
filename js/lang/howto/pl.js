@@ -80,5 +80,8 @@ export default [
 `Przyciski pod regułami.`,
 `Krótki film bez dźwięku: kliknięcie Zapisz konfigurację, potem Otwórz konfigurację i reguły wracają.`,
 `Zobacz: zapisz konfigurację i otwórz ją ponownie.`,
+`Gdy plik zostanie wczytany, jego krok zmniejsza się do jednego wiersza z zieloną ikoną potwierdzenia. Kliknij <strong>Zmień</strong>, aby otworzyć go ponownie.`,
+`Kolorowe przyciski nad listą pokazują każdą regułę z liczbą pinezek. Kliknij przycisk, aby wykluczyć wszystkie pinezki tej reguły, i kliknij ponownie, aby je przywrócić.`,
+`Ciemny pasek pod rysunkiem trzyma podsumowanie oraz przyciski <strong>Kopiuj wiersze</strong>, <strong>Pobierz plik importu</strong> i <strong>Pobierz oznaczony PDF</strong> zawsze pod ręką. Gdy odsuniesz się od rysunku, pasek unosi się u dołu okna.`,
 `Zrzuty ekranu pokazują aplikację po angielsku.`,
 ];

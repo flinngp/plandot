@@ -566,3 +566,109 @@ test("the header: language sits in the top bar and the drawing details sit above
   await page.waitForFunction(() => document.querySelector("#topnav .feedback-link").textContent === "Envoyer un avis");
   await page.close();
 });
+
+// ------------------------------------------------------------------ steps, key and import bar
+
+test("finished steps shrink to one line with a tick, and Change opens them again", async () => {
+  const page = await withSample();
+  assert.equal(await page.$eval("#step-drawing", (e) => e.classList.contains("collapsed")), true, "the drawing step is a one-line summary");
+  await page.click("body", { position: { x: 5, y: 5 } }); // leave the plan name box
+  await page.waitForFunction(() => document.querySelector("#step-template").classList.contains("collapsed"));
+  assert.match(await page.textContent("#sum-drawing-sub"), /sample-drawing\.pdf/);
+  assert.match(await page.textContent("#sum-template-sub"), /Ground floor plan/);
+  assert.ok(await page.isVisible("#sum-drawing .tick") && await page.isVisible("#sum-template .tick"));
+  assert.equal(await page.isVisible("#file-xlsx"), false);
+  // the rules (the main step) are now in view without scrolling inside the left column
+  const rules = await box(page, "#step-rules"), panel = await box(page, ".controls");
+  assert.ok(rules.y + 200 < panel.y + panel.h, "the rules start well inside the panel");
+  await page.click("#change-template");
+  assert.equal(await page.$eval("#step-template", (e) => e.classList.contains("collapsed")), false);
+  await page.click("#change-drawing");
+  assert.equal(await page.$eval("#step-drawing", (e) => e.classList.contains("collapsed")), false);
+  await page.ctx?.close?.();
+});
+
+test("the template step does not shrink under the pointer while you are typing in the plan name", async () => {
+  const page = await fresh();
+  await page.setInputFiles("#file-xlsx", SAMPLE.xlsx);
+  await page.focus("#plan-name");
+  await page.keyboard.type("Ground");
+  assert.equal(await page.$eval("#step-template", (e) => e.classList.contains("collapsed")), false, "still open while typing");
+  await page.click("#show-grid"); // a click elsewhere: the card shrinks after that click, so it still lands
+  assert.equal(await page.isChecked("#show-grid"), true);
+  await page.waitForFunction(() => document.querySelector("#step-template").classList.contains("collapsed"));
+});
+
+test("the pin key lists each rule with its colour and count, and a click leaves that rule's pins out", async () => {
+  const page = await withSample();
+  const chips = await page.$$eval("#rulekey .rulechip", (c) => c.map((x) => ({ name: x.querySelector(".rn").textContent, n: x.querySelector("i").textContent, pressed: x.getAttribute("aria-pressed") })));
+  assert.equal(chips.length, 3);
+  assert.deepEqual(chips.map((c) => c.n).sort(), ["3", "4", "6"]);
+  assert.ok(chips.every((c) => c.pressed === "true" && c.name));
+  // each chip's colour is the colour of its pins on the drawing
+  const keyColours = await page.$$eval("#rulekey .rulechip", (c) => c.map((x) => getComputedStyle(x.querySelector(".dot")).backgroundColor));
+  const pinColours = await page.$$eval("#overlay .pin .dot", (d) => [...new Set(d.map((x) => x.getAttribute("fill")))]);
+  assert.equal(new Set(keyColours).size, 3);
+  assert.equal(pinColours.length, 3);
+  await page.click("#rulekey .rulechip:first-child");
+  const first = chips[0];
+  assert.equal(await page.getAttribute("#rulekey .rulechip:first-child", "aria-pressed"), "false");
+  assert.equal(await page.textContent("#pinlist-title"), `Pins · ${13 - Number(first.n)} of 13 included`);
+  assert.equal(await page.textContent("#tb-pins"), `${13 - Number(first.n)} / 13`);
+  await page.click("#rulekey .rulechip:first-child");
+  assert.equal(await page.textContent("#pinlist-title"), "Pins · 13 of 13 included");
+  await page.ctx?.close?.();
+});
+
+test("the import bar sits under the drawing, copies the rows, and floats when it would be out of sight", async () => {
+  const page = await withSample({ width: 1440, height: 700 });
+  assert.equal(await page.isVisible("#importbar"), true);
+  assert.equal(await page.isVisible("#importslot"), true);
+  assert.match(await page.textContent("#ib-sum"), /13 pins will go onto plan "Ground floor plan"/);
+  assert.equal(await page.textContent("#ib-copy"), "Copy rows");
+  assert.equal(await page.$eval("#importbar", (e) => e.classList.contains("floating")), false, "in place while the drawing is on screen");
+  const bar = await box(page, "#importbar"), sheet = await box(page, ".sheetpane");
+  assert.ok(bar.y + bar.h <= sheet.y + sheet.h + 1, "inside the drawing panel");
+  const zoom = await box(page, "#zoombar");
+  assert.ok(zoom.y + zoom.h <= bar.y, "the zoom buttons do not sit on top of the bar");
+  await page.context().grantPermissions(["clipboard-read", "clipboard-write"]).catch(() => {});
+  await page.click("#ib-copy");
+  await page.waitForFunction(() => document.querySelector("#ib-copy").textContent === "Copy again");
+  assert.match(await page.textContent("#status"), /Copied 13 rows/);
+  // scroll to the pin list: the bar floats along the bottom of the window
+  await page.evaluate(() => window.scrollTo(0, 1e6));
+  await page.waitForFunction(() => document.querySelector("#importbar").classList.contains("floating"));
+  const fl = await box(page, "#importbar");
+  assert.ok(Math.abs(fl.y + fl.h - 700) < 20, "stuck to the bottom edge");
+  assert.equal(await page.isVisible("#ib-copy"), true);
+  // and goes back when the drawing is in view again
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForFunction(() => !document.querySelector("#importbar").classList.contains("floating"));
+  await page.ctx?.close?.();
+});
+
+test("the import bar waits until the plan name is in, and the buttons are off meanwhile", async () => {
+  const page = await fresh();
+  await page.setInputFiles("#file-pdf", SAMPLE.pdf);
+  await page.setInputFiles("#file-xlsx", SAMPLE.xlsx);
+  await page.setInputFiles("#load-rules", SAMPLE.rules);
+  await page.waitForFunction(() => window.planTasks.state.pins.length === 13 && !window.planTasks.state.busy);
+  assert.match(await page.textContent("#ib-sum"), /Still needed: enter the plan name/);
+  assert.equal(await page.isDisabled("#ib-copy"), true);
+  assert.equal(await page.isDisabled("#ib-file"), true);
+  await page.fill("#plan-name", "Ground floor plan");
+  assert.equal(await page.isDisabled("#ib-copy"), false);
+});
+
+test("on a phone the bar floats at the bottom, the page still fits, and the key wraps", async () => {
+  const page = await withSample({ width: 390, height: 844 });
+  assert.equal(await page.$eval("#importbar", (e) => e.classList.contains("floating")), false, "in place while the drawing is on screen");
+  await page.evaluate(() => window.scrollTo(0, 1200)); // down among the rules: the bar's own spot is out of sight, so it floats
+  await page.waitForFunction(() => document.querySelector("#importbar").classList.contains("floating"));
+  const fl = await box(page, "#importbar");
+  assert.ok(fl.x >= 0 && fl.x + fl.w <= 390 && Math.abs(fl.y + fl.h - 844) < 20);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, "nothing sideways");
+  const key = await box(page, "#rulekey");
+  assert.ok(key.x >= 0 && key.x + key.w <= 391);
+  await page.ctx?.close?.();
+});

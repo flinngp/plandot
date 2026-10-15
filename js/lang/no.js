@@ -280,4 +280,9 @@ export default {
  "Back to the pins": "Tilbake til nålene",
  "Gridlines": "Rutenett",
  "Back to top": "Til toppen",
+ "Change": "Endre",
+ "Drop a file or click to choose": "Slipp en fil, eller klikk for å velge den",
+ "Click to leave out this rule's pins": "Klikk for å utelate nålene fra denne regelen",
+ "Click to include this rule's pins again": "Klikk for å ta med nålene fra denne regelen igjen",
+ "Pin colours by rule": "Nålenes farger etter regel",
 };

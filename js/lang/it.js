@@ -280,4 +280,9 @@ export default {
  "Back to the pins": "Torna ai segnaposto",
  "Gridlines": "Griglia",
  "Back to top": "Torna su",
+ "Change": "Cambia",
+ "Drop a file or click to choose": "Trascina un file o clicca per sceglierlo",
+ "Click to leave out this rule's pins": "Clicca per escludere i segnaposto di questa regola",
+ "Click to include this rule's pins again": "Clicca per includere di nuovo i segnaposto di questa regola",
+ "Pin colours by rule": "Colori dei segnaposto per regola",
 };

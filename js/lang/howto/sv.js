@@ -80,5 +80,8 @@ export default [
 `Knapparna under reglerna.`,
 `Kort klipp utan ljud: Spara inställningar trycks, sedan Öppna inställningar, och reglerna kommer tillbaka.`,
 `Titta: spara inställningarna och öppna dem igen.`,
+`När en fil är inläst krymper dess steg till en enda rad med en grön bock. Klicka på <strong>Ändra</strong> för att öppna det igen.`,
+`De färgade knapparna ovanför listan visar varje regel med antalet nålar. Klicka på en knapp för att utesluta alla nålar från den regeln, och klicka igen för att ta med dem igen.`,
+`Det mörka fältet under ritningen håller sammanfattningen och knapparna <strong>Kopiera rader</strong>, <strong>Hämta importfil</strong> och <strong>Hämta markerad PDF</strong> alltid inom räckhåll. Om du rullar bort från ritningen svävar det längst ned i fönstret.`,
 `Skärmbilderna visar appen på engelska.`,
 ];

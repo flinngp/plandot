@@ -80,5 +80,8 @@ export default [
 `Knappene under reglene.`,
 `Kort klipp uten lyd: det trykkes på Lagre oppsett, deretter Åpne oppsett, og reglene kommer tilbake.`,
 `Se: lagre oppsettet og åpne det igjen.`,
+`Når en fil er lastet inn, krymper trinnet til én enkelt linje med et grønt hakemerke. Klikk på <strong>Endre</strong> for å åpne det igjen.`,
+`De fargede knappene over listen viser hver regel med antall nåler. Klikk på en knapp for å utelate alle nålene fra den regelen, og klikk igjen for å ta dem med igjen.`,
+`Den mørke linjen under tegningen holder oppsummeringen og knappene <strong>Kopier rader</strong>, <strong>Last ned importfil</strong> og <strong>Last ned markert PDF</strong> alltid innen rekkevidde. Hvis du ruller bort fra tegningen, svever den nederst i vinduet.`,
 `Skjermbildene viser appen på engelsk.`,
 ];

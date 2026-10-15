@@ -180,6 +180,9 @@ The guide's screenshots have orange outlines but no number badges (the picture d
 
 - The top bar holds the page links and the language menu. The drawing name, sheet size, pin count, Gridlines tick box and the X/Y readout share one row above the drawing (`.toolbar`, with `.titleblock` inside it), and Start over sits at the right end of that row, after the X/Y readout.
 - Clicking a pin row jumps up to the drawing when it is off screen, and a floating "Back to the pins" button returns to the list.
+- Steps 1 and 2 are drop tiles (the real `<input type=file>` sits invisibly over each tile). Once a drawing is loaded, and once a template is loaded with a plan name, each step shrinks to a one-line summary with a green tick and a **Change** link (`syncSteps()` in `js/app.js`). The template step waits until the click that left the plan name has finished before it shrinks, so nothing moves under the pointer.
+- The key above the pin list (`#rulekey`) has one chip per rule with its pin colour, name and count. Clicking a chip leaves that rule's pins out, or puts them back. There are 8 pin colours, used in rule order; from the ninth rule on they repeat, which is why the chip also shows the rule name. There is no limit on the number of rules.
+- The dark import bar under the drawing (`#importbar`) shows the summary and holds Copy rows, Download import file and Download marked-up PDF. It floats along the bottom of the window whenever its own spot is out of sight (`watchImportBar()`), so the last step is always in reach. The zoom buttons move up to clear it.
 - Link previews (WhatsApp, Slack, iMessage and so on) come from the Open Graph tags on all three pages and `docs/preview.png` (1200 x 630, 25 KB). The image address must stay absolute (`https://plandot.uk/...`). These apps cache previews, so a changed image can take a while to appear; a new address (for example `preview.png?v=2`) forces a refresh.
 
 

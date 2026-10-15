@@ -37,9 +37,11 @@ await page.waitForTimeout(1200);
 // 1 files
 await page.evaluate(() => document.querySelector(".controls").scrollTop = 0);
 await page.waitForTimeout(200);
-await mark("#file-pdf", 1, { dx: -14, dy: -16 });
-await mark("#file-xlsx", 2, { dx: -14, dy: -16 });
-await mark("#plan-name", 3, { dx: -14, dy: -16 });
+await page.mouse.click(700, 60); // leave the plan name box: finished steps shrink to a line with a tick
+await page.waitForFunction(() => document.querySelector("#step-template").classList.contains("collapsed"));
+await page.waitForTimeout(300);
+await mark("#sum-drawing", 1, { dx: -14, dy: -16 });
+await mark("#sum-template", 2, { dx: -14, dy: -16 });
 let a = await rectOf("#step-drawing"), b = await rectOf("#step-template");
 await shot("howto-1-files.png", { x: a.x - 6, y: a.y - 6, width: a.width + 12, height: b.y + b.height - a.y + 12 });
 
@@ -63,6 +65,7 @@ const pin = await page.$eval("#overlay .pin", (e) => { const r = e.getBoundingCl
 await page.evaluate(([x, y]) => { const o = document.createElement("div"); o.className = "ann"; o.style.cssText = `position:fixed;z-index:99998;pointer-events:none;left:${x - 22}px;top:${y - 22}px;width:44px;height:44px;border:2.5px solid #ff7a1a;border-radius:50%;`; document.body.append(o); const b = document.createElement("div"); b.className = "ann"; b.textContent = "1"; b.style.cssText = `position:fixed;z-index:99999;left:${x - 46}px;top:${y - 34}px;width:26px;height:26px;border-radius:50%;background:#ff7a1a;color:#fff;font:800 14px/26px Inter,sans-serif;text-align:center;`; /* outlines only, no number badges */ }, pin);
 await mark("#zoombar", 2, { dx: -16, dy: -16 });
 await mark("#show-grid", 3, { dx: -4, dy: -4 });
+await mark("#importbar", 4, { dx: -4, dy: -4 });
 await shot("howto-3-sheet.png", sp);
 
 // 4 pin table with one pin switched off
@@ -74,6 +77,7 @@ await page.waitForTimeout(300);
 await page.waitForTimeout(1500);
 await mark("#pin-rows tr:nth-child(3) td:nth-child(1)", 1, { dx: -4, dy: -14, outline: true });
 await mark("#pin-rows tr:nth-child(2) td:nth-child(7)", 2, { dx: -16, dy: -10, outline: true });
+await mark("#rulekey", 3, { dx: -16, dy: -10, outline: true });
 const pl = await rectOf("#pinlist");
 await shot("howto-4-pins.png", { x: pl.x - 8, y: pl.y - 8, width: pl.width + 16, height: Math.min(pl.height, 300) + 16 });
 await page.click("#pin-rows tr:nth-child(3) input[type=checkbox]");

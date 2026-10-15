@@ -80,5 +80,8 @@ export default [
 `Knapperne under reglerne.`,
 `Kort klip uden lyd: der trykkes på Gem opsætning, derefter på Åbn opsætning, og reglerne kommer tilbage.`,
 `Se: gem opsætningen og åbn den igen.`,
+`Når en fil er indlæst, skrumper dens trin til én enkelt linje med et grønt flueben. Klik på <strong>Skift</strong> for at åbne det igen.`,
+`De farvede knapper over listen viser hver regel med antallet af nåle. Klik på en knap for at fravælge alle nåle fra den regel, og klik igen for at tage dem med igen.`,
+`Den mørke bjælke under tegningen holder oversigten og knapperne <strong>Kopiér rækker</strong>, <strong>Hent importfil</strong> og <strong>Hent markeret PDF</strong> altid inden for rækkevidde. Hvis du ruller væk fra tegningen, svæver den nederst i vinduet.`,
 `Skærmbillederne viser appen på engelsk.`,
 ];

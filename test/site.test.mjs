@@ -68,6 +68,7 @@ test("exported file names say pin", async () => {
 // ---------------------------------------------------------------- info pop-ups
 test("a dozen (i) buttons explain the main fields, and open and close with the mouse and the keyboard", async () => {
   const page = await loaded();
+  if (await page.isVisible("#change-template")) await page.click("#change-template"); // a finished step shrinks to one line; Change opens it again
   await page.evaluate(() => document.querySelectorAll("details.settings").forEach((d) => (d.open = true)));
   const count = await page.$$eval(".info-btn", (b) => b.length);
   assert.ok(count >= 12, `only ${count}`);
@@ -88,9 +89,12 @@ test("a dozen (i) buttons explain the main fields, and open and close with the m
   // keyboard: Enter opens, clicking elsewhere closes, only one is open at a time
   await page.keyboard.press("Enter");
   assert.equal(await btn.getAttribute("aria-expanded"), "true");
+  if (await page.isVisible("#change-template")) await page.click("#change-template"); // the finished template step may have shrunk by now
   await page.click("#plan-name");
   assert.equal(await btn.getAttribute("aria-expanded"), "false");
   await btn.click();
+  await page.waitForFunction(() => document.querySelector("#step-template").classList.contains("collapsed")); // leaving the plan name box lets the step shrink
+  await page.click("#change-template");
   await page.locator("#step-template .info-btn").first().click();
   assert.equal(await page.$$eval(".info-btn[aria-expanded=true]", (b) => b.length), 1);
   await page.ctx.close();
@@ -101,6 +105,7 @@ test("the (i) text is translated and stays on screen on a phone", async () => {
   await page.click("#lang-btn");
   await page.click("#lang-list [data-lang=de]");
   await page.waitForFunction(() => document.documentElement.lang === "de");
+  await page.click("#change-template");
   const btn = page.locator("#step-template .info-btn").first();
   await btn.scrollIntoViewIfNeeded();
   await btn.click();

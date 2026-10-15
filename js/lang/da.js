@@ -280,4 +280,9 @@ export default {
  "Back to the pins": "Tilbage til nålene",
  "Gridlines": "Gitterlinjer",
  "Back to top": "Tilbage til toppen",
+ "Change": "Skift",
+ "Drop a file or click to choose": "Slip en fil, eller klik for at vælge den",
+ "Click to leave out this rule's pins": "Klik for at fravælge nålene fra denne regel",
+ "Click to include this rule's pins again": "Klik for at medtage nålene fra denne regel igen",
+ "Pin colours by rule": "Nålenes farver efter regel",
 };

@@ -80,5 +80,8 @@ export default [
 `De knoppen onder de regels.`,
 `Korte clip zonder geluid: klikken op Setup opslaan, dan op Setup openen, en de regels komen terug.`,
 `Kijk: sla de setup op en open hem daarna weer.`,
+`Zodra een bestand is geladen, krimpt de stap tot één regel met een groen vinkje. Klik op <strong>Wijzigen</strong> om hem weer te openen.`,
+`De gekleurde knoppen boven de lijst tonen elke regel met het aantal spelden. Klik op een knop om alle spelden van die regel weg te laten, en klik opnieuw om ze terug te zetten.`,
+`De donkere balk onder de tekening houdt de samenvatting en de knoppen <strong>Rijen kopiëren</strong>, <strong>Importbestand downloaden</strong> en <strong>Gemarkeerde pdf downloaden</strong> altijd binnen bereik. Scrolt u weg van de tekening, dan blijft de balk onderaan het venster hangen.`,
 `De schermafbeeldingen tonen de app in het Engels.`,
 ];

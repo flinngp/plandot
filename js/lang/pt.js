@@ -280,4 +280,9 @@ export default {
  "Back to the pins": "Voltar aos alfinetes",
  "Gridlines": "Linhas de grelha",
  "Back to top": "Voltar ao topo",
+ "Change": "Alterar",
+ "Drop a file or click to choose": "Largue um ficheiro ou clique para o escolher",
+ "Click to leave out this rule's pins": "Clique para excluir os alfinetes desta regra",
+ "Click to include this rule's pins again": "Clique para voltar a incluir os alfinetes desta regra",
+ "Pin colours by rule": "Cores dos alfinetes por regra",
 };

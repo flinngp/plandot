@@ -280,4 +280,9 @@ export default {
  "Back to the pins": "Retour aux épingles",
  "Gridlines": "Quadrillage",
  "Back to top": "Retour en haut",
+ "Change": "Modifier",
+ "Drop a file or click to choose": "Déposez un fichier ou cliquez pour le choisir",
+ "Click to leave out this rule's pins": "Cliquez pour exclure les épingles de cette règle",
+ "Click to include this rule's pins again": "Cliquez pour réinclure les épingles de cette règle",
+ "Pin colours by rule": "Couleurs des épingles par règle",
 };
