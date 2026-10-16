@@ -16,7 +16,7 @@ export const ACCOUNTS = { url: "https://bugqhjkkjybcbnfjpeke.supabase.co", key: 
 // Bot check on the sign-in box (Cloudflare Turnstile). Paste the PUBLIC "site key" here after you create the widget at
 // dash.cloudflare.com (Turnstile) and enable it in Supabase (Authentication, Attack Protection). Leave empty to switch off.
 // The SECRET key goes only into Supabase, never into this file.
-export const CAPTCHA = { siteKey: "" };
+export const CAPTCHA = { siteKey: "0x4AAAAAAFY1WB5q6bq90L4W" };
 
 /** The address behind "Send feedback", or "" when none is set. */
 export function feedbackHref(cfg = FEEDBACK, version = VERSION, env = (typeof navigator !== "undefined" ? navigator.userAgent : "")) {
