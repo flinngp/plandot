@@ -104,9 +104,8 @@ await page.waitForTimeout(300);
 await mark("#save-rules", 1, { dx: -14, dy: -16 });
 await mark("#load-rules-btn", 2, { dx: -14, dy: -16 });
 {
-  const row = await rectOf("#save-rules"), step = await rectOf("#step-rules");
-  const hint = await page.$eval("#step-rules > .hint:last-of-type", (e) => { const r = e.getBoundingClientRect(); return r.bottom; }).catch(() => row.y + row.height + 60);
-  await shot("howto-6-reuse.png", { x: step.x - 6, y: row.y - 60, width: step.width + 12, height: hint - row.y + 76 });
+  const box = await page.$eval("#save-rules", (e) => { const r = e.closest("details").getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; });
+  await shot("howto-6-reuse.png", { x: box.x - 6, y: box.y - 6, width: box.width + 12, height: box.height + 12 });
 }
 
 // symbols
