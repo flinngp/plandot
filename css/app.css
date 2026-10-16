@@ -493,3 +493,10 @@ body.modal-open { overflow: hidden; }
 .sr-sub { font-size: 13.5px; }
 .sr-actions .btn:first-child { background: var(--accent); border-color: var(--accent); color: #fff; }
 .sr-actions .btn:first-child:hover:not(:disabled) { background: var(--accent-dark); }
+
+/* Touch targets: keep the small look, enlarge the area that reacts to a finger or click (WCAG 2.5.8). */
+.info-btn { position: relative; }
+.info-btn::after { content: ""; position: absolute; inset: -13px; }
+.foot-links a, .masthead nav a, .site-links a { display: inline-block; padding: 9px 2px; }
+.check input[type="checkbox"], .toolbar input[type="checkbox"] { width: 18px; height: 18px; }
+.card-top a { display: inline-block; padding: 9px 4px; }

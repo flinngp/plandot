@@ -357,4 +357,7 @@ export default {
  "Changes here only update the saved copy, not the rule on your plan.": "Wijzigingen hier passen alleen de opgeslagen kopie aan, niet de regel op uw tekening.",
  "Name this rule": "Geef deze regel een naam",
  "Click to rename this rule": "Klik om deze regel te hernoemen",
+ "That drawing is over 250 MB, which is too big to open here.": "Deze tekening is groter dan 250 MB en te groot om hier te openen.",
+ "That template is over 20 MB. A Fieldwire import template is much smaller.": "Dit sjabloon is groter dan 20 MB. Een Fieldwire-importsjabloon is veel kleiner.",
+ "That pattern is too long or too complicated and could freeze the page. Simplify it.": "Dit patroon is te lang of te ingewikkeld en kan de pagina laten vastlopen. Vereenvoudig het.",
 };

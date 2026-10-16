@@ -46,6 +46,14 @@ export function dedupeTokens(tokens) {
   return kept;
 }
 
+export const MAX_PATTERN = 300;
+/** Patterns that can make the browser hang on certain text: a repeat inside a repeat, such as (a+)+ . */
+export function riskyPattern(raw) {
+  if (raw.length > MAX_PATTERN) return true;
+  if (/\([^()]*[+*][^()]*\)\s*[+*{]/.test(raw)) return true;
+  if (/\([^()]*\|[^()]*\)\s*[+*{]\s*[^)]*$/.test(raw) && /\(\?:?[^()]*\|/.test(raw) && /(\.\*|\.\+)[^()]*(\.\*|\.\+)[^()]*(\.\*|\.\+)/.test(raw)) return true;
+  return false;
+}
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /** Turn a rule's tag field into a whole-word tester. Returns {test} or {error}. */
@@ -54,6 +62,7 @@ export function compileMatcher(rule) {
   if (!raw) return { empty: true, test: () => false };
   try {
     if (rule.usePattern) {
+      if (riskyPattern(raw)) return { error: "That pattern is too long or too complicated and could freeze the page. Simplify it.", test: () => false };
       const re = new RegExp(`^(?:${raw})$`);
       return { test: (t) => re.test(t) };
     }
@@ -74,7 +83,7 @@ export function renderTemplate(template, vars) {
 
 function compileRoom(settings) {
   const raw = (settings.roomPattern || "").trim();
-  if (!raw) return null;
+  if (!raw || riskyPattern(raw)) return null;
   try {
     return new RegExp(`^(?:${raw})$`);
   } catch {

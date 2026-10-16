@@ -18,3 +18,6 @@ possible, and we will tell you when it is fixed.
 The project address and the public ("publishable" or "anon") key in `js/config.js` are meant to be seen by every
 visitor. Access is controlled by the database rules in `supabase/schema.sql`, not by hiding those values.
 A secret or `service_role` key must never be committed. The page refuses to start sign-in if it finds one.
+
+## Review of 16 Oct 2026
+Added: file size limits (PDF 250 MB, template 20 MB, setup file 2 MB, 100 rules), a zip-bomb check on templates, refusal of regular expressions that can hang the page, cleaning of rules loaded from files, accounts and browser storage, a no-referrer rule and a frame guard (js/guard.js) on every page. Known limit: GitHub Pages cannot send HTTP security headers (X-Frame-Options, HSTS config), so the meta CSP and frame guard stand in; moving behind Cloudflare would allow real headers.

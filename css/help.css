@@ -58,3 +58,4 @@
 .card-top { display: block; text-align: right; margin: 10px 0 0; font-size: 13px; }
 .doc .card-top a { color: var(--ink-2); font-weight: 600; text-decoration: none; }
 .doc .card-top a:hover { color: var(--accent-dark); }
+.card-top a { display: inline-block; padding: 9px 4px; }

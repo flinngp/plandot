@@ -357,4 +357,7 @@ export default {
  "Changes here only update the saved copy, not the rule on your plan.": "Endringer her oppdaterer bare den lagrede kopien, ikke regelen i tegningen din.",
  "Name this rule": "Gi denne regelen et navn",
  "Click to rename this rule": "Klikk for å gi regelen nytt navn",
+ "That drawing is over 250 MB, which is too big to open here.": "Tegningen er over 250 MB og for stor til å åpnes her.",
+ "That template is over 20 MB. A Fieldwire import template is much smaller.": "Malen er over 20 MB. En Fieldwire-importmal er mye mindre.",
+ "That pattern is too long or too complicated and could freeze the page. Simplify it.": "Mønsteret er for langt eller for komplisert og kan fryse siden. Forenkle det.",
 };

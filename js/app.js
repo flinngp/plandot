@@ -88,8 +88,14 @@ function save() {
 function restore() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
-    if (saved?.rules?.length) state.rules = saved.rules.map((r) => (r.kind === "symbol" ? { ...r, symbol: sanitizeTemplate(r.symbol) } : r));
-    if (saved?.settings) Object.assign(state.settings, saved.settings);
+    if (saved?.rules?.length) state.rules = saved.rules.slice(0, MAX_RULES).map(ruleFromData);
+    if (saved?.settings) {
+      const s = saved.settings;
+      if (typeof s.planName === "string") state.settings.planName = s.planName.slice(0, 200);
+      if (typeof s.roomPattern === "string") state.settings.roomPattern = s.roomPattern.slice(0, 300);
+      if (Number.isFinite(s.roomDistance)) state.settings.roomDistance = s.roomDistance;
+      if (typeof s.showGrid === "boolean") state.settings.showGrid = s.showGrid;
+    }
   } catch { /* ignore */ }
   if (!state.rules.length) state.rules = [newRule(1)];
 }
@@ -209,7 +215,9 @@ const busy = (() => {
 // ---------------------------------------------------------------- file loading
 let keyboardActivated = false;
 let loadRun = 0; // bumped by every new drawing and by Start over, so a slow read can tell it was overtaken
+const MAX_PDF = 250 * 1024 * 1024, MAX_XLSX = 20 * 1024 * 1024, MAX_SETUP = 2 * 1024 * 1024, MAX_RULES = 100;
 async function loadPdfFile(file) {
+  if (file.size > MAX_PDF) { say(tr("That drawing is over 250 MB, which is too big to open here."), "err"); return; }
   const mine = ++loadRun;
   say(tr("Reading the drawing…"));
   let bytes, doc;
@@ -266,6 +274,7 @@ function renderTplInfo() {
 const file = (n) => (n.length > 38 ? `${n.slice(0, 35)}…` : n);
 
 async function loadTemplateFile(f) {
+  if (f.size > MAX_XLSX) { say(tr("That template is over 20 MB. A Fieldwire import template is much smaller."), "err"); return; }
   try {
     const parsed = await readTemplate(await f.arrayBuffer());
     state.tpl = { name: f.name, parsed };
@@ -1466,8 +1475,15 @@ function setupPayload() {
   return { app: "plandot", version: 2, settings: { planName: state.settings.planName, roomPattern: state.settings.roomPattern, roomDistance: state.settings.roomDistance }, rules: state.rules.map(rulePayload) };
 }
 /** One rule as read from a setup file or an account. Anything unexpected is dropped or replaced by a default. */
+/** Column values from a setup file or account: plain text only, a limited number of them. */
+function cleanColumns(c) {
+  const out = {};
+  if (!c || typeof c !== "object" || Array.isArray(c)) return out;
+  for (const [k, v] of Object.entries(c).slice(0, 60)) if (k !== "__proto__" && (typeof v === "string" || typeof v === "number")) out[k.slice(0, 120)] = String(v).slice(0, 2000);
+  return out;
+}
 function ruleFromData(r, i) {
-  return { ...newRule(i + 1), name: String(r.name ?? `Rule ${i + 1}`).slice(0, 80), tags: String(r.tags ?? ""), usePattern: !!r.usePattern, title: String(r.title ?? "{tag}"), pinAt: r.pinAt === "text" ? "text" : "dot", columns: typeof r.columns === "object" && r.columns ? r.columns : {}, ...(r.kind === "symbol" ? { kind: "symbol", symbol: sanitizeTemplate(r.symbol), strict: [1, 2, 3, 4, 5].includes(r.strict) ? r.strict : 3, rotate: r.rotate !== false, sizes: !!r.sizes } : {}) };
+  return { ...newRule(i + 1), name: String(r.name ?? `Rule ${i + 1}`).slice(0, 80), tags: String(r.tags ?? "").slice(0, 5000), usePattern: !!r.usePattern, title: String(r.title ?? "{tag}").slice(0, 500), pinAt: r.pinAt === "text" ? "text" : "dot", columns: cleanColumns(r.columns), ...(r.kind === "symbol" ? { kind: "symbol", symbol: sanitizeTemplate(r.symbol), strict: [1, 2, 3, 4, 5].includes(r.strict) ? r.strict : 3, rotate: r.rotate !== false, sizes: !!r.sizes } : {}) };
 }
 /** Saved rules from the account go onto the plan. An untouched empty first rule makes room for them. */
 function addSavedRules(list) {
@@ -1485,7 +1501,8 @@ function saveRules() {
 /** Puts a setup (from a file, or saved in an account) on the screen. Throws when it isn't a Plandot setup. */
 function applySetupData(data) {
   if (!["plandot", "plan-tasks"].includes(data?.app) || !Array.isArray(data.rules)) throw new Error("not a Plandot setup file");
-  state.rules = data.rules.map(ruleFromData);
+  state.rules = data.rules.slice(0, MAX_RULES).map(ruleFromData);
+  if (!state.rules.length) state.rules = [newRule(1)];
   if (data.settings) {
     if (hasText(data.settings.planName)) { state.settings.planName = String(data.settings.planName); $("#plan-name").value = state.settings.planName; }
     state.settings.roomPattern = String(data.settings.roomPattern ?? "");
@@ -1498,6 +1515,7 @@ function applySetupData(data) {
 }
 async function loadRules(f, { sample = false } = {}) {
   try {
+    if (f.size > MAX_SETUP) throw new Error("file is too big");
     applySetupData(JSON.parse(await f.text()));
     state.sample = sample;
     say(state.rules.length === 1 ? tr("Loaded 1 rule.") : tr("Loaded {n} rules.", { n: state.rules.length }), "ok");

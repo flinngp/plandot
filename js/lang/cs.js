@@ -357,4 +357,7 @@ export default {
  "Changes here only update the saved copy, not the rule on your plan.": "Změny zde upraví jen uloženou kopii, ne pravidlo ve výkresu.",
  "Name this rule": "Pojmenujte toto pravidlo",
  "Click to rename this rule": "Kliknutím pravidlo přejmenujete",
+ "That drawing is over 250 MB, which is too big to open here.": "Tento výkres má přes 250 MB a je příliš velký na otevření.",
+ "That template is over 20 MB. A Fieldwire import template is much smaller.": "Tato šablona má přes 20 MB. Importní šablona Fieldwire je mnohem menší.",
+ "That pattern is too long or too complicated and could freeze the page. Simplify it.": "Tento vzor je příliš dlouhý nebo složitý a mohl by zablokovat stránku. Zjednodušte jej.",
 };

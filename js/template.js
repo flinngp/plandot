@@ -117,6 +117,9 @@ export async function readTemplate(data) {
   } catch {
     throw new TemplateError("That file isn't a valid .xlsx workbook.");
   }
+  let total = 0, count = 0; // a small file can unpack to gigabytes: refuse before reading any of it
+  zip.forEach((_p, entry) => { count++; total += entry._data?.uncompressedSize || 0; });
+  if (count > 2000 || total > 200 * 1024 * 1024) throw new TemplateError("That file isn't a valid .xlsx workbook.");
   const wbFile = zip.file("xl/workbook.xml");
   if (!wbFile) throw new TemplateError("That file isn't a valid .xlsx workbook.");
   const wb = parseXml(await wbFile.async("string"));

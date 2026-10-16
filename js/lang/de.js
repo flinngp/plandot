@@ -357,4 +357,7 @@ export default {
  "Changes here only update the saved copy, not the rule on your plan.": "Änderungen hier betreffen nur die gespeicherte Kopie, nicht die Regel in Ihrem Plan.",
  "Name this rule": "Regel benennen",
  "Click to rename this rule": "Klicken, um diese Regel umzubenennen",
+ "That drawing is over 250 MB, which is too big to open here.": "Diese Zeichnung ist größer als 250 MB und lässt sich hier nicht öffnen.",
+ "That template is over 20 MB. A Fieldwire import template is much smaller.": "Diese Vorlage ist größer als 20 MB. Eine Fieldwire-Importvorlage ist viel kleiner.",
+ "That pattern is too long or too complicated and could freeze the page. Simplify it.": "Dieses Muster ist zu lang oder zu kompliziert und könnte die Seite blockieren. Vereinfachen Sie es.",
 };

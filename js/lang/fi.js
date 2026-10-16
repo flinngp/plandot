@@ -357,4 +357,7 @@ export default {
  "Changes here only update the saved copy, not the rule on your plan.": "Muutokset täällä päivittävät vain tallennetun kopion, eivät piirroksesi sääntöä.",
  "Name this rule": "Anna säännölle nimi",
  "Click to rename this rule": "Napsauta nimeämään sääntö uudelleen",
+ "That drawing is over 250 MB, which is too big to open here.": "Piirros on yli 250 Mt, liian suuri avattavaksi tässä.",
+ "That template is over 20 MB. A Fieldwire import template is much smaller.": "Mallipohja on yli 20 Mt. Fieldwiren tuontipohja on paljon pienempi.",
+ "That pattern is too long or too complicated and could freeze the page. Simplify it.": "Kuvio on liian pitkä tai monimutkainen ja voi jumittaa sivun. Yksinkertaista sitä.",
 };
