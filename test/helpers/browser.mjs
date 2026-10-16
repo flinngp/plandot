@@ -21,7 +21,9 @@ export async function startServer() {
     try {
       const path = normalize(decodeURIComponent(new URL(req.url, "http://x").pathname)).replace(/^(\.\.[/\\])+/, "");
       const file = join(root, path === "/" ? "index.html" : path);
-      const body = await readFile(file);
+      let body = await readFile(file);
+      // Tests run with sign-in off unless a test switches it on, whatever js/config.js holds for the live site.
+      if (/[/\\]js[/\\]config\.js$/.test(file)) body = Buffer.from(String(body).replace(/export const ACCOUNTS = \{[^}]*\};/, 'export const ACCOUNTS = { url: "", key: "" };'));
       res.writeHead(200, { "content-type": MIME[extname(file)] || "application/octet-stream" });
       res.end(body);
     } catch {

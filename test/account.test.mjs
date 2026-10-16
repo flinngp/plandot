@@ -53,12 +53,18 @@ async function open({ svc = service(), viewport = { width: 1440, height: 900 }, 
   page.errors = [];
   page.on("pageerror", (e) => page.errors.push(e.message));
   page.on("console", (m) => { if (/Content Security Policy|Refused to/i.test(m.text())) page.errors.push(m.text()); });
+  await ctx.route("**/js/config.js", async (route) => {
+    const res = await route.fetch();
+    const val = accounts ? `{ url: "${HOST}", key: "${KEY}" }` : `{ url: "", key: "" }`;
+    const text = (await res.text()).replace(/export const ACCOUNTS = \{[^}]*\};/, `export const ACCOUNTS = ${val};`);
+    await route.fulfill({ response: res, body: text });
+  });
+  await ctx.route("**/*.html", async (route) => {
+    const res = await route.fetch();
+    const text = (await res.text()).replaceAll("https://bugqhjkkjybcbnfjpeke.supabase.co", HOST);
+    await route.fulfill({ response: res, body: text });
+  });
   if (accounts) {
-    await ctx.route("**/js/config.js", async (route) => {
-      const res = await route.fetch();
-      const text = (await res.text()).replace('export const ACCOUNTS = { url: "", key: "" };', `export const ACCOUNTS = { url: "${HOST}", key: "${KEY}" };`);
-      await route.fulfill({ response: res, body: text });
-    });
     await ctx.route(`${HOST}/**`, svc.handler);
   }
   await page.goto(`${env.server.url}/index.html`);

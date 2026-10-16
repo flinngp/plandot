@@ -11,7 +11,7 @@ export const FEEDBACK = { url: "https://forms.gle/HQUfuJ3h1k2ztf1z9", email: "" 
 // Sign-in. Leave both empty and Plandot works without accounts. To switch sign-in on, paste the two values from
 // Supabase (Project Settings, then API): the project address and the PUBLIC key (called "publishable" or "anon").
 // Both are meant to be seen by every visitor. NEVER paste the "secret" or "service_role" key here: the page refuses it.
-export const ACCOUNTS = { url: "", key: "" };
+export const ACCOUNTS = { url: "https://bugqhjkkjybcbnfjpeke.supabase.co", key: "sb_publishable_HIk_jS2X3763e5ztVhRnCA_NNnxVvLf" };
 
 /** The address behind "Send feedback", or "" when none is set. */
 export function feedbackHref(cfg = FEEDBACK, version = VERSION, env = (typeof navigator !== "undefined" ? navigator.userAgent : "")) {
