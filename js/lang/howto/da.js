@@ -83,5 +83,10 @@ export default [
 `Når en fil er indlæst, skrumper dens trin til én enkelt linje med et grønt flueben. Klik på <strong>Skift</strong> for at åbne det igen.`,
 `De farvede knapper over listen viser hver regel med antallet af nåle. Klik på en knap for at fravælge alle nåle fra den regel, og klik igen for at tage dem med igen.`,
 `Den mørke bjælke under tegningen holder oversigten og knapperne <strong>Kopiér rækker</strong>, <strong>Hent importfil</strong> og <strong>Hent markeret PDF</strong> altid inden for rækkevidde. Hvis du ruller væk fra tegningen, svæver den nederst i vinduet.`,
+`Log ind og gemte regler`,
+`Du kan prøve eksempeltegningen uden at logge ind. For at indlæse din egen tegning eller importfil med opgaver logger du ind med din e-mailadresse: Plandot sender dig en kode, du skriver den, og så er du inde. Der er ingen adgangskode, og du forbliver logget ind i den browser.`,
+`Når du logger ind, kan du også gemme dine regler på din konto, så de er klar på enhver computer. Plandot tilbyder at indlæse dem, når du logger ind, og gemmer dine ændringer automatisk, mens du arbejder.`,
+`Din konto indeholder kun din e-mailadresse, dit abonnement og dine gemte regler. Dine tegninger og opgavefiler forlader aldrig din browser.`,
+`Åbn Konto i den øverste linje for at logge ud, downloade alt, der er gemt om dig, eller slette din konto og dine gemte regler for altid.`,
 `Skærmbillederne viser appen på engelsk.`,
 ];

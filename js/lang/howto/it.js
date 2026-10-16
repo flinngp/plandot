@@ -83,5 +83,10 @@ export default [
 `Appena un file è caricato, il suo passaggio si riduce a una sola riga con un segno di spunta verde. Clicca su <strong>Cambia</strong> per riaprirlo.`,
 `I pulsanti colorati sopra l'elenco mostrano ogni regola con il numero di segnaposto. Clicca su uno per escludere tutti i segnaposto di quella regola e clicca di nuovo per rimetterli.`,
 `La barra scura sotto il disegno tiene sempre a portata di mano il riepilogo e i pulsanti <strong>Copia righe</strong>, <strong>Scarica il file di importazione</strong> e <strong>Scarica il PDF annotato</strong>. Se ti allontani dal disegno, resta fissa in fondo alla finestra.`,
+`Accesso e regole salvate`,
+`Potete provare il disegno di esempio senza accedere. Per caricare il vostro disegno o il file di importazione delle attività, accedete con il vostro indirizzo e-mail: Plandot vi invia un codice, lo inserite e siete dentro. Non c'è nessuna password e restate connessi su quel browser.`,
+`Accedendo potete anche salvare le regole nel vostro account, così le ritrovate su qualsiasi computer. Plandot propone di caricarle all'accesso e salva automaticamente le modifiche mentre lavorate.`,
+`Il vostro account contiene solo l'indirizzo e-mail, il piano e le regole salvate. I disegni e i file delle attività non lasciano mai il browser.`,
+`Aprite Account nella barra in alto per uscire, scaricare tutto ciò che è conservato su di voi o eliminare definitivamente l'account e le regole salvate.`,
 `Gli screenshot mostrano l'app in inglese.`,
 ];

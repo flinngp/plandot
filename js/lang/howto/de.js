@@ -83,5 +83,10 @@ export default [
 `Sobald eine Datei geladen ist, schrumpft ihr Schritt auf eine einzelne Zeile mit einem grünen Häkchen. Mit <strong>Ändern</strong> öffnen Sie ihn wieder.`,
 `Die farbigen Schaltflächen über der Liste zeigen jede Regel mit ihrer Anzahl an Markierungen. Klicken Sie auf eine, um alle Markierungen dieser Regel auszulassen, und klicken Sie erneut, um sie zurückzuholen.`,
 `Die dunkle Leiste unter der Zeichnung hält die Zusammenfassung sowie die Schaltflächen <strong>Zeilen kopieren</strong>, <strong>Importdatei herunterladen</strong> und <strong>Markiertes PDF herunterladen</strong> stets griffbereit. Wenn Sie von der Zeichnung wegscrollen, schwebt sie am unteren Fensterrand.`,
+`Anmelden und gespeicherte Regeln`,
+`Den Beispielplan können Sie ohne Anmeldung ausprobieren. Um Ihren eigenen Plan oder Ihre Aufgaben-Importdatei zu laden, melden Sie sich mit Ihrer E-Mail-Adresse an: Plandot schickt Ihnen einen Code, Sie geben ihn ein, und schon sind Sie drin. Es gibt kein Passwort, und Sie bleiben in diesem Browser angemeldet.`,
+`Mit der Anmeldung können Sie Ihre Regeln auch in Ihrem Konto speichern, sodass sie auf jedem Computer bereitliegen. Plandot bietet an, sie bei der Anmeldung zu laden, und speichert Ihre Änderungen während der Arbeit automatisch.`,
+`Ihr Konto enthält nur Ihre E-Mail-Adresse, Ihren Tarif und Ihre gespeicherten Regeln. Ihre Pläne und Aufgabendateien verlassen nie Ihren Browser.`,
+`Öffnen Sie Konto in der oberen Leiste, um sich abzumelden, alles über Sie Gespeicherte herunterzuladen oder Ihr Konto samt gespeicherten Regeln endgültig zu löschen.`,
 `Die Screenshots zeigen die App auf Englisch.`,
 ];

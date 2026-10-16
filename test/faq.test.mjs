@@ -11,9 +11,9 @@ const english = [];
 for (const m of html.matchAll(/<(\w+)\b[^>]*\bdata-h="(\d+)"[^>]*>([\s\S]*?)<\/\1>/g)) english[Number(m[2])] = m[3];
 const tagsOf = (s) => (s.match(/<\/?(strong|em|code|kbd|a)\b[^>]*>/g) || []).map((t) => t.replace(/\s+(href|id|target|rel)="[^"]*"/g, "")).join("");
 
-test("the English FAQ has 30 numbered pieces", () => {
-  assert.equal(english.length, 30);
-  for (let i = 0; i < 30; i++) assert.ok(english[i], `piece ${i} missing`);
+test("the English FAQ has 36 numbered pieces", () => {
+  assert.equal(english.length, 36);
+  for (let i = 0; i < 36; i++) assert.ok(english[i], `piece ${i} missing`);
 });
 
 for (const code of CODES) {

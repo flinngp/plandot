@@ -30,5 +30,11 @@ export default [
 `Jest całkowicie darmowy!`,
 `Coś poszło nie tak? Daj nam znać`,
 `Chętnie się dowiemy. Gdy Plandot pokaże błąd, naciśnij obok niego <strong>Kopiuj szczegóły</strong> i wklej tekst do naszego <a id="faq-feedback" href="https://forms.gle/HQUfuJ3h1k2ztf1z9" target="_blank" rel="noopener">formularza opinii</a>. Szczegóły zawierają wersję, przeglądarkę i kilka ustawień, a nigdy nazwy pliku ani niczego z twojego rysunku.`,
+`Czy muszę się logować?`,
+`Tylko po to, by wczytać własne pliki. Przykładowy rysunek działa bez logowania, więc możesz najpierw wypróbować Plandot. Logowanie jest na razie bezpłatne, a zamiast hasła dostajesz kod e-mailem.`,
+`Co Plandot o mnie przechowuje?`,
+`Twój adres e-mail, rodzaj planu i reguły, które zdecydujesz się zapisać. Rysunki, pliki zadań i szablony nigdy nie są wysyłane. Przyciskiem Konto możesz pobrać wszystko, co o Tobie zapisano, lub usunąć konto. Szczegóły są na stronie prywatności.`,
+`Dlaczego nie dostaję kodu logowania?`,
+`Sprawdź folder ze spamem i pisownię adresu, poczekaj minutę i poproś o nowy kod. Działa tylko najnowszy kod, a kody wygasają po krótkim czasie. Jeśli nadal nie przychodzi, wyślij nam opinię.`,
 ``,
 ];

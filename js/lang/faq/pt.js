@@ -30,5 +30,11 @@ export default [
 `É totalmente gratuito!`,
 `Algo correu mal? Diga-nos`,
 `Gostaríamos de saber. Quando o Plandot mostrar um erro, prima <strong>Copiar detalhes</strong> junto dele e cole o texto no nosso <a id="faq-feedback" href="https://forms.gle/HQUfuJ3h1k2ztf1z9" target="_blank" rel="noopener">formulário de comentários</a>. Os detalhes contêm a versão, o navegador e algumas definições, e nunca um nome de ficheiro nem nada da sua planta.`,
+`Preciso de iniciar sessão?`,
+`Apenas para carregar os seus próprios ficheiros. A planta de exemplo funciona sem iniciar sessão, por isso pode experimentar o Plandot primeiro. Por agora é gratuito e recebe um código por e-mail em vez de uma palavra-passe.`,
+`O que guarda o Plandot sobre mim?`,
+`O seu e-mail, o tipo de plano e as regras que escolher guardar. Plantas, ficheiros de tarefas e modelos nunca são enviados. Com o botão Conta pode descarregar tudo o que está guardado sobre si ou eliminar a conta. A página de privacidade tem os detalhes.`,
+`Porque não recebo o código de início de sessão?`,
+`Verifique a pasta de spam e se o endereço está bem escrito, espere um minuto e peça um novo código. Só o código mais recente funciona e os códigos expiram passado pouco tempo. Se continuar sem chegar, envie-nos comentários.`,
 ``,
 ];

@@ -30,5 +30,11 @@ export default [
 `Het is helemaal gratis!`,
 `Is er iets misgegaan? Laat het ons weten`,
 `We horen het graag. Wanneer Plandot een fout toont, druk dan ernaast op <strong>Details kopiëren</strong> en plak de tekst in ons <a id="faq-feedback" href="https://forms.gle/HQUfuJ3h1k2ztf1z9" target="_blank" rel="noopener">feedbackformulier</a>. De details bevatten de versie, de browser en enkele instellingen, en nooit een bestandsnaam of iets uit je tekening.`,
+`Moet ik inloggen?`,
+`Alleen om uw eigen bestanden te laden. De voorbeeldtekening werkt zonder inloggen, dus u kunt Plandot eerst proberen. Inloggen is voorlopig gratis en u krijgt een code per e-mail in plaats van een wachtwoord.`,
+`Wat bewaart Plandot over mij?`,
+`Uw e-mailadres, uw abonnementstype en de regels die u kiest op te slaan. Tekeningen, takenbestanden en sjablonen worden nooit geüpload. Met de knop Account kunt u alles wat over u is opgeslagen downloaden of uw account verwijderen. De privacypagina geeft de details.`,
+`Waarom krijg ik mijn inlogcode niet?`,
+`Controleer uw map met ongewenste e-mail en of het adres goed is gespeld, wacht een minuut en vraag een nieuwe code aan. Alleen de nieuwste code werkt en codes verlopen na korte tijd. Komt hij nog steeds niet aan, stuur ons dan feedback.`,
 ``,
 ];

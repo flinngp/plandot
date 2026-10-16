@@ -207,6 +207,7 @@ export function renderFooter() {
   foot.replaceChildren(
     h("p", { text: tr("Plandot is an independent tool, not made or endorsed by Fieldwire by Hilti.") }),
     h("p", { text: tr("Your drawings stay in your browser and are never uploaded.") }),
+    h("p", { class: "legal" }, h("a", { href: "terms.html", text: tr("Terms") }), " · ", h("a", { href: "privacy.html", text: tr("Privacy") })),
     h("p", { class: "copy", text: tr("© 2026 Plandot. All rights reserved.") }));
 }
 

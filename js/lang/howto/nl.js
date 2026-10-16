@@ -83,5 +83,10 @@ export default [
 `Zodra een bestand is geladen, krimpt de stap tot één regel met een groen vinkje. Klik op <strong>Wijzigen</strong> om hem weer te openen.`,
 `De gekleurde knoppen boven de lijst tonen elke regel met het aantal spelden. Klik op een knop om alle spelden van die regel weg te laten, en klik opnieuw om ze terug te zetten.`,
 `De donkere balk onder de tekening houdt de samenvatting en de knoppen <strong>Rijen kopiëren</strong>, <strong>Importbestand downloaden</strong> en <strong>Gemarkeerde pdf downloaden</strong> altijd binnen bereik. Scrolt u weg van de tekening, dan blijft de balk onderaan het venster hangen.`,
+`Inloggen en opgeslagen regels`,
+`U kunt de voorbeeldtekening proberen zonder in te loggen. Om uw eigen tekening of importbestand met taken te laden, logt u in met uw e-mailadres: Plandot mailt u een code, u typt die in en u bent binnen. Er is geen wachtwoord en u blijft ingelogd in die browser.`,
+`Door in te loggen kunt u uw regels ook in uw account bewaren, zodat ze op elke computer klaarstaan. Plandot biedt aan ze bij het inloggen te laden en bewaart uw wijzigingen automatisch terwijl u werkt.`,
+`Uw account bevat alleen uw e-mailadres, uw abonnement en uw opgeslagen regels. Uw tekeningen en takenbestanden verlaten nooit uw browser.`,
+`Open Account in de bovenbalk om uit te loggen, alles wat over u is opgeslagen te downloaden of uw account en opgeslagen regels definitief te verwijderen.`,
 `De schermafbeeldingen tonen de app in het Engels.`,
 ];

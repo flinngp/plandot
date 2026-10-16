@@ -83,5 +83,10 @@ export default [
 `Når en fil er lastet inn, krymper trinnet til én enkelt linje med et grønt hakemerke. Klikk på <strong>Endre</strong> for å åpne det igjen.`,
 `De fargede knappene over listen viser hver regel med antall nåler. Klikk på en knapp for å utelate alle nålene fra den regelen, og klikk igjen for å ta dem med igjen.`,
 `Den mørke linjen under tegningen holder oppsummeringen og knappene <strong>Kopier rader</strong>, <strong>Last ned importfil</strong> og <strong>Last ned markert PDF</strong> alltid innen rekkevidde. Hvis du ruller bort fra tegningen, svever den nederst i vinduet.`,
+`Logg inn og lagrede regler`,
+`Du kan prøve eksempeltegningen uten å logge inn. For å laste inn din egen tegning eller importfil med oppgaver logger du inn med e-postadressen din: Plandot sender deg en kode, du skriver den inn, og så er du inne. Det er ikke noe passord, og du forblir innlogget i den nettleseren.`,
+`Når du logger inn, kan du også lagre reglene dine på kontoen din, slik at de er klare på hvilken som helst datamaskin. Plandot tilbyr å laste dem inn når du logger inn, og lagrer endringene dine automatisk mens du jobber.`,
+`Kontoen din inneholder bare e-postadressen din, abonnementet ditt og de lagrede reglene dine. Tegningene og oppgavefilene dine forlater aldri nettleseren.`,
+`Åpne Konto i den øverste linjen for å logge ut, laste ned alt som er lagret om deg eller slette kontoen og de lagrede reglene for godt.`,
 `Skjermbildene viser appen på engelsk.`,
 ];

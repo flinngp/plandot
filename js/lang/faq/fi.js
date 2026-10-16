@@ -30,5 +30,11 @@ export default [
 `Se on täysin ilmainen!`,
 `Meniko jokin pieleen? Kerro meille`,
 `Haluamme kuulla siitä. Kun Plandot näyttää virheen, paina sen vieressä olevaa <strong>Kopioi tiedot</strong> -painiketta ja liitä teksti <a id="faq-feedback" href="https://forms.gle/HQUfuJ3h1k2ztf1z9" target="_blank" rel="noopener">palautelomakkeeseemme</a>. Tiedot sisältävät version, selaimen ja joitakin asetuksia, mutta eivät koskaan tiedostonimeä tai mitään piirustuksestasi.`,
+`Täytyykö minun kirjautua?`,
+`Vain omien tiedostojen lataamiseen. Esimerkkipiirros toimii ilman kirjautumista, joten voit kokeilla Plandotia ensin. Kirjautuminen on toistaiseksi ilmaista, ja saat salasanan sijaan koodin sähköpostiin.`,
+`Mitä Plandot tallentaa minusta?`,
+`Sähköpostiosoitteesi, tilaustyyppisi ja säännöt, jotka valitset tallennettaviksi. Piirroksia, tehtävätiedostoja ja malleja ei koskaan lähetetä. Tili-painikkeella voit ladata kaiken sinusta tallennetun tai poistaa tilisi. Tietosuojasivulla on lisätiedot.`,
+`Miksi en saa kirjautumiskoodiani?`,
+`Tarkista roskapostikansio ja että osoite on kirjoitettu oikein, odota minuutti ja pyydä uusi koodi. Vain uusin koodi toimii, ja koodit vanhenevat lyhyessä ajassa. Jos se ei vieläkään tule, lähetä meille palautetta.`,
 ``,
 ];

@@ -83,5 +83,10 @@ export default [
 `Assim que um ficheiro é carregado, o seu passo reduz-se a uma única linha com uma marca verde. Clique em <strong>Alterar</strong> para o abrir de novo.`,
 `Os botões coloridos acima da lista mostram cada regra com o número de alfinetes. Clique num deles para excluir todos os alfinetes dessa regra e clique outra vez para os repor.`,
 `A barra escura por baixo da planta mantém o resumo e os botões <strong>Copiar linhas</strong>, <strong>Descarregar ficheiro de importação</strong> e <strong>Descarregar PDF marcado</strong> sempre à mão. Se se afastar da planta, a barra flutua na parte de baixo da janela.`,
+`Iniciar sessão e regras guardadas`,
+`Pode experimentar a planta de exemplo sem iniciar sessão. Para carregar a sua própria planta ou o ficheiro de importação de tarefas, inicie sessão com o seu e-mail: o Plandot envia-lhe um código, escreve-o e está dentro. Não há palavra-passe e a sessão mantém-se nesse navegador.`,
+`Iniciar sessão também permite guardar as suas regras na conta, para as ter em qualquer computador. O Plandot oferece-se para as carregar ao iniciar sessão e guarda as alterações automaticamente enquanto trabalha.`,
+`A sua conta contém apenas o seu e-mail, o seu plano e as regras guardadas. As suas plantas e ficheiros de tarefas nunca saem do navegador.`,
+`Abra Conta na barra superior para terminar sessão, descarregar tudo o que está guardado sobre si ou eliminar definitivamente a conta e as regras guardadas.`,
 `As capturas de ecrã mostram a aplicação em inglês.`,
 ];

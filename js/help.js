@@ -37,8 +37,9 @@ for (const card of document.querySelectorAll("main .card, .doc > .card")) {
 const sampleSlot = document.getElementById("try-sample-slot");
 if (sampleSlot) sampleSlot.replaceWith(Object.assign(document.createElement("a"), { className: "btn primary try-sample", href: "index.html?sample=1", textContent: tr("Try with a sample drawing") }));
 // The feedback link in the FAQ follows the setting in js/config.js (a form, or an email, or nothing).
-const fb = document.getElementById("faq-feedback");
-if (fb) {
+for (const id of ["faq-feedback", "privacy-feedback", "terms-feedback"]) {
+  const fb = document.getElementById(id);
+  if (!fb) continue;
   const href = feedbackHref();
   if (href) { fb.href = href; if (FEEDBACK.url) { fb.target = "_blank"; fb.rel = "noopener"; } else { fb.removeAttribute("target"); fb.removeAttribute("rel"); } }
   else fb.replaceWith(document.createTextNode("feedback form"));

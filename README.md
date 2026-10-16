@@ -109,9 +109,21 @@ An import template differs from project to project: adding a custom attribute ad
 
 ## Privacy
 
-Everything runs in your browser. The drawing, the template and the rules are never uploaded anywhere, and there is no server. Your rules and language are remembered in the browser's own storage on your computer only.
+Drawings and templates are processed in your browser and are never uploaded. The only thing that can be stored online is an optional account (below). Your rules and language are remembered in the browser's own storage on your computer only.
 
 Real drawings and import templates can be confidential or carry personal details, so this repository's `.gitignore` blocks `*.pdf` and `*.xlsx` apart from the two made-up files in `samples/`.
+
+## Accounts (sign-in)
+
+Sign-in is **off** until `js/config.js` has a Supabase project address and its *publishable* key (`ACCOUNTS.url` and `ACCOUNTS.key`). Never put a secret or `service_role` key there; the page refuses to start with one.
+
+- Uploading a plan or task import file needs sign-in (an emailed code, no password). The sample plan works without it.
+- The account holds the email address, the plan (`free`, `staff` for `@hilti.com` and `@fieldwire.com`, or `paid`) and one set of saved rules. Never drawings.
+- Run `supabase/schema.sql` once in the Supabase SQL editor. It creates the tables, row-level security and `delete_my_account()`.
+- In Supabase, set the email template to show `{{ .Token }}`, and use your own mail sender for production.
+- After setting it up, tighten `connect-src` in the `<meta>` policy on each page from `https://*.supabase.co` to your exact project host.
+- Account box: sign out, download my data, delete account. Terms and privacy pages are drafts and need legal review.
+- Security notes are in `SECURITY.md`. Dependabot is configured in `.github/dependabot.yml`.
 
 ## Limits
 

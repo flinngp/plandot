@@ -83,5 +83,10 @@ export default [
 `Jakmile je soubor načten, jeho krok se zmenší na jediný řádek se zelenou fajfkou. Kliknutím na <strong>Změnit</strong> ho znovu otevřete.`,
 `Barevná tlačítka nad seznamem ukazují každé pravidlo s počtem špendlíků. Kliknutím na tlačítko vyloučíte všechny špendlíky tohoto pravidla a dalším kliknutím je vrátíte.`,
 `Tmavý pruh pod výkresem drží souhrn a tlačítka <strong>Kopírovat řádky</strong>, <strong>Stáhnout importní soubor</strong> a <strong>Stáhnout označené PDF</strong> vždy po ruce. Pokud odscrollujete od výkresu, vznáší se u dolního okraje okna.`,
+`Přihlášení a uložená pravidla`,
+`Ukázkový výkres si můžete vyzkoušet bez přihlášení. Chcete-li načíst vlastní výkres nebo importní soubor úkolů, přihlaste se e-mailovou adresou: Plandot vám pošle kód, zadáte ho a jste uvnitř. Žádné heslo není a v tomto prohlížeči zůstanete přihlášeni.`,
+`Přihlášení také umožňuje uložit pravidla do účtu, takže na vás čekají na jakémkoli počítači. Plandot je po přihlášení nabídne k načtení a změny během práce ukládá automaticky.`,
+`Váš účet obsahuje jen vaši e-mailovou adresu, tarif a uložená pravidla. Vaše výkresy a soubory úkolů váš prohlížeč nikdy neopustí.`,
+`Otevřete Účet v horní liště, chcete-li se odhlásit, stáhnout vše, co je o vás uloženo, nebo účet a uložená pravidla natrvalo smazat.`,
 `Snímky obrazovky ukazují aplikaci v angličtině.`,
 ];

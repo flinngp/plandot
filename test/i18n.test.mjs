@@ -12,7 +12,7 @@ const ph = (s) => (s.match(/\{\w+\}/g) || []).sort().join();
 // every English text the page can show: tr("...") in the code and data-i18n text in the HTML
 async function englishTexts() {
   const out = new Set();
-  for (const file of ["app.js", "site.js", "help.js"]) {
+  for (const file of ["app.js", "site.js", "help.js", "account.js"]) {
     const src = await readFile(`${root}js/${file}`, "utf8");
     for (const m of src.matchAll(/\b(?:tr|I)\(("(?:[^"\\]|\\.)*")/g)) out.add(JSON.parse(m[1]));
   }

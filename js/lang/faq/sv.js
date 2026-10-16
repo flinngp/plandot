@@ -30,5 +30,11 @@ export default [
 `Det är helt gratis!`,
 `Gick något fel? Berätta för oss`,
 `Vi vill gärna höra om det. När Plandot visar ett fel, tryck på <strong>Kopiera detaljer</strong> bredvid och klistra in texten i vårt <a id="faq-feedback" href="https://forms.gle/HQUfuJ3h1k2ztf1z9" target="_blank" rel="noopener">feedbackformulär</a>. Detaljerna innehåller versionen, webbläsaren och några inställningar, och aldrig ett filnamn eller något från din ritning.`,
+`Måste jag logga in?`,
+`Bara för att ladda dina egna filer. Exempelritningen fungerar utan inloggning, så du kan prova Plandot först. Inloggningen är gratis tills vidare och du får en kod via e-post i stället för ett lösenord.`,
+`Vad sparar Plandot om mig?`,
+`Din e-postadress, din abonnemangstyp och de regler du väljer att spara. Ritningar, uppgiftsfiler och mallar laddas aldrig upp. Med knappen Konto kan du ladda ner allt som sparats om dig eller ta bort ditt konto. Integritetssidan har detaljerna.`,
+`Varför får jag ingen inloggningskod?`,
+`Kontrollera skräppostmappen och att adressen är rätt stavad, vänta en minut och be om en ny kod. Bara den senaste koden fungerar, och koder går ut efter en kort stund. Kommer den ändå inte, skicka oss feedback.`,
 ``,
 ];

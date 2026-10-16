@@ -83,5 +83,10 @@ export default [
 `En cuanto se carga un archivo, su paso se reduce a una sola línea con una marca verde. Pulse <strong>Cambiar</strong> para abrirlo de nuevo.`,
 `Los botones de colores sobre la lista muestran cada regla con su número de chinchetas. Haga clic en uno para excluir todas las chinchetas de esa regla y vuelva a hacer clic para recuperarlas.`,
 `La barra oscura bajo el plano mantiene el resumen y los botones <strong>Copiar filas</strong>, <strong>Descargar archivo de importación</strong> y <strong>Descargar PDF marcado</strong> siempre a mano. Si se aleja del plano, flota en la parte inferior de la ventana.`,
+`Iniciar sesión y reglas guardadas`,
+`Puede probar el plano de ejemplo sin iniciar sesión. Para cargar su propio plano o archivo de importación de tareas, inicie sesión con su correo electrónico: Plandot le envía un código, lo escribe y listo. No hay contraseña y la sesión se mantiene en ese navegador.`,
+`Iniciar sesión también permite guardar sus reglas en su cuenta, para tenerlas en cualquier ordenador. Plandot le ofrece cargarlas al iniciar sesión y guarda sus cambios automáticamente mientras trabaja.`,
+`Su cuenta solo contiene su correo electrónico, su plan y sus reglas guardadas. Sus planos y archivos de tareas nunca salen de su navegador.`,
+`Abra Cuenta en la barra superior para cerrar sesión, descargar todo lo que se guarda sobre usted o eliminar definitivamente su cuenta y sus reglas guardadas.`,
 `Las capturas de pantalla muestran la aplicación en inglés.`,
 ];

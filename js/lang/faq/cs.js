@@ -30,5 +30,11 @@ export default [
 `Je úplně zdarma!`,
 `Něco se pokazilo? Dejte nám vědět`,
 `Rádi se to dozvíme. Když Plandot zobrazí chybu, stiskněte vedle ní <strong>Kopírovat podrobnosti</strong> a vložte text do našeho <a id="faq-feedback" href="https://forms.gle/HQUfuJ3h1k2ztf1z9" target="_blank" rel="noopener">formuláře zpětné vazby</a>. Podrobnosti obsahují verzi, prohlížeč a některá nastavení, nikdy však název souboru ani nic z vašeho výkresu.`,
+`Musím se přihlásit?`,
+`Jen pro načtení vlastních souborů. Ukázkový výkres funguje bez přihlášení, takže Plandot můžete nejdřív vyzkoušet. Přihlášení je zatím zdarma a místo hesla dostanete kód e-mailem.`,
+`Co si Plandot o mně uchovává?`,
+`Vaši e-mailovou adresu, typ tarifu a pravidla, která se rozhodnete uložit. Výkresy, soubory úkolů ani šablony se nikdy nenahrávají. Tlačítkem Účet můžete stáhnout vše, co je o vás uloženo, nebo účet smazat. Podrobnosti najdete na stránce o soukromí.`,
+`Proč mi nedorazil přihlašovací kód?`,
+`Zkontrolujte složku se spamem a správnost adresy, počkejte minutu a požádejte o nový kód. Funguje jen nejnovější kód a kódy po krátké době vyprší. Pokud stále nedorazí, pošlete nám zpětnou vazbu.`,
 ``,
 ];

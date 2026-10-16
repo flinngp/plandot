@@ -30,5 +30,11 @@ export default [
 `È completamente gratuito!`,
 `Qualcosa è andato storto? Faccelo sapere`,
 `Ci piacerebbe saperlo. Quando Plandot mostra un errore, premi <strong>Copia i dettagli</strong> accanto e incolla il testo nel nostro <a id="faq-feedback" href="https://forms.gle/HQUfuJ3h1k2ztf1z9" target="_blank" rel="noopener">modulo di feedback</a>. I dettagli contengono la versione, il browser e alcune impostazioni, e mai un nome di file o qualcosa del tuo disegno.`,
+`Devo accedere?`,
+`Solo per caricare i vostri file. Il disegno di esempio funziona senza accesso, quindi potete provare prima Plandot. L'accesso per ora è gratuito e ricevete un codice via e-mail invece di una password.`,
+`Che cosa conserva Plandot su di me?`,
+`Il vostro indirizzo e-mail, il tipo di piano e le regole che scegliete di salvare. Disegni, file delle attività e modelli non vengono mai caricati. Con il pulsante Account potete scaricare tutto ciò che è conservato su di voi o eliminare l'account. La pagina sulla privacy ha i dettagli.`,
+`Perché non ricevo il codice di accesso?`,
+`Controllate la cartella dello spam e che l'indirizzo sia scritto correttamente, attendete un minuto e richiedete un nuovo codice. Funziona solo il codice più recente e i codici scadono dopo poco tempo. Se continua a non arrivare, inviateci un feedback.`,
 ``,
 ];

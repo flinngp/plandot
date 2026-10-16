@@ -83,5 +83,10 @@ export default [
 `Gdy plik zostanie wczytany, jego krok zmniejsza się do jednego wiersza z zieloną ikoną potwierdzenia. Kliknij <strong>Zmień</strong>, aby otworzyć go ponownie.`,
 `Kolorowe przyciski nad listą pokazują każdą regułę z liczbą pinezek. Kliknij przycisk, aby wykluczyć wszystkie pinezki tej reguły, i kliknij ponownie, aby je przywrócić.`,
 `Ciemny pasek pod rysunkiem trzyma podsumowanie oraz przyciski <strong>Kopiuj wiersze</strong>, <strong>Pobierz plik importu</strong> i <strong>Pobierz oznaczony PDF</strong> zawsze pod ręką. Gdy odsuniesz się od rysunku, pasek unosi się u dołu okna.`,
+`Logowanie i zapisane reguły`,
+`Możesz wypróbować przykładowy rysunek bez logowania. Aby wczytać własny rysunek lub plik importu zadań, zaloguj się adresem e-mail: Plandot wyśle Ci kod, wpisujesz go i gotowe. Nie ma hasła, a w tej przeglądarce pozostajesz zalogowany.`,
+`Logowanie pozwala też zapisać reguły na koncie, dzięki czemu czekają na każdym komputerze. Plandot proponuje ich wczytanie po zalogowaniu i automatycznie zapisuje zmiany podczas pracy.`,
+`Twoje konto zawiera tylko adres e-mail, plan i zapisane reguły. Twoje rysunki i pliki zadań nigdy nie opuszczają przeglądarki.`,
+`Otwórz Konto na górnym pasku, aby się wylogować, pobrać wszystko, co o Tobie zapisano, albo trwale usunąć konto i zapisane reguły.`,
 `Zrzuty ekranu pokazują aplikację po angielsku.`,
 ];

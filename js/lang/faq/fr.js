@@ -30,5 +30,11 @@ export default [
 `C'est entièrement gratuit !`,
 `Un problème ? Dites-le-nous`,
 `Nous aimerions en entendre parler. Quand Plandot affiche une erreur, cliquez sur <strong>Copier les détails</strong> à côté, puis collez le texte dans notre <a id="faq-feedback" href="https://forms.gle/HQUfuJ3h1k2ztf1z9" target="_blank" rel="noopener">formulaire de commentaires</a>. Les détails contiennent la version, le navigateur et quelques réglages, et jamais un nom de fichier ni quoi que ce soit de votre plan.`,
+`Dois-je me connecter ?`,
+`Seulement pour charger vos propres fichiers. Le plan d'exemple fonctionne sans connexion, vous pouvez donc essayer Plandot d'abord. La connexion est gratuite pour l'instant, et vous recevez un code par e-mail au lieu d'un mot de passe.`,
+`Que conserve Plandot à mon sujet ?`,
+`Votre adresse e-mail, votre formule et les règles que vous choisissez d'enregistrer. Les plans, fichiers de tâches et modèles ne sont jamais envoyés. Vous pouvez télécharger tout ce qui est conservé à votre sujet ou supprimer votre compte avec le bouton Compte. La page de confidentialité donne les détails.`,
+`Pourquoi ne reçois-je pas mon code de connexion ?`,
+`Vérifiez vos courriers indésirables et l'orthographe de l'adresse, attendez une minute puis demandez un nouveau code. Seul le code le plus récent fonctionne, et les codes expirent au bout de peu de temps. S'il n'arrive toujours pas, envoyez-nous un commentaire.`,
 ``,
 ];

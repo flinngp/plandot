@@ -10,6 +10,7 @@ import { markedUpPdf, pinsPng, download } from "./markup.js";
 import { tr, translateDom, currentLanguage } from "./i18n.js";
 import { startAnalytics, track, pinBucket } from "./analytics.js";
 import { VERSION } from "./config.js";
+import { initAccount } from "./account.js";
 import { hydrateInfo, infoSlot, initLanguageMenu, renderFooter, setTourHandler } from "./site.js";
 
 const COLORS = ["#3355ff", "#e08a00", "#1f9d6b", "#8a4fff", "#0fa3b8", "#d6336c", "#7a8a14", "#5b6b7a"];
@@ -36,8 +37,19 @@ const state = {
   animate: false,
   busy: false, // reading the drawing's lines
   zoom: 1, // 1 = the whole sheet fits the window
+  sample: false, // the sample's rules are on screen: they are never saved to an account
 };
 window.planTasks = { state }; // handy when poking around in the console
+
+// Accounts (switched on by the two values in js/config.js). Signed out, the sample works and own files do not.
+const account = initAccount({
+  say: (msg, kind) => say(msg, kind),
+  getSetup: () => setupPayload(),
+  applySetup: (data) => { applySetupData(data); state.sample = false; },
+  hasLocalRules: () => !state.sample && state.rules.some((r) => hasText(r.tags) || r.symbol),
+  paused: () => state.sample,
+  download: (blob, name, type) => download(blob, name, type),
+});
 
 const hasText = (v) => typeof v === "string" && v.trim() !== "";
 const baseName = (n) => n.replace(/\.[^.]+$/, "");
@@ -64,6 +76,7 @@ function save() {
     const { planName, roomPattern, roomDistance, showGrid } = state.settings;
     localStorage.setItem(STORE_KEY, JSON.stringify({ rules: state.rules, settings: { planName, roomPattern, roomDistance, showGrid } }));
   } catch { /* private mode or blocked storage: the app still works, it just won't remember */ }
+  account.noteChange();
 }
 function restore() {
   try {
@@ -104,6 +117,7 @@ function applySnapshot(snap) {
   try { localStorage.setItem(STORE_KEY, JSON.stringify({ rules: state.rules, settings: { planName: state.settings.planName, roomPattern: state.settings.roomPattern, roomDistance: state.settings.roomDistance, showGrid: state.settings.showGrid } })); } catch { /* ignore */ }
   cancelSymbolBox(true);
   renderRules(); renderTemplateInfo(); runDetect(); updateUndoButtons();
+  account.noteChange();
 }
 function undo() {
   recordNow(); // fold in anything typed in the last half second
@@ -1383,7 +1397,7 @@ async function trySample() {
   state.settings.planName = "Ground floor plan";
   $("#plan-name").value = state.settings.planName;
   await loadTemplateFile(new File([xlsx], "sample-import-template.xlsx"));
-  await loadRules(new File([rules], "sample-rules.json"));
+  await loadRules(new File([rules], "sample-rules.json"), { sample: true });
   await loadPdfFile(new File([pdf], "sample-drawing.pdf", { type: "application/pdf" }));
   save();
   say(tr("This is a made-up sample. Try the rules on the left, then download the import file."), "ok");
@@ -1404,7 +1418,7 @@ function startOver() {
   loadRun++;
   detectRun++; // anything still being worked out for the old drawing is thrown away
   try { state.pdf?.doc?.destroy?.(); } catch { /* already gone */ }
-  Object.assign(state, { pdf: null, tpl: null, rules: [newRule(1)], settings: { ...DEFAULT_SETTINGS }, edits: {}, pins: [], errors: {}, areaMode: false, areaStart: null, areaDraft: null, boxFor: null, boxDraft: null, animate: false, busy: false, zoom: 1 });
+  Object.assign(state, { sample: false, pdf: null, tpl: null, rules: [newRule(1)], settings: { ...DEFAULT_SETTINGS }, edits: {}, pins: [], errors: {}, areaMode: false, areaStart: null, areaDraft: null, boxFor: null, boxDraft: null, animate: false, busy: false, zoom: 1 });
   kb.on = false;
   Object.assign(ui, { drawingOpen: false, templateOpen: false, planEditing: false });
   resetHistory();
@@ -1441,29 +1455,37 @@ const guarded = (fn) => async () => {
 };
 
 // ---------------------------------------------------------------- rule files
-function saveRules() {
-  const payload = { app: "plandot", version: 2, settings: { planName: state.settings.planName, roomPattern: state.settings.roomPattern, roomDistance: state.settings.roomDistance }, rules: state.rules.map((r) => {
+/** The rules and settings as they are written to a setup file, and saved to an account. */
+function setupPayload() {
+  return { app: "plandot", version: 2, settings: { planName: state.settings.planName, roomPattern: state.settings.roomPattern, roomDistance: state.settings.roomDistance }, rules: state.rules.map((r) => {
     const { name, tags, usePattern, title, columns, pinAt } = r;
     const base = { name, tags, usePattern: !!usePattern, title, pinAt: pinMode({ pinAt }), columns: columns || {} };
     return ruleKind(r) === "symbol" ? { ...base, kind: "symbol", symbol: r.symbol || null, strict: r.strict ?? 3, rotate: r.rotate !== false, sizes: !!r.sizes } : base;
   }) };
+}
+function saveRules() {
+  const payload = setupPayload();
   download(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }), "plandot setup.json", "application/json");
   say(payload.rules.length === 1 ? tr("Saved 1 rule.") : tr("Saved {n} rules.", { n: payload.rules.length }), "ok");
 }
-async function loadRules(f) {
+/** Puts a setup (from a file, or saved in an account) on the screen. Throws when it isn't a Plandot setup. */
+function applySetupData(data) {
+  if (!["plandot", "plan-tasks"].includes(data?.app) || !Array.isArray(data.rules)) throw new Error("not a Plandot setup file");
+  state.rules = data.rules.map((r, i) => ({ ...newRule(i + 1), name: String(r.name ?? `Rule ${i + 1}`), tags: String(r.tags ?? ""), usePattern: !!r.usePattern, title: String(r.title ?? "{tag}"), pinAt: r.pinAt === "text" ? "text" : "dot", columns: typeof r.columns === "object" && r.columns ? r.columns : {}, ...(r.kind === "symbol" ? { kind: "symbol", symbol: sanitizeTemplate(r.symbol), strict: [1, 2, 3, 4, 5].includes(r.strict) ? r.strict : 3, rotate: r.rotate !== false, sizes: !!r.sizes } : {}) }));
+  if (data.settings) {
+    if (hasText(data.settings.planName)) { state.settings.planName = String(data.settings.planName); $("#plan-name").value = state.settings.planName; }
+    state.settings.roomPattern = String(data.settings.roomPattern ?? "");
+    state.settings.roomDistance = Number(data.settings.roomDistance) || 10;
+    $("#room-pattern").value = state.settings.roomPattern;
+    $("#room-distance").value = state.settings.roomDistance;
+  }
+  afterRulesChange();
+  updateExport();
+}
+async function loadRules(f, { sample = false } = {}) {
   try {
-    const data = JSON.parse(await f.text());
-    if (!["plandot", "plan-tasks"].includes(data.app) || !Array.isArray(data.rules)) throw new Error("not a Plandot setup file");
-    state.rules = data.rules.map((r, i) => ({ ...newRule(i + 1), name: String(r.name ?? `Rule ${i + 1}`), tags: String(r.tags ?? ""), usePattern: !!r.usePattern, title: String(r.title ?? "{tag}"), pinAt: r.pinAt === "text" ? "text" : "dot", columns: typeof r.columns === "object" && r.columns ? r.columns : {}, ...(r.kind === "symbol" ? { kind: "symbol", symbol: sanitizeTemplate(r.symbol), strict: [1, 2, 3, 4, 5].includes(r.strict) ? r.strict : 3, rotate: r.rotate !== false, sizes: !!r.sizes } : {}) }));
-    if (data.settings) {
-      if (hasText(data.settings.planName)) { state.settings.planName = String(data.settings.planName); $("#plan-name").value = state.settings.planName; }
-      state.settings.roomPattern = String(data.settings.roomPattern ?? "");
-      state.settings.roomDistance = Number(data.settings.roomDistance) || 10;
-      $("#room-pattern").value = state.settings.roomPattern;
-      $("#room-distance").value = state.settings.roomDistance;
-    }
-    afterRulesChange();
-    updateExport();
+    applySetupData(JSON.parse(await f.text()));
+    state.sample = sample;
     say(state.rules.length === 1 ? tr("Loaded 1 rule.") : tr("Loaded {n} rules.", { n: state.rules.length }), "ok");
   } catch (err) {
     say(tr("That isn't a Plandot setup file ({err}).", { err: err.message }), "err");
@@ -1472,8 +1494,16 @@ async function loadRules(f) {
 
 // ---------------------------------------------------------------- wiring
 function wire() {
-  $("#file-pdf").addEventListener("change", (e) => e.target.files[0] && loadPdfFile(e.target.files[0]));
-  $("#file-xlsx").addEventListener("change", (e) => e.target.files[0] && loadTemplateFile(e.target.files[0]));
+  // Signed out, choosing a file opens the sign-in box instead of the file picker.
+  for (const id of ["#file-pdf", "#file-xlsx"]) $(id).addEventListener("click", (e) => { if (!account.allowUpload()) e.preventDefault(); }, true);
+  const picked = (load) => (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    if (!account.signedIn()) { e.target.value = ""; account.allowUpload(); return; } // a file arrived some other way than a click
+    load(f);
+  };
+  $("#file-pdf").addEventListener("change", picked(loadPdfFile));
+  $("#file-xlsx").addEventListener("change", picked(loadTemplateFile));
   $("#page-select").addEventListener("change", (e) => loadPage(Number(e.target.value)));
   $("#plan-name").addEventListener("input", (e) => { state.settings.planName = e.target.value; saveSoon(); updateExport(); });
   $("#room-pattern").addEventListener("input", (e) => { state.settings.roomPattern = e.target.value; saveSoon(); runDetect(); });
@@ -1539,6 +1569,7 @@ function wire() {
     e.preventDefault(); depth = 0; document.body.classList.remove("dragging");
     for (const f of e.dataTransfer?.files || []) {
       const n = f.name.toLowerCase();
+      if ((n.endsWith(".pdf") || n.endsWith(".xlsx")) && !account.allowUpload()) break;
       if (n.endsWith(".pdf")) await loadPdfFile(f);
       else if (n.endsWith(".xlsx")) await loadTemplateFile(f);
       else if (n.endsWith(".json")) await loadRules(f);
@@ -1560,9 +1591,11 @@ await initLanguageMenu({
   onChange: async () => {
     renderPdfInfo(); renderTplInfo(); renderTemplateInfo(); renderRules(); updateAreaInfo(); refresh();
     $("#draw-area").textContent = state.areaMode ? tr("Cancel") : tr("Draw on sheet");
+    account.refreshText();
   },
 });
 translateDom();
+account.refreshText();
 hydrateInfo();
 setTourHandler(() => startTour({ force: true }));
 renderFooter();

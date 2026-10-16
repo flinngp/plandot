@@ -83,5 +83,10 @@ export default [
 `När en fil är inläst krymper dess steg till en enda rad med en grön bock. Klicka på <strong>Ändra</strong> för att öppna det igen.`,
 `De färgade knapparna ovanför listan visar varje regel med antalet nålar. Klicka på en knapp för att utesluta alla nålar från den regeln, och klicka igen för att ta med dem igen.`,
 `Det mörka fältet under ritningen håller sammanfattningen och knapparna <strong>Kopiera rader</strong>, <strong>Hämta importfil</strong> och <strong>Hämta markerad PDF</strong> alltid inom räckhåll. Om du rullar bort från ritningen svävar det längst ned i fönstret.`,
+`Logga in och sparade regler`,
+`Du kan prova exempelritningen utan att logga in. För att ladda din egen ritning eller importfil med uppgifter loggar du in med din e-postadress: Plandot skickar en kod, du skriver in den och är inne. Det finns inget lösenord, och du förblir inloggad i den webbläsaren.`,
+`När du loggar in kan du också spara dina regler i ditt konto, så att de finns på vilken dator som helst. Plandot erbjuder sig att ladda dem när du loggar in och sparar dina ändringar automatiskt medan du arbetar.`,
+`Ditt konto innehåller bara din e-postadress, ditt abonnemang och dina sparade regler. Dina ritningar och uppgiftsfiler lämnar aldrig din webbläsare.`,
+`Öppna Konto i det övre fältet för att logga ut, ladda ner allt som sparats om dig eller ta bort ditt konto och dina sparade regler för gott.`,
 `Skärmbilderna visar appen på engelska.`,
 ];

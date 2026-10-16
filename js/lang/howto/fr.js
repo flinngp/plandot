@@ -83,5 +83,10 @@ export default [
 `Dès qu'un fichier est chargé, son étape se réduit à une seule ligne avec une coche verte. Cliquez sur <strong>Modifier</strong> pour la rouvrir.`,
 `Les pastilles colorées au-dessus de la liste montrent chaque règle avec son nombre d'épingles. Cliquez sur une pastille pour exclure toutes les épingles de cette règle, et cliquez de nouveau pour les remettre.`,
 `La barre sombre sous le plan garde le résumé et les boutons <strong>Copier les lignes</strong>, <strong>Télécharger le fichier d'import</strong> et <strong>Télécharger le PDF annoté</strong> toujours à portée de main. Si vous vous éloignez du plan, elle flotte en bas de la fenêtre.`,
+`Connexion et règles enregistrées`,
+`Vous pouvez essayer le plan d'exemple sans vous connecter. Pour charger votre propre plan ou fichier d'import de tâches, vous vous connectez avec votre adresse e-mail : Plandot vous envoie un code, vous le saisissez et c'est fait. Il n'y a pas de mot de passe, et vous restez connecté sur ce navigateur.`,
+`La connexion permet aussi d'enregistrer vos règles dans votre compte, pour les retrouver sur n'importe quel ordinateur. Plandot propose de les charger à la connexion et enregistre vos modifications automatiquement pendant que vous travaillez.`,
+`Votre compte ne contient que votre adresse e-mail, votre formule et vos règles enregistrées. Vos plans et fichiers de tâches ne quittent jamais votre navigateur.`,
+`Ouvrez Compte dans la barre du haut pour vous déconnecter, télécharger tout ce qui est conservé à votre sujet ou supprimer définitivement votre compte et vos règles enregistrées.`,
 `Les captures d'écran montrent l'application en anglais.`,
 ];

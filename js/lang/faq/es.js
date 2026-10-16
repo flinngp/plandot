@@ -30,5 +30,11 @@ export default [
 `¡Es totalmente gratis!`,
 `¿Algo salió mal? Cuéntanoslo`,
 `Nos gustaría saberlo. Cuando Plandot muestre un error, pulsa <strong>Copiar detalles</strong> junto a él y pega el texto en nuestro <a id="faq-feedback" href="https://forms.gle/HQUfuJ3h1k2ztf1z9" target="_blank" rel="noopener">formulario de comentarios</a>. Los detalles contienen la versión, el navegador y algunos ajustes, y nunca un nombre de archivo ni nada de tu plano.`,
+`¿Tengo que iniciar sesión?`,
+`Solo para cargar sus propios archivos. El plano de ejemplo funciona sin iniciar sesión, así que puede probar Plandot antes. Iniciar sesión es gratis por ahora y recibe un código por correo en lugar de una contraseña.`,
+`¿Qué guarda Plandot sobre mí?`,
+`Su correo electrónico, su tipo de plan y las reglas que decida guardar. Los planos, archivos de tareas y plantillas nunca se suben. Puede descargar todo lo que se guarda sobre usted o eliminar su cuenta con el botón Cuenta. La página de privacidad tiene los detalles.`,
+`¿Por qué no recibo mi código de inicio de sesión?`,
+`Revise la carpeta de spam o correo no deseado y que la dirección esté bien escrita; espere un minuto y pida un código nuevo. Solo funciona el código más reciente y los códigos caducan pronto. Si sigue sin llegar, envíenos sus comentarios.`,
 ``,
 ];

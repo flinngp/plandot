@@ -30,5 +30,11 @@ export default [
 `Es ist völlig kostenlos!`,
 `Etwas ist schiefgegangen? Sagen Sie es uns`,
 `Wir möchten davon hören. Wenn Plandot einen Fehler anzeigt, klicken Sie daneben auf <strong>Details kopieren</strong> und fügen Sie den Text in unser <a id="faq-feedback" href="https://forms.gle/HQUfuJ3h1k2ztf1z9" target="_blank" rel="noopener">Feedback-Formular</a> ein. Die Details enthalten die Version, den Browser und einige Einstellungen, aber nie einen Dateinamen oder etwas aus Ihrer Zeichnung.`,
+`Muss ich mich anmelden?`,
+`Nur um eigene Dateien zu laden. Der Beispielplan funktioniert ohne Anmeldung, Sie können Plandot also zuerst ausprobieren. Die Anmeldung ist vorerst kostenlos, und statt eines Passworts erhalten Sie einen Code per E-Mail.`,
+`Was speichert Plandot über mich?`,
+`Ihre E-Mail-Adresse, Ihren Tarif und die Regeln, die Sie speichern möchten. Pläne, Aufgabendateien und Vorlagen werden nie hochgeladen. Mit der Schaltfläche Konto können Sie alles über Sie Gespeicherte herunterladen oder Ihr Konto löschen. Die Datenschutzseite nennt die Einzelheiten.`,
+`Warum bekomme ich meinen Anmeldecode nicht?`,
+`Prüfen Sie Ihren Spam-Ordner und die Schreibweise der Adresse, warten Sie eine Minute und fordern Sie einen neuen Code an. Nur der neueste Code funktioniert, und Codes laufen nach kurzer Zeit ab. Kommt er weiterhin nicht an, senden Sie uns Feedback.`,
 ``,
 ];

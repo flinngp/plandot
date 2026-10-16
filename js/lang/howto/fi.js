@@ -83,5 +83,10 @@ export default [
 `Kun tiedosto on ladattu, sen vaihe tiivistyy yhdeksi riviksi, jossa on vihreä valintamerkki. Avaa se uudelleen painamalla <strong>Vaihda</strong>.`,
 `Luettelon yläpuolella olevat värilliset painikkeet näyttävät jokaisen säännön ja sen nastojen määrän. Napsauta painiketta jättääksesi kaikki säännön nastat pois, ja napsauta uudelleen palauttaaksesi ne.`,
 `Piirustuksen alla oleva tumma palkki pitää yhteenvedon sekä painikkeet <strong>Kopioi rivit</strong>, <strong>Lataa tuontitiedosto</strong> ja <strong>Lataa merkitty PDF</strong> aina käden ulottuvilla. Jos vierität pois piirustuksen luota, palkki leijuu ikkunan alareunassa.`,
+`Kirjautuminen ja tallennetut säännöt`,
+`Voit kokeilla esimerkkipiirrosta kirjautumatta. Oman piirroksesi tai tehtävien tuontitiedostosi lataamiseen kirjaudut sähköpostiosoitteellasi: Plandot lähettää sinulle koodin, kirjoitat sen, ja olet sisällä. Salasanaa ei ole, ja pysyt kirjautuneena kyseisessä selaimessa.`,
+`Kirjautumalla voit myös tallentaa säännöt tilillesi, jolloin ne ovat valmiina millä tahansa tietokoneella. Plandot tarjoutuu lataamaan ne kirjautuessasi ja tallentaa muutokset automaattisesti työskennellessäsi.`,
+`Tilisi sisältää vain sähköpostiosoitteesi, tilauksesi ja tallennetut sääntösi. Piirroksesi ja tehtävätiedostosi eivät koskaan poistu selaimestasi.`,
+`Avaa yläpalkista Tili, jos haluat kirjautua ulos, ladata kaiken sinusta tallennetun tai poistaa tilisi ja tallennetut sääntösi pysyvästi.`,
 `Kuvakaappaukset näyttävät sovelluksen englanniksi.`,
 ];

@@ -280,7 +280,7 @@ test("the FAQ answers can be opened", async () => {
   const page = await env.browser.newPage({ viewport: { width: 1280, height: 900 } });
   await page.goto(`${env.server.url}/faq.html`);
   const n = await page.$$eval("details", (d) => d.length);
-  assert.equal(n, 9);
+  assert.equal(n, 12);
   await page.click("summary >> nth=0");
   assert.equal(await page.$eval("details", (d) => d.open), true);
   assert.match(await page.textContent("details[open]"), /never sent to a server|runs entirely in your browser/);
@@ -309,7 +309,7 @@ test("the FAQ says what it should and leaves out what it shouldn't", async () =>
   assert.match(html, /<summary[^>]*>Which browsers and languages does Plandot support\?<\/summary>/);
   assert.match(html, /<summary[^>]*>Something went wrong\? Let us know<\/summary>/);
   assert.match(html, /<a id="faq-feedback" href="https:\/\/forms\.gle\//);
-  assert.doesNotMatch(html, /usage|statistic|analytic|visits|counts? |cookie/i);
+  assert.doesNotMatch(html, /usage|statistic|analytic|visits|\bcounts? |cookie/i);
   assert.doesNotMatch(html, /haven't been tested|hasn't been tested|not been tested|untested/i);
   assert.doesNotMatch(html, /How to use|who makes it/);
 });
