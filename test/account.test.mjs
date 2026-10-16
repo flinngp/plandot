@@ -64,7 +64,7 @@ function service(over = {}) {
 }
 
 /** A page with sign-in switched on and a pretend service behind it. */
-async function open({ svc = service(), viewport = { width: 1440, height: 900 }, stored = null, accounts = true, locale = "en-GB" } = {}) {
+async function open({ svc = service(), viewport = { width: 1440, height: 900 }, stored = null, accounts = true, locale = "en-GB", siteKey = "", turnstile = "ok" } = {}) {
   const ctx = await env.browser.newContext({ viewport, locale, acceptDownloads: true });
   const page = await ctx.newPage();
   page.errors = [];
@@ -74,8 +74,13 @@ async function open({ svc = service(), viewport = { width: 1440, height: 900 }, 
     const res = await route.fetch();
     const val = accounts ? `{ url: "${HOST}", key: "${KEY}" }` : `{ url: "", key: "" }`;
     const text = (await res.text()).replace(/export const ACCOUNTS = \{[^}]*\};/, `export const ACCOUNTS = ${val};`);
-    await route.fulfill({ response: res, body: text });
+    await route.fulfill({ response: res, body: text.replace(/export const CAPTCHA = \{[^}]*\};/, `export const CAPTCHA = { siteKey: "${siteKey}" };`) });
   });
+  // A stand-in for Cloudflare's script: it hands out numbered tokens, or fails when the test asks it to.
+  await ctx.route("https://challenges.cloudflare.com/**", (route) => route.fulfill({ status: 200, contentType: "text/javascript", body: `
+    window.__ts = { renders: 0, executes: 0 };
+    window.turnstile = { render(el, o) { window.__ts.renders++; window.__ts.opts = { sitekey: o.sitekey, appearance: o.appearance, execution: o.execution }; window.__ts.o = o; return "w1"; },
+      reset() {}, execute() { window.__ts.executes++; const o = window.__ts.o; setTimeout(() => ${turnstile === "ok" ? "o.callback('tok-' + window.__ts.executes)" : "o['error-callback']()"}, 20); } };` }));
   await ctx.route("**/*.html", async (route) => {
     const res = await route.fetch();
     const text = (await res.text()).replaceAll("https://bugqhjkkjybcbnfjpeke.supabase.co", HOST);
@@ -512,5 +517,41 @@ test("with sign-in on, the page hides itself when shown inside another site's pa
   await frame.waitForFunction(() => document.documentElement.hidden === true);
   const shown = await frame.evaluate(() => getComputedStyle(document.body).display !== "none" && document.documentElement.getBoundingClientRect().height > 0);
   assert.equal(shown, false);
+  await ctx.close();
+});
+
+test("with a site key, each code request carries a fresh bot-check token, and a failed check explains itself", async () => {
+  const { page, svc, ctx } = await open({ siteKey: "0x4AAAAAAAtestkey1234" });
+  await page.click("#account-btn");
+  await page.fill("#signin-email", "bob@example.com");
+  await page.click("#signin-send");
+  await page.waitForSelector("#signin-code-form:not([hidden])");
+  const otp = () => svc.calls.filter((c) => c.path === "/auth/v1/otp");
+  assert.equal(otp()[0].body.gotrue_meta_security.captcha_token, "tok-1");
+  assert.deepEqual(await page.evaluate(() => window.__ts.opts), { sitekey: "0x4AAAAAAAtestkey1234", appearance: "interaction-only", execution: "execute" });
+  await page.evaluate(() => { document.querySelector("#signin-resend").disabled = false; });
+  await page.click("#signin-resend");
+  await until(() => otp().length === 2);
+  assert.equal(otp()[1].body.gotrue_meta_security.captcha_token, "tok-2");
+  assert.deepEqual(page.errors, []);
+  await ctx.close();
+
+  const bad = await open({ siteKey: "0x4AAAAAAAtestkey1234", turnstile: "fail" });
+  await bad.page.click("#account-btn");
+  await bad.page.fill("#signin-email", "bob@example.com");
+  await bad.page.click("#signin-send");
+  await until(async () => (await bad.page.$eval("#signin-error", (e) => e.textContent)).includes("robot"));
+  assert.equal(bad.svc.calls.filter((c) => c.path === "/auth/v1/otp").length, 0, "no email is requested when the check fails");
+  await bad.ctx.close();
+});
+
+test("with no site key, no bot check is loaded and no token is sent", async () => {
+  const { page, svc, ctx } = await open();
+  await page.click("#account-btn");
+  await page.fill("#signin-email", "bob@example.com");
+  await page.click("#signin-send");
+  await page.waitForSelector("#signin-code-form:not([hidden])");
+  assert.equal(svc.calls.find((c) => c.path === "/auth/v1/otp").body.gotrue_meta_security, undefined);
+  assert.equal(await page.evaluate(() => typeof window.turnstile), "undefined");
   await ctx.close();
 });

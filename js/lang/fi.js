@@ -360,4 +360,13 @@ export default {
  "That drawing is over 250 MB, which is too big to open here.": "Piirros on yli 250 Mt, liian suuri avattavaksi tässä.",
  "That template is over 20 MB. A Fieldwire import template is much smaller.": "Mallipohja on yli 20 Mt. Fieldwiren tuontipohja on paljon pienempi.",
  "That pattern is too long or too complicated and could freeze the page. Simplify it.": "Kuvio on liian pitkä tai monimutkainen ja voi jumittaa sivun. Yksinkertaista sitä.",
+ "We couldn't confirm you're not a robot. Reload the page and try again, or turn off any content blockers for this site.": "Emme voineet vahvistaa, ettet ole robotti. Lataa sivu uudelleen ja yritä uudelleen tai poista sisällönestäjät käytöstä tällä sivustolla.",
+ "Edit rules": "Muokkaa sääntöjä",
+ "Review pins": "Tarkista nastat",
+ "Help": "Ohje",
+ "1 rule": "1 sääntö",
+ "{n} rules": "{n} sääntöä",
+ "Load your drawing and import template": "Lataa piirros ja tuontipohja",
+ "Make a rule for each kind of callout": "Tee sääntö jokaiselle merkintätyypille",
+ "Check the pins, then download the file": "Tarkista nastat ja lataa sitten tiedosto",
 };

@@ -360,4 +360,13 @@ export default {
  "That drawing is over 250 MB, which is too big to open here.": "Deze tekening is groter dan 250 MB en te groot om hier te openen.",
  "That template is over 20 MB. A Fieldwire import template is much smaller.": "Dit sjabloon is groter dan 20 MB. Een Fieldwire-importsjabloon is veel kleiner.",
  "That pattern is too long or too complicated and could freeze the page. Simplify it.": "Dit patroon is te lang of te ingewikkeld en kan de pagina laten vastlopen. Vereenvoudig het.",
+ "We couldn't confirm you're not a robot. Reload the page and try again, or turn off any content blockers for this site.": "We konden niet bevestigen dat je geen robot bent. Laad de pagina opnieuw en probeer het nog eens, of zet contentblockers uit voor deze site.",
+ "Edit rules": "Regels bewerken",
+ "Review pins": "Pins controleren",
+ "Help": "Help",
+ "1 rule": "1 regel",
+ "{n} rules": "{n} regels",
+ "Load your drawing and import template": "Laad je tekening en importsjabloon",
+ "Make a rule for each kind of callout": "Maak een regel voor elk soort verwijzing",
+ "Check the pins, then download the file": "Controleer de pins en download dan het bestand",
 };

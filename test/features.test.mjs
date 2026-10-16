@@ -473,9 +473,9 @@ test("the page has the basics for keyboard and screen-reader use", async () => {
   await page.close();
 });
 
-test("the page works at phone width: one column, the drawing first, nothing sideways", async () => {
+test("the page works at phone width: one column, the steps first, the plan after the rules, nothing sideways", async () => {
   const page = await withSample({ width: 390, height: 800 });
-  const info = await page.evaluate(() => ({ over: document.documentElement.scrollWidth - innerWidth, order: document.querySelector(".sheetpane").getBoundingClientRect().top < document.querySelector(".controls").getBoundingClientRect().top }));
+  const info = await page.evaluate(() => ({ over: document.documentElement.scrollWidth - innerWidth, order: document.querySelector("#step-drawing").getBoundingClientRect().top < document.querySelector("#step-rules").getBoundingClientRect().top && document.querySelector("#step-rules").getBoundingClientRect().top < document.querySelector(".sheetpane").getBoundingClientRect().top && document.querySelector(".sheetpane").getBoundingClientRect().top < document.querySelector("#pinlist").getBoundingClientRect().top }));
   assert.ok(info.over <= 1, `scrolls sideways by ${info.over}`);
   assert.ok(info.order);
   await page.click("#zoom-in");
@@ -518,6 +518,7 @@ test("the tour is skippable, remembers that it was closed, and can be taken agai
 
 test("the tour is a bottom card on a phone and the page still fits", async () => {
   const page = await fresh({ width: 390, height: 800 });
+  await page.click(".help-toggle"); // on a phone the menu links sit behind one Help button
   await page.click(".tour-link");
   const r = await page.evaluate(() => { const c = document.querySelector(".tour-card").getBoundingClientRect(); return { inside: c.left >= 0 && c.right <= innerWidth && c.bottom <= innerHeight, ring: document.querySelector(".tour-ring").hidden, fits: document.documentElement.scrollWidth <= innerWidth }; });
   assert.deepEqual(r, { inside: true, ring: true, fits: true });
@@ -664,8 +665,10 @@ test("the import bar waits until the plan name is in, and the buttons are off me
 
 test("on a phone the bar floats at the bottom, the page still fits, and the key wraps", async () => {
   const page = await withSample({ width: 390, height: 844 });
+  await page.evaluate(() => document.querySelector("#viewport").scrollIntoView({ block: "center" }));
+  await page.waitForFunction(() => !document.querySelector("#importbar").classList.contains("floating"));
   assert.equal(await page.$eval("#importbar", (e) => e.classList.contains("floating")), false, "in place while the drawing is on screen");
-  await page.evaluate(() => window.scrollTo(0, 1200)); // down among the rules: the bar's own spot is out of sight, so it floats
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); // down at the pin list: the bar's own spot is out of sight, so it floats
   await page.waitForFunction(() => document.querySelector("#importbar").classList.contains("floating"));
   const fl = await box(page, "#importbar");
   assert.ok(fl.x >= 0 && fl.x + fl.w <= 390 && Math.abs(fl.y + fl.h - 844) < 20);
@@ -673,4 +676,56 @@ test("on a phone the bar floats at the bottom, the page still fits, and the key 
   const key = await box(page, "#rulekey");
   assert.ok(key.x >= 0 && key.x + key.w <= 391);
   await page.ctx?.close?.();
+});
+
+test("on a phone the rules fold away once there are pins, and Edit rules opens them again; on a desktop they stay open", async () => {
+  const phone = await withSample({ width: 390, height: 844 });
+  assert.equal(await phone.$eval("#step-rules", (e) => e.classList.contains("collapsed")), true);
+  assert.match(await phone.textContent("#sum-rules-sub"), /3 rules · All 13 pins/);
+  assert.equal(await phone.$eval("#rules", (e) => getComputedStyle(e).display), "none");
+  await phone.click("#change-rules");
+  assert.equal(await phone.$eval("#step-rules", (e) => e.classList.contains("collapsed")), false);
+  assert.equal(await phone.$eval("#rules", (e) => getComputedStyle(e).display !== "none"), true);
+  await phone.close();
+  const desk = await withSample({ width: 1440, height: 900 });
+  assert.equal(await desk.$eval("#step-rules", (e) => e.classList.contains("collapsed")), false);
+  await desk.close();
+});
+
+test("the last step: Download is the one filled button, Copy rows is quiet, Review pins jumps to the list", async () => {
+  const page = await withSample({ width: 1440, height: 900 });
+  assert.equal(await page.$eval("#ib-file", (e) => e.classList.contains("primary")), true);
+  assert.equal(await page.$eval("#ib-copy", (e) => e.classList.contains("primary")), false);
+  await page.click("#ib-review");
+  await page.waitForFunction(() => document.querySelector("#pinlist").getBoundingClientRect().top < innerHeight / 2);
+  await page.close();
+});
+
+test("the empty state shows the three steps, and on a phone the sample button sits right under the two file steps", async () => {
+  const page = await env.browser.newPage({ viewport: { width: 390, height: 844 } });
+  await page.goto(`${env.server.url}/index.html`);
+  assert.equal(await page.locator(".dz-steps li").count(), 3);
+  const r = await page.evaluate(() => { const y = (s) => document.querySelector(s).getBoundingClientRect().top; return y("#step-template") < y("#try-sample") && y("#try-sample") < y("#step-rules"); });
+  assert.equal(r, true);
+  await page.close();
+});
+
+test("the pins table on a phone shows only the columns you check", async () => {
+  const page = await withSample({ width: 390, height: 844 });
+  const shown = await page.$$eval(".pinlist thead th", (t) => t.filter((x) => getComputedStyle(x).display !== "none").length);
+  assert.ok(shown <= 6, `${shown} columns`);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.close();
+});
+
+test("on a phone the menu links sit behind one Help button", async () => {
+  const page = await fresh({ width: 390, height: 800 });
+  assert.equal(await page.$eval(".feedback-link, a[href='faq.html']", (a) => getComputedStyle(a).display), "none");
+  await page.click(".help-toggle");
+  assert.equal(await page.$eval("#topnav a[href='faq.html']", (a) => getComputedStyle(a).display !== "none"), true);
+  assert.equal(await page.getAttribute(".help-toggle", "aria-expanded"), "true");
+  await page.close();
+  const wide = await fresh({ width: 1280, height: 800 });
+  assert.equal(await wide.$eval(".help-toggle", (b) => getComputedStyle(b).display), "none");
+  await wide.close();
 });

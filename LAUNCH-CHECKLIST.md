@@ -35,3 +35,10 @@ This file is for you, not for the website. Tick things off before Fieldwire test
 
 ## Email sending limit (see the answer in chat)
 - [ ] Add a custom SMTP sender (Resend) under Authentication > Emails > SMTP Settings, verify plandot.uk in Resend with the DNS records it gives you, then raise the limit under Authentication > Rate Limits.
+
+## Bot check on sign-in (Cloudflare Turnstile)
+1. Sign in at dash.cloudflare.com (free), open **Turnstile**, choose **Add widget**. Name it Plandot, add the hostnames `plandot.uk` and `www.plandot.uk`, widget mode **Managed**.
+2. Cloudflare shows a **Site key** (public) and a **Secret key** (private).
+3. In Supabase: **Authentication, Attack Protection**, turn on **Enable CAPTCHA protection**, choose **Cloudflare Turnstile**, paste the **Secret key**, save. Never share the secret key with anyone, including Claude.
+4. In `js/config.js` set `export const CAPTCHA = { siteKey: "<your site key>" };` then commit and push.
+5. Test: sign in on plandot.uk. Do step 3 and 4 together, because with CAPTCHA on in Supabase but no site key on the page, sign-in stops working.

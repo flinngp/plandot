@@ -181,7 +181,7 @@ test("the menu bar at the top links to the how to guide and the FAQ, on every pa
   await page.waitForURL(/howto\.html/);
   await page.waitForSelector("#topnav a");
   assert.equal(await page.getAttribute("#topnav a[href='howto.html']", "aria-current"), "page");
-  assert.equal(await page.textContent("#topnav a:first-child"), "Home");
+  assert.equal(await page.textContent("#topnav .nav-app"), "Home");
   assert.equal(await page.textContent("h1:not(.brand h1)"), "How to guide");
   await page.click("#topnav a[href='faq.html']");
   await page.waitForURL(/faq\.html/);

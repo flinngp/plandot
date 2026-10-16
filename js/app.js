@@ -1199,13 +1199,20 @@ function renderRuleKey() {
 }
 
 // ---------------------------------------------------------------- steps 1 and 2 shrink to a tick once they are done
-const ui = { drawingOpen: false, templateOpen: false, planEditing: false };
+const ui = { drawingOpen: false, templateOpen: false, planEditing: false, rulesOpen: false };
+const narrow = () => window.matchMedia("(max-width: 1000px)").matches;
 function syncSteps() {
   const t = state.tpl?.parsed;
   const dDone = !!state.pdf?.tokens && $("#pdf-alert").hidden && !ui.drawingOpen;
   const tDone = !!t && !t.missing.length && !t.guessed && hasText(state.settings.planName) && !ui.templateOpen && !ui.planEditing;
   $("#step-drawing").classList.toggle("collapsed", dDone);
   $("#step-template").classList.toggle("collapsed", tDone);
+  // On a phone, once there are pins the rules fold away so the download is the next thing in view.
+  const pinCount = state.pins.length;
+  const rDone = narrow() && !!state.pdf && pinCount > 0 && !ui.rulesOpen;
+  $("#step-rules").classList.toggle("collapsed", rDone);
+  if (rDone) $("#sum-rules-sub").textContent = `${state.rules.length === 1 ? tr("1 rule") : tr("{n} rules", { n: state.rules.length })} · ${pinCount === 1 ? tr("1 pin") : tr("All {n} pins", { n: pinCount })}`;
+  document.body.classList.toggle("has-drawing", !!state.pdf);
   if (dDone) $("#sum-drawing-sub").textContent = file(state.pdf.name);
   if (tDone) $("#sum-template-sub").textContent = `${state.settings.planName.trim()} · ${file(state.tpl.name)}`;
 }
@@ -1430,7 +1437,7 @@ function startOver() {
   try { state.pdf?.doc?.destroy?.(); } catch { /* already gone */ }
   Object.assign(state, { sample: false, pdf: null, tpl: null, rules: [newRule(1)], settings: { ...DEFAULT_SETTINGS }, edits: {}, pins: [], errors: {}, areaMode: false, areaStart: null, areaDraft: null, boxFor: null, boxDraft: null, animate: false, busy: false, zoom: 1 });
   kb.on = false;
-  Object.assign(ui, { drawingOpen: false, templateOpen: false, planEditing: false });
+  Object.assign(ui, { drawingOpen: false, templateOpen: false, planEditing: false, rulesOpen: false });
   resetHistory();
   try { localStorage.removeItem(STORE_KEY); } catch { /* storage blocked: nothing to clear */ }
 
@@ -1574,6 +1581,9 @@ function wire() {
   $("#ib-copy").addEventListener("click", copyFromBar);
   watchImportBar();
   $("#change-drawing").addEventListener("click", () => { ui.drawingOpen = true; syncSteps(); $("#file-pdf").focus(); });
+  $("#change-rules").addEventListener("click", () => { ui.rulesOpen = true; syncSteps(); $("#step-rules").scrollIntoView({ block: "start" }); });
+  window.matchMedia("(max-width: 1000px)").addEventListener?.("change", syncSteps);
+  $("#ib-review").addEventListener("click", () => { const p = $("#pinlist"); if (!p.hidden) p.scrollIntoView({ behavior: "smooth", block: "start" }); });
   $("#change-template").addEventListener("click", () => { ui.templateOpen = true; syncSteps(); $("#file-xlsx").focus(); });
   $("#plan-name").addEventListener("focus", () => { ui.planEditing = true; });
   // The template card shrinks only once the click that left the plan name has finished (and after a pause for the keyboard), so nothing moves under the pointer mid-click.

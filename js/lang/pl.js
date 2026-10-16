@@ -360,4 +360,13 @@ export default {
  "That drawing is over 250 MB, which is too big to open here.": "Ten rysunek ma ponad 250 MB i jest za duży, aby go tu otworzyć.",
  "That template is over 20 MB. A Fieldwire import template is much smaller.": "Ten szablon ma ponad 20 MB. Szablon importu Fieldwire jest znacznie mniejszy.",
  "That pattern is too long or too complicated and could freeze the page. Simplify it.": "Ten wzorzec jest zbyt długi lub skomplikowany i może zawiesić stronę. Uprość go.",
+ "We couldn't confirm you're not a robot. Reload the page and try again, or turn off any content blockers for this site.": "Nie udało się potwierdzić, że nie jesteś robotem. Odśwież stronę i spróbuj ponownie lub wyłącz blokery treści dla tej witryny.",
+ "Edit rules": "Edytuj reguły",
+ "Review pins": "Sprawdź pinezki",
+ "Help": "Pomoc",
+ "1 rule": "1 reguła",
+ "{n} rules": "{n} reguł",
+ "Load your drawing and import template": "Wczytaj rysunek i szablon importu",
+ "Make a rule for each kind of callout": "Utwórz regułę dla każdego rodzaju oznaczenia",
+ "Check the pins, then download the file": "Sprawdź pinezki, a potem pobierz plik",
 };

@@ -2,7 +2,8 @@
 // and saved rules. The sign-in itself is in auth.js. With no project set in js/config.js all of this stays off
 // and Plandot works without accounts.
 import { tr } from "./i18n.js";
-import { ACCOUNTS } from "./config.js";
+import { ACCOUNTS, CAPTCHA } from "./config.js";
+import { createCaptcha } from "./captcha.js";
 import { createAuth, accountSettings, isEmail, isCode, cleanCode, SESSION_KEY } from "./auth.js";
 
 const OFF = Object.freeze({ enabled: false, signedIn: () => true, allowUpload: () => true, openRules() {}, saveRules() {}, noteChange() {}, refreshText() {} });
@@ -23,8 +24,14 @@ export function initAccount({ say, getRules, addRules, download, doc = document,
   return build({ cfg, say, getRules, addRules, download, doc, win, fetchFn });
 }
 
-export function build({ cfg, say, getRules, addRules, download, doc, win, fetchFn, auth: injected }) {
+export function build({ cfg, say, getRules, addRules, download, doc, win, fetchFn, auth: injected, captcha: injectedCaptcha }) {
   const el = (id) => doc.getElementById(id);
+  const captcha = injectedCaptcha !== undefined ? injectedCaptcha : createCaptcha({ siteKey: CAPTCHA.siteKey, container: el("signin-captcha"), doc, win });
+  /** A fresh bot-check token for sending a code, or undefined when the check is off. Throws AuthError("captcha") if it fails. */
+  async function checkHuman() {
+    if (!captcha) return undefined;
+    try { return await captcha.token(); } catch { throw Object.assign(new Error("captcha"), { kind: "captcha" }); }
+  }
   const auth = injected || createAuth({ url: cfg.url, key: cfg.key, ...(fetchFn ? { fetchFn } : {}) });
   const btn = el("account-btn");
   const gate = el("gate");
@@ -75,6 +82,7 @@ export function build({ cfg, say, getRules, addRules, download, doc, win, fetchF
     badCode: tr("That code didn't work. Check it, or send a new one."),
     rate: tr("Too many attempts. Wait a minute and try again."),
     offline: tr("Can't reach the sign-in service. Check your connection and try again."),
+    captcha: tr("We couldn't confirm you're not a robot. Reload the page and try again, or turn off any content blockers for this site."),
     badName: tr("A saved rule needs a name."),
     exists: tr("You already have a saved rule with that name."),
     limit: tr("You can keep up to 200 saved rules."),
@@ -131,7 +139,7 @@ export function build({ cfg, say, getRules, addRules, download, doc, win, fetchF
     if (!isEmail(email)) { setError("signin-error", messageFor({ kind: "badEmail" })); return; }
     sending = true; el("signin-send").disabled = true; setError("signin-error", "");
     try {
-      await auth.sendCode(email);
+      await auth.sendCode(email, await checkHuman());
       pendingEmail = email;
       el("signin-code").value = "";
       paintSent();
@@ -146,7 +154,7 @@ export function build({ cfg, say, getRules, addRules, download, doc, win, fetchF
   el("signin-resend").addEventListener("click", async () => {
     if (sending || !pendingEmail) return;
     sending = true; setError("signin-error", "");
-    try { await auth.sendCode(pendingEmail); cooldown(); el("signin-code").focus(); }
+    try { await auth.sendCode(pendingEmail, await checkHuman()); cooldown(); el("signin-code").focus(); }
     catch (err) { setError("signin-error", messageFor(err)); }
     finally { sending = false; }
   });

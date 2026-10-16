@@ -14,7 +14,7 @@ export const SESSION_KEY = "plandot.session";
 const REFRESH_MARGIN = 60; // renew the pass when it has less than this many seconds left
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** kind is one of: badEmail, badCode, badName, exists, limit, rate, offline, failed, signedOut. The page turns it into a sentence. */
+/** kind is one of: captcha, badEmail, badCode, badName, exists, limit, rate, offline, failed, signedOut. The page turns it into a sentence. */
 export class AuthError extends Error {
   constructor(kind, status = 0) {
     super(kind);
@@ -129,10 +129,12 @@ export function createAuth({ url, key, fetchFn = (...a) => globalThis.fetch(...a
   const ok = (r) => r.status >= 200 && r.status < 300;
   const code = (r) => String(r.json?.error_code ?? r.json?.code ?? "");
 
-  async function sendCode(email) {
+  async function sendCode(email, captchaToken) {
     if (!isEmail(email)) throw new AuthError("badEmail");
-    const r = await api("/auth/v1/otp", { method: "POST", body: { email, create_user: true } });
+    const body = { email, create_user: true, ...(captchaToken ? { gotrue_meta_security: { captcha_token: String(captchaToken).slice(0, 4096) } } : {}) };
+    const r = await api("/auth/v1/otp", { method: "POST", body });
     if (ok(r)) return;
+    if (code(r).startsWith("captcha")) throw new AuthError("captcha", r.status);
     if (r.status === 429 || code(r) === "over_email_send_rate_limit" || code(r) === "over_request_rate_limit") throw new AuthError("rate", r.status);
     if (code(r) === "email_address_invalid" || code(r) === "validation_failed") throw new AuthError("badEmail", r.status);
     throw new AuthError("failed", r.status);

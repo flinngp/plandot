@@ -13,6 +13,11 @@ export const FEEDBACK = { url: "https://forms.gle/HQUfuJ3h1k2ztf1z9", email: "" 
 // Both are meant to be seen by every visitor. NEVER paste the "secret" or "service_role" key here: the page refuses it.
 export const ACCOUNTS = { url: "https://bugqhjkkjybcbnfjpeke.supabase.co", key: "sb_publishable_HIk_jS2X3763e5ztVhRnCA_NNnxVvLf" };
 
+// Bot check on the sign-in box (Cloudflare Turnstile). Paste the PUBLIC "site key" here after you create the widget at
+// dash.cloudflare.com (Turnstile) and enable it in Supabase (Authentication, Attack Protection). Leave empty to switch off.
+// The SECRET key goes only into Supabase, never into this file.
+export const CAPTCHA = { siteKey: "" };
+
 /** The address behind "Send feedback", or "" when none is set. */
 export function feedbackHref(cfg = FEEDBACK, version = VERSION, env = (typeof navigator !== "undefined" ? navigator.userAgent : "")) {
   if (cfg.url) return cfg.url;

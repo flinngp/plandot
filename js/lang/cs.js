@@ -360,4 +360,13 @@ export default {
  "That drawing is over 250 MB, which is too big to open here.": "Tento výkres má přes 250 MB a je příliš velký na otevření.",
  "That template is over 20 MB. A Fieldwire import template is much smaller.": "Tato šablona má přes 20 MB. Importní šablona Fieldwire je mnohem menší.",
  "That pattern is too long or too complicated and could freeze the page. Simplify it.": "Tento vzor je příliš dlouhý nebo složitý a mohl by zablokovat stránku. Zjednodušte jej.",
+ "We couldn't confirm you're not a robot. Reload the page and try again, or turn off any content blockers for this site.": "Nepodařilo se potvrdit, že nejste robot. Načtěte stránku znovu a zkuste to znovu, nebo pro tento web vypněte blokování obsahu.",
+ "Edit rules": "Upravit pravidla",
+ "Review pins": "Zkontrolovat piny",
+ "Help": "Nápověda",
+ "1 rule": "1 pravidlo",
+ "{n} rules": "{n} pravidel",
+ "Load your drawing and import template": "Načtěte výkres a importní šablonu",
+ "Make a rule for each kind of callout": "Vytvořte pravidlo pro každý druh označení",
+ "Check the pins, then download the file": "Zkontrolujte piny a stáhněte soubor",
 };

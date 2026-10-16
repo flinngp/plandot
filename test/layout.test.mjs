@@ -65,10 +65,10 @@ test("the pin list runs under both columns, and the setup panel is as tall as th
   await page.close();
 });
 
-test("on a phone the sheet comes first and nothing overflows sideways", async () => {
+test("on a phone the steps come first, then the sheet, and nothing overflows sideways", async () => {
   const page = await env.browser.newPage({ viewport: { width: 390, height: 800 } });
   await loadSample(page);
-  const r = await page.evaluate(() => ({ sheetFirst: document.querySelector(".sheetpane").getBoundingClientRect().top < document.querySelector(".controls").getBoundingClientRect().top, fits: document.documentElement.scrollWidth <= innerWidth }));
+  const r = await page.evaluate(() => ({ sheetFirst: document.querySelector("#step-drawing").getBoundingClientRect().top < document.querySelector(".sheetpane").getBoundingClientRect().top, fits: document.documentElement.scrollWidth <= innerWidth }));
   await page.close();
   assert.deepEqual(r, { sheetFirst: true, fits: true });
 });

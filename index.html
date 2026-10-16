@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://plandot.goatcounter.com; font-src 'self'; media-src 'self'; connect-src 'self' blob: data: https://plandot.goatcounter.com https://bugqhjkkjybcbnfjpeke.supabase.co; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval' https://gc.zgo.at https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://plandot.goatcounter.com; font-src 'self'; media-src 'self'; connect-src 'self' blob: data: https://plandot.goatcounter.com https://bugqhjkkjybcbnfjpeke.supabase.co; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <script src="js/guard.js"></script>
 <title>Plandot</title>
 <meta name="description" content="Turn callouts and symbols on a plan into pins, ready to import. Everything runs in your browser; drawings are never uploaded.">
@@ -86,6 +86,7 @@
     </section>
 
     <section class="step" id="step-rules">
+      <div class="step-sum" id="sum-rules"><span class="tick" aria-hidden="true">✓</span><div class="t"><b data-i18n>Rules</b><span id="sum-rules-sub"></span></div><button type="button" class="btn link" id="change-rules" data-i18n>Edit rules</button></div>
       <div class="step-head">
         <h2><span class="num">3</span> <span data-i18n>Rules</span></h2>
         <div class="step-tools">
@@ -186,13 +187,19 @@
     </div>
     <div class="importslot" id="importslot" hidden><div class="importbar" id="importbar" role="group" aria-label="Download" data-i18n-aria>
       <p class="ib-sum" id="ib-sum" role="status"></p>
-      <button type="button" class="btn ghost" id="ib-file" data-i18n>Download import file</button>
-      <button type="button" class="btn primary" id="ib-copy">Copy rows</button>
+      <button type="button" class="btn link-light" id="ib-review" data-i18n>Review pins</button>
+      <button type="button" class="btn ghost" id="ib-copy">Copy rows</button>
+      <button type="button" class="btn primary" id="ib-file" data-i18n>Download import file</button>
     </div></div>
     <div class="dropzone" id="dropzone">
       <p class="dz-title" data-i18n>Drop the drawing PDF here</p>
       <p data-i18n>You can drop the import template too. Nothing leaves your computer.</p>
       <button type="button" class="btn primary" id="try-sample" data-i18n>Try with a sample drawing</button>
+      <ol class="dz-steps">
+        <li><span class="num">1</span><span data-i18n>Load your drawing and import template</span></li>
+        <li><span class="num">2</span><span data-i18n>Make a rule for each kind of callout</span></li>
+        <li><span class="num">3</span><span data-i18n>Check the pins, then download the file</span></li>
+      </ol>
       <p class="dz-help"><a href="howto.html" data-i18n>New here? See how it works</a></p>
     </div>
   </section>
@@ -234,6 +241,7 @@
       <button type="submit" class="btn primary" id="signin-verify" data-i18n>Verify</button>
       <div class="row"><button type="button" class="btn link" id="signin-resend">Send a new code</button><button type="button" class="btn link" id="signin-back" data-i18n>Use a different email</button></div>
     </form>
+    <div id="signin-captcha" class="captcha-box"></div>
     <p class="form-error" id="signin-error" role="alert" hidden></p>
     <p class="hint small" data-i18n>Drawings stay in your browser. We keep only your email, your plan and your saved rules.</p>
     <p class="hint small"><span data-i18n>By signing in you agree to:</span> <a href="terms.html" target="_blank" rel="noopener" data-i18n>Terms</a> · <a href="privacy.html" target="_blank" rel="noopener" data-i18n>Privacy</a></p>

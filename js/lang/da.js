@@ -360,4 +360,13 @@ export default {
  "That drawing is over 250 MB, which is too big to open here.": "Tegningen er over 250 MB og for stor til at åbne her.",
  "That template is over 20 MB. A Fieldwire import template is much smaller.": "Skabelonen er over 20 MB. En Fieldwire-importskabelon er meget mindre.",
  "That pattern is too long or too complicated and could freeze the page. Simplify it.": "Mønsteret er for langt eller for kompliceret og kan få siden til at fryse. Forenkl det.",
+ "We couldn't confirm you're not a robot. Reload the page and try again, or turn off any content blockers for this site.": "Vi kunne ikke bekræfte, at du ikke er en robot. Genindlæs siden og prøv igen, eller slå indholdsblokering fra for dette websted.",
+ "Edit rules": "Rediger regler",
+ "Review pins": "Gennemgå pins",
+ "Help": "Hjælp",
+ "1 rule": "1 regel",
+ "{n} rules": "{n} regler",
+ "Load your drawing and import template": "Indlæs din tegning og importskabelon",
+ "Make a rule for each kind of callout": "Lav en regel for hver slags henvisning",
+ "Check the pins, then download the file": "Tjek pins, og download derefter filen",
 };

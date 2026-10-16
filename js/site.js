@@ -192,8 +192,10 @@ export function renderNav() {
   const href = feedbackHref();
   const link = (to, text, extra = {}) => h("a", { href: to, text, ...(here === to ? { "aria-current": "page" } : {}), ...extra });
   nav.setAttribute("aria-label", tr("More about Plandot"));
-  nav.querySelectorAll(":scope > a").forEach((a) => a.remove()); // the language menu stays
-  nav.prepend(
+  nav.querySelectorAll(":scope > a, :scope > .help-toggle").forEach((a) => a.remove()); // the language menu stays
+  const toggle = h("button", { type: "button", class: "help-toggle", "aria-expanded": String(nav.classList.contains("help-open")), text: tr("Help") });
+  toggle.addEventListener("click", () => { const on = nav.classList.toggle("help-open"); toggle.setAttribute("aria-expanded", String(on)); });
+  nav.prepend(toggle,
     ...(onApp ? [] : [homeLink()]),
     ...(onApp && tourHandler ? [h("a", { href: "#", class: "tour-link", text: tr("Take the tour"), onclick: (e) => { e.preventDefault(); tourHandler(); } })] : []),
     link("howto.html", tr("How to guide")),
