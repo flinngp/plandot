@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://plandot.goatcounter.com; font-src 'self'; media-src 'self'; connect-src 'self' blob: data: https://plandot.goatcounter.com https://bugqhjkkjybcbnfjpeke.supabase.co; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://plandot.goatcounter.com; font-src 'self'; media-src 'self'; connect-src 'self' blob: data: https://plandot.goatcounter.com https://bugqhjkkjybcbnfjpeke.supabase.co; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Plandot</title>
 <meta name="description" content="Turn callouts and symbols on a plan into pins, ready to import. Everything runs in your browser; drawings are never uploaded.">
 <meta name="theme-color" content="#eef1f6">
@@ -92,14 +92,12 @@
         </div>
       </div>
       <p class="hint lead" data-i18n>A rule turns every callout or symbol it finds into one pin.</p>
+      <div class="row rules-top"><button type="button" class="btn quiet" id="load-rules-cloud" hidden data-i18n>Load rules</button></div>
       <div id="rules"></div>
       <div class="row">
         <button type="button" class="btn quiet" id="add-rule" data-i18n>Add rule</button>
-        <button type="button" class="btn quiet" id="save-rules" data-i18n>Save setup</button>
-        <button type="button" class="btn quiet" id="load-rules-btn" data-i18n>Open setup</button>
-        <input id="load-rules" type="file" accept=".json,application/json" hidden aria-label="Open setup" data-i18n-aria>
+        <button type="button" class="btn quiet" id="save-rules-cloud" hidden data-i18n>Save rules</button>
       </div>
-      <p class="hint" data-i18n>A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.</p>
 
       <details class="settings">
         <summary data-i18n>Search area and room labels</summary>
@@ -136,9 +134,17 @@
         </details>
         <button type="button" class="btn primary" id="dl-import" disabled>Download import file</button>
         <p class="hint" id="import-why"></p>
-        <button type="button" class="btn" id="dl-pdf" disabled data-i18n>Download marked-up PDF</button>
         <button type="button" class="btn" id="dl-png" disabled data-i18n>Download pin image (PNG)</button>
       </div>
+      <details class="settings">
+        <summary data-i18n>Setup file</summary>
+        <p class="hint" data-i18n>A setup file keeps your rules, plan name and room settings, so you can reuse them on other drawings or share them.</p>
+        <div class="row">
+          <button type="button" class="btn quiet" id="save-rules" data-i18n>Save setup</button>
+          <button type="button" class="btn quiet" id="load-rules-btn" data-i18n>Open setup</button>
+          <input id="load-rules" type="file" accept=".json,application/json" hidden aria-label="Open setup" data-i18n-aria>
+        </div>
+      </details>
       <details class="settings">
         <summary data-i18n>Check pin positions first</summary>
         <p class="hint" data-i18n>Makes nine test pins on the 10%, 50% and 90% grid lines. Import them onto the 34 × 22 comparison grid in Fieldwire and confirm each lands on its crossing.</p>
@@ -178,7 +184,6 @@
     </div>
     <div class="importslot" id="importslot" hidden><div class="importbar" id="importbar" role="group" aria-label="Download" data-i18n-aria>
       <p class="ib-sum" id="ib-sum" role="status"></p>
-      <button type="button" class="btn ghost" id="ib-pdf" data-i18n>Download marked-up PDF</button>
       <button type="button" class="btn ghost" id="ib-file" data-i18n>Download import file</button>
       <button type="button" class="btn primary" id="ib-copy">Copy rows</button>
     </div></div>
@@ -238,15 +243,45 @@
     <button type="button" class="modal-x" id="account-x" aria-label="Close" data-i18n-aria>×</button>
     <h2 id="account-title" data-i18n>Your account</h2>
     <p class="who" id="account-email"></p>
-    <p class="hint" data-i18n>Your rules are saved to your account automatically. Drawings and templates are never stored.</p>
+    <p class="hint" data-i18n>Saved rules are kept in your account. Drawings and templates are never stored.</p>
     <div class="stack">
-      <button type="button" class="btn" id="account-load" data-i18n>Load my saved rules</button>
+      <button type="button" class="btn" id="account-load" data-i18n>My saved rules</button>
       <button type="button" class="btn" id="account-export" data-i18n>Download my data</button>
       <button type="button" class="btn" id="account-signout" data-i18n>Sign out</button>
       <button type="button" class="btn danger" id="account-delete" data-i18n>Delete my account</button>
     </div>
     <p class="form-error" id="account-error" role="alert" hidden></p>
     <p class="hint small"><a href="terms.html" target="_blank" rel="noopener" data-i18n>Terms</a> · <a href="privacy.html" target="_blank" rel="noopener" data-i18n>Privacy</a></p>
+  </div>
+</div>
+<div class="modal" id="rules-modal" hidden>
+  <div class="modal-card wide" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+    <button type="button" class="modal-x" id="rules-x" aria-label="Close" data-i18n-aria>×</button>
+    <h2 id="rules-title" data-i18n>Saved rules</h2>
+    <div id="rules-list-view">
+      <p class="hint" data-i18n>Saved rules keep a rule's settings under its name, so you can add it to any plan. Drawings and templates are never stored.</p>
+      <p class="hint" id="rules-empty" hidden data-i18n>You have no saved rules yet. Build rules on a plan, then press Save rules.</p>
+      <ul class="saved-list" id="rules-list"></ul>
+      <p class="form-error" id="rules-error" role="alert" hidden></p>
+      <div class="row"><button type="button" class="btn primary" id="rules-all" hidden data-i18n>Add all to plan</button></div>
+    </div>
+    <form id="rules-edit" class="modal-form" novalidate hidden>
+      <h3 data-i18n>Edit saved rule</h3>
+      <label for="rule-name" data-i18n>Rule name</label>
+      <input id="rule-name" type="text" maxlength="80" autocomplete="off">
+      <div id="rule-text-fields">
+        <label for="rule-tags" data-i18n>Text to find</label>
+        <input id="rule-tags" type="text" autocomplete="off">
+        <label class="check"><input id="rule-pattern" type="checkbox"> <span data-i18n>Match with a pattern instead (regular expression)</span></label>
+        <label for="rule-title" data-i18n>Pin title</label>
+        <input id="rule-title" type="text" autocomplete="off">
+        <label for="rule-pinat" data-i18n>Pin placed on</label>
+        <select id="rule-pinat"><option value="dot" data-i18n>On the location</option><option value="text" data-i18n>On the callout</option></select>
+      </div>
+      <p class="hint" id="rule-symbol-note" hidden data-i18n>Symbol rules can only be changed on a drawing. You can rename this one here.</p>
+      <p class="form-error" id="rules-edit-error" role="alert" hidden></p>
+      <div class="row"><button type="submit" class="btn primary" id="rule-save" data-i18n>Save changes</button><button type="button" class="btn link" id="rule-back" data-i18n>Back</button></div>
+    </form>
   </div>
 </div>
 <div class="busybar" id="busybar" hidden role="status"><span class="busy-label"></span><span class="busy-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progress" data-i18n-aria><span class="busy-fill"></span></span></div>

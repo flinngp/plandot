@@ -99,7 +99,7 @@ await shot("howto-5-download.png", { x: a.x - 6, y: a.y - 6, width: a.width + 12
 
 // 6 reuse your setup
 await page.evaluate(() => { const c = document.querySelector(".controls"); c.scrollTop = document.querySelector("#step-rules").scrollHeight - 200 + document.querySelector("#step-rules").offsetTop; });
-await page.evaluate(() => document.querySelector("#save-rules").scrollIntoView({ block: "center" }));
+await page.evaluate(() => { const b = document.querySelector("#save-rules"); b.closest("details").open = true; b.scrollIntoView({ block: "center" }); });
 await page.waitForTimeout(300);
 await mark("#save-rules", 1, { dx: -14, dy: -16 });
 await mark("#load-rules-btn", 2, { dx: -14, dy: -16 });

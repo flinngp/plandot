@@ -99,6 +99,7 @@ test("a symbol rule survives saving to a file, loading it back, and reloading th
   const page = await open();
   await boxFirstDoor(page);
   await page.fill(".rule-head input", "Patio door");
+  await page.evaluate(() => { document.querySelector("#save-rules").closest("details").open = true; });
   const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#save-rules")]);
   const path = await dl.path();
   const saved = JSON.parse(await readFile(path, "utf8"));

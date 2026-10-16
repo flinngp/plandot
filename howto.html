@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://plandot.goatcounter.com; font-src 'self'; media-src 'self'; connect-src 'self' blob: data: https://plandot.goatcounter.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://plandot.goatcounter.com; font-src 'self'; media-src 'self'; connect-src 'self' blob: data: https://plandot.goatcounter.com; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Plandot how to guide</title>
 <meta name="description" content="A short guide to turning callouts and symbols on a drawing PDF into an import file of pins.">
 <meta name="theme-color" content="#eef1f6">
@@ -114,7 +114,7 @@
           <li data-h="43"><strong>Copy rows</strong>, then paste them into the task importer in your Fieldwire project. With more than 500 pins there is one button for each batch.</li>
         </ol>
         <p data-h="44">Pins are always added as new items with a blank ID, so nothing already in your project is changed. Fieldwire's task importer takes up to 500 rows pasted at a time. If there are more pins than that, Plandot shows one Copy rows button for each batch of up to 500, and the same batches apply to the downloaded file. For example, 1,200 pins means 3 batches: pins 1–500, then 501–1,000, then 1,001–1,200.</p>
-        <p data-h="82">The dark bar under the drawing keeps the summary and the <strong>Copy rows</strong>, <strong>Download import file</strong> and <strong>Download marked-up PDF</strong> buttons always in reach. If you scroll away from the drawing, it floats along the bottom of the window.</p>
+        <p data-h="82">The dark bar under the drawing keeps the summary and the <strong>Copy rows</strong> and <strong>Download import file</strong> buttons always in reach. If you scroll away from the drawing, it floats along the bottom of the window.</p>
         <p data-h="45"><strong>Always check the pins before importing.</strong></p>
     <div class="media">
       <figure class="shot narrow"><img src="help/img/howto-5-download.png" width="384" alt="The Download card." data-ha="46" loading="lazy"><figcaption data-h="47">The export summary and preview.</figcaption></figure>
@@ -164,7 +164,7 @@
     <h2 data-h="69">Reuse your setup</h2>
     <p data-h="70"><strong>Save setup</strong> makes a small file with your rules, plan name and room settings. <strong>Open setup</strong> loads it again on the next drawing, so you only build the rules once. You can share a setup file with a colleague or customer. It doesn't contain any drawing.</p>
     <div class="media">
-      <figure class="shot narrow"><img src="help/img/howto-6-reuse.png" width="384" alt="The buttons under the rules." data-ha="77" loading="lazy"><figcaption data-h="76">Save setup and Open setup sit under your rules.</figcaption></figure>
+      <figure class="shot narrow"><img src="help/img/howto-6-reuse.png" width="384" alt="The buttons under the rules." data-ha="77" loading="lazy"><figcaption data-h="76">Save setup and Open setup are in the Setup file section below your rules.</figcaption></figure>
       <figure class="clip">
         <div class="clip-box"><video class="clip-video" width="960" height="600" muted loop playsinline controls preload="none" poster="help/vid/clip-5-reuse.jpg" aria-label="Short silent clip: pressing Save setup, then Open setup, and the rules coming back." data-hl="78"><source src="help/vid/clip-5-reuse.mp4" type="video/mp4"><source src="help/vid/clip-5-reuse.webm" type="video/webm"></video></div>
         <figcaption data-h="79">Watch: save the setup, then open it again.</figcaption>
@@ -175,7 +175,7 @@
   <section class="card" id="account">
     <h2 data-h="83">Sign in and saved rules</h2>
     <p data-h="84">You can try the sample plan without signing in. To load your own plan or task import file, you sign in with your email address: Plandot emails you a code, you type it in, and you're in. There is no password, and you stay signed in on that browser.</p>
-    <p data-h="85">Signing in also lets you save your rules to your account, so they are waiting on any computer. Plandot offers to load them when you sign in, and saves your changes automatically while you work.</p>
+    <p data-h="85">Signing in also lets you save your rules to your account. Press Save rules under your rules to keep each one under its name, and Load rules above them to add saved rules to any plan. Open Account, then My saved rules, to rename, edit or delete them.</p>
     <p data-h="86">Your account holds only your email address, your plan and your saved rules. Your drawings and task files never leave your browser.</p>
     <p data-h="87">Open Account in the top bar to sign out, download everything stored about you, or delete your account and saved rules for good.</p>
   </section>

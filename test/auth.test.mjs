@@ -32,8 +32,20 @@ function fake({ code = "123456", ttl = 3600, now = () => 1_000_000_000_000 } = {
         if (f.rejectAll) return send(401, { message: "JWT expired" });
         if (f.rejectOnce) { f.rejectOnce = false; return send(401, { message: "JWT expired" }); }
         if (!/^Bearer access-\d+$/.test(bearer)) return send(401, { message: "no" });
-        if (path.startsWith("/rest/v1/rule_sets") && (init.method || "GET") === "GET") return send(200, f.rules ? [f.rules] : []);
-        if (path.startsWith("/rest/v1/rule_sets") && init.method === "POST") { f.rules = { data: body.data, updated_at: "2026-10-16T10:00:00Z" }; f.savedFor = body.user_id; return send(201); }
+        if (path.startsWith("/rest/v1/saved_rules")) {
+          f.table ||= [];
+          const method = init.method || "GET";
+          const id = (path.match(/[?&]id=eq\.([0-9a-f-]+)/) || [])[1];
+          if (method === "GET") return send(200, f.table);
+          if (method === "POST") {
+            f.savedFor = body.user_id;
+            const row = f.table.find((r) => r.name === body.name);
+            if (row) row.data = body.data; else f.table.push({ id: `00000000-0000-4000-8000-${String(f.table.length + 1).padStart(12, "0")}`, name: body.name, data: body.data, updated_at: "2026-10-16T10:00:00Z" });
+            return send(201);
+          }
+          if (method === "PATCH") { const row = f.table.find((r) => r.id === id); if (f.table.some((r) => r.name === body.name && r.id !== id)) return send(409, { code: "23505" }); Object.assign(row, body); return send(204); }
+          if (method === "DELETE") { f.table = f.table.filter((r) => r.id !== id); return send(204); }
+        }
         if (path.startsWith("/rest/v1/profiles")) return send(200, [{ plan: "free", created_at: "2026-10-16T10:00:00Z" }]);
         if (path.startsWith("/rest/v1/rpc/delete_my_account")) { f.deleted = true; return send(204); }
       }
@@ -135,7 +147,7 @@ test("the pass is renewed before it runs out, and the new one is used and kept",
   const { auth, f, clock, storage } = make({ ttl: 3600 });
   await auth.verifyCode("bob@example.com", "123456");
   clock.t += (3600 - 30) * 1000; // 30 seconds left: inside the margin
-  await auth.loadRules();
+  await auth.listRules();
   assert.equal(f.refreshCount, 1);
   const get = f.calls.at(-1);
   assert.equal(get.headers.Authorization, "Bearer access-2");
@@ -147,7 +159,7 @@ test("two requests at once renew the pass only once", async () => {
   const { auth, f, clock } = make();
   await auth.verifyCode("bob@example.com", "123456");
   clock.t += 3590 * 1000;
-  await Promise.all([auth.loadRules(), auth.profile(), auth.loadRules()]);
+  await Promise.all([auth.listRules(), auth.profile(), auth.listRules()]);
   assert.equal(f.refreshCount, 1);
 });
 
@@ -158,7 +170,7 @@ test("if the service refuses the renewal, the person is signed out here", async 
   auth.onChange((u) => seen.push(u));
   clock.t += 3590 * 1000;
   f.refreshStatus = 400;
-  await assert.rejects(() => auth.loadRules(), { kind: "signedOut" });
+  await assert.rejects(() => auth.listRules(), { kind: "signedOut" });
   assert.ok(!auth.signedIn());
   assert.equal(storage.getItem(SESSION_KEY), null);
   assert.deepEqual(seen, [null]);
@@ -170,7 +182,7 @@ test("being offline does not sign anyone out", async () => {
   clock.t += 3590 * 1000;
   f.offline = true;
   assert.deepEqual(await auth.start(), { id: UID, email: "bob@example.com" });
-  await assert.rejects(() => auth.loadRules(), { kind: "offline" });
+  await assert.rejects(() => auth.listRules(), { kind: "offline" });
   assert.ok(auth.signedIn());
   assert.ok(storage.getItem(SESSION_KEY));
 });
@@ -179,7 +191,7 @@ test("a request the database refuses as expired is retried once with a renewed p
   const { auth, f } = make();
   await auth.verifyCode("bob@example.com", "123456");
   f.rejectOnce = true;
-  assert.equal(await auth.loadRules(), null);
+  assert.deepEqual(await auth.listRules(), []);
   assert.equal(f.refreshCount, 1);
   assert.equal(f.calls.at(-1).headers.Authorization, "Bearer access-2");
 });
@@ -188,26 +200,52 @@ test("a pass the database keeps refusing ends the session", async () => {
   const { auth, f, storage } = make();
   await auth.verifyCode("bob@example.com", "123456");
   f.rejectAll = true;
-  await assert.rejects(() => auth.loadRules(), { kind: "signedOut" });
+  await assert.rejects(() => auth.listRules(), { kind: "signedOut" });
   assert.ok(!auth.signedIn());
   assert.equal(storage.getItem(SESSION_KEY), null);
 });
 
-test("saved rules go to the person's own row, with the right headers, and come back", async () => {
+test("each saved rule has a name, is sent with the right headers, and comes back in a list", async () => {
   const { auth, f } = make();
   await auth.verifyCode("bob@example.com", "123456");
-  assert.equal(await auth.loadRules(), null);
-  await auth.saveRules({ app: "plandot", rules: [{ name: "A" }] });
+  assert.deepEqual(await auth.listRules(), []);
+  await auth.saveRule("  Doors   north ", { tags: "D1" });
   const post = f.calls.at(-1);
-  assert.equal(post.path, "/rest/v1/rule_sets?on_conflict=user_id");
+  assert.equal(post.path, "/rest/v1/saved_rules?on_conflict=user_id,name");
   assert.equal(post.method, "POST");
   assert.equal(post.headers.Prefer, "resolution=merge-duplicates,return=minimal");
   assert.equal(post.headers.apikey, KEY);
   assert.equal(post.headers.Authorization, "Bearer access-1");
-  assert.equal(f.savedFor, UID);
   assert.equal(post.init.credentials, "omit");
-  assert.deepEqual((await auth.loadRules()).data, { app: "plandot", rules: [{ name: "A" }] });
+  assert.equal(JSON.parse(post.init.body).name, "Doors north", "spaces are tidied");
+  assert.equal(f.savedFor, UID);
+  await auth.saveRule("Doors north", { tags: "D2" }); // same name replaces
+  await auth.saveRule("Sockets", { tags: "S1" });
+  const rows = await auth.listRules();
+  assert.deepEqual(rows.map((r) => [r.name, r.data.tags]), [["Doors north", "D2"], ["Sockets", "S1"]]);
+  assert.match(f.calls.at(-1).path, /order=name\.asc/);
   assert.equal((await auth.profile()).plan, "free");
+});
+
+test("a saved rule can be renamed, changed and deleted, and a clash or blank name is explained", async () => {
+  const { auth, f } = make();
+  await auth.verifyCode("bob@example.com", "123456");
+  await auth.saveRule("A", { tags: "1" });
+  await auth.saveRule("B", { tags: "2" });
+  const [a, b] = await auth.listRules();
+  await auth.updateRule(a.id, { name: "A2", data: { tags: "9" } });
+  const patch = f.calls.at(-1);
+  assert.equal(patch.method, "PATCH");
+  assert.equal(patch.path, `/rest/v1/saved_rules?id=eq.${a.id}`);
+  assert.deepEqual(JSON.parse(patch.init.body), { name: "A2", data: { tags: "9" } });
+  await assert.rejects(() => auth.updateRule(b.id, { name: "A2" }), { kind: "exists" });
+  await assert.rejects(() => auth.updateRule(b.id, { name: "   " }), { kind: "badName" });
+  await assert.rejects(() => auth.saveRule("", {}), { kind: "badName" });
+  await assert.rejects(() => auth.updateRule("not-an-id", { name: "x" }), { kind: "failed" });
+  await auth.deleteRule(a.id);
+  assert.equal(f.calls.at(-1).method, "DELETE");
+  assert.deepEqual((await auth.listRules()).map((r) => r.name), ["B"]);
+  await assert.rejects(() => auth.deleteRule("1; drop table"), { kind: "failed" });
 });
 
 test("signing out clears this browser first, and tells the service which session to end", async () => {
@@ -239,8 +277,8 @@ test("deleting the account calls the delete function and signs out", async () =>
 
 test("calls need a session", async () => {
   const { auth, f } = make();
-  await assert.rejects(() => auth.loadRules(), { kind: "signedOut" });
-  await assert.rejects(() => auth.saveRules({}), { kind: "signedOut" });
+  await assert.rejects(() => auth.listRules(), { kind: "signedOut" });
+  await assert.rejects(() => auth.saveRule("A", {}), { kind: "signedOut" });
   assert.equal(f.calls.length, 0);
 });
 
@@ -253,7 +291,7 @@ test("another tab that already renewed the pass is trusted instead of renewing a
   const newer = { access_token: "access-77", refresh_token: "refresh-77", expires_at: Math.floor(a.f.now() / 1000) + 7200, user: { id: UID, email: "bob@example.com" } };
   a.clock.t += 3590 * 1000; // tab A thinks its own pass is about to end
   shared.setItem(SESSION_KEY, JSON.stringify({ ...newer, expires_at: Math.floor(a.clock.t / 1000) + 3600 }));
-  await a.auth.loadRules();
+  await a.auth.listRules();
   assert.equal(a.f.refreshCount, before, "no second renewal");
   assert.equal(a.f.calls.at(-1).headers.Authorization, "Bearer access-77");
 });

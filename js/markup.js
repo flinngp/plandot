@@ -1,33 +1,4 @@
-// Exports for checking pins by eye: a marked-up copy of the PDF and a PNG of the preview.
-const hexToRgb = (hex) => {
-  const n = parseInt(hex.slice(1), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-};
-
-const pinRadius = (width) => Math.min(16, Math.max(7, width * 0.0042));
-
-/** The original PDF with a numbered circle on every included pin. */
-export async function markedUpPdf(bytes, pageNo, pins, colorOf) {
-  const { PDFDocument, rgb, StandardFonts } = window.PDFLib;
-  const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
-  const page = doc.getPage(pageNo - 1);
-  const font = await doc.embedFont(StandardFonts.HelveticaBold);
-  const { width } = page.getSize();
-  const r = pinRadius(width);
-  const rotated = page.getRotation().angle % 360 !== 0; // numbers would be drawn sideways, so skip them
-  for (const p of pins) {
-    const [cr, cg, cb] = hexToRgb(colorOf(p.ruleIndex)).map((v) => v / 255);
-    page.drawCircle({ x: p.ux, y: p.uy, size: r + 1.5, color: rgb(1, 1, 1), opacity: 0.95 });
-    page.drawCircle({ x: p.ux, y: p.uy, size: r, color: rgb(cr, cg, cb) });
-    if (!rotated) {
-      const label = String(p.n);
-      const size = r * (label.length > 2 ? 0.8 : 1.05);
-      page.drawText(label, { x: p.ux - font.widthOfTextAtSize(label, size) / 2, y: p.uy - size * 0.35, size, font, color: rgb(1, 1, 1) });
-    }
-  }
-  return doc.save();
-}
-
+// Exports for checking pins by eye: a PNG of the preview.
 /** PNG of the rendered page with numbered pins and a legend. */
 export function pinsPng(pdfCanvas, vpWidth, pins, rules, colorOf) {
   const out = document.createElement("canvas");

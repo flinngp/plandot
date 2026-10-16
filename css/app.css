@@ -466,3 +466,16 @@ body.modal-open { overflow: hidden; }
 .btn.danger:hover:not(:disabled) { background: #fdecea; border-color: var(--err); }
 .sitefoot .legal a { color: inherit; }
 @media (max-width: 700px) { .topnav .account-btn { padding: 7px 12px; } }
+
+/* ---- saved rules */
+.rules-top { margin: 0 0 .5rem; }
+.modal-card.wide { max-width: 38rem; }
+.saved-list { list-style: none; margin: .5rem 0 1rem; padding: 0; display: grid; gap: .5rem; max-height: 50vh; overflow: auto; }
+.saved-rule { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem .75rem; padding: .6rem .75rem; border: 1px solid var(--line); border-radius: .6rem; }
+.sr-main { display: grid; min-width: 0; flex: 1 1 10rem; }
+.sr-main strong { overflow-wrap: anywhere; }
+.sr-sub { color: var(--ink-2); font-size: .875rem; overflow-wrap: anywhere; }
+.sr-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
+.btn.danger-text { color: var(--err); }
+#rules-edit h3 { margin: 0 0 .25rem; font-size: 1.05rem; }
+#rule-pinat { width: 100%; font-size: 16px; }

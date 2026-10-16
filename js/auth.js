@@ -14,7 +14,7 @@ export const SESSION_KEY = "plandot.session";
 const REFRESH_MARGIN = 60; // renew the pass when it has less than this many seconds left
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** kind is one of: badEmail, badCode, rate, offline, failed, signedOut. The page turns it into a sentence. */
+/** kind is one of: badEmail, badCode, badName, exists, limit, rate, offline, failed, signedOut. The page turns it into a sentence. */
 export class AuthError extends Error {
   constructor(kind, status = 0) {
     super(kind);
@@ -26,6 +26,8 @@ export class AuthError extends Error {
 export const isEmail = (s) => typeof s === "string" && s.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
 /** People paste codes as "123 456" or "123-456". */
 export const cleanCode = (s) => String(s ?? "").replace(/[\s-]/g, "");
+/** A rule's name as the database wants it: no stray spaces, 1 to 80 characters. Empty when unusable. */
+export const cleanName = (s) => String(s ?? "").replace(/\s+/g, " ").trim().slice(0, 80);
 export const isCode = (s) => /^\d{6,10}$/.test(s);
 
 const b64urlJson = (part) => JSON.parse(atob(part.replace(/-/g, "+").replace(/_/g, "/")));
@@ -179,6 +181,8 @@ export function createAuth({ url, key, fetchFn = (...a) => globalThis.fetch(...a
       r = await api(path, { ...opts, token: s.access_token });
       if (r.status === 401) { clearSession(); throw new AuthError("signedOut", 401); }
     }
+    if (r.status === 409) throw new AuthError("exists", r.status);
+    if (String(r.json?.code) === "54000") throw new AuthError("limit", r.status);
     if (!ok(r)) throw new AuthError("failed", r.status);
     return r.json;
   }
@@ -203,14 +207,29 @@ export function createAuth({ url, key, fetchFn = (...a) => globalThis.fetch(...a
       clearSession();
       if (s) { try { await api("/auth/v1/logout?scope=local", { method: "POST", token: s.access_token }); } catch { /* signed out here either way */ } }
     },
-    /** The saved rules, or null when there are none. */
-    async loadRules() {
-      const rows = await rest("/rest/v1/rule_sets?select=data,updated_at&limit=1");
-      return Array.isArray(rows) && rows[0] && rows[0].data && typeof rows[0].data === "object" ? rows[0] : null;
+    /** Every saved rule of this person: [{id, name, data, updated_at}], by name. */
+    async listRules() {
+      const rows = await rest("/rest/v1/saved_rules?select=id,name,data,updated_at&order=name.asc&limit=200");
+      return (Array.isArray(rows) ? rows : []).filter((r) => r && UUID.test(r.id) && typeof r.name === "string" && r.data && typeof r.data === "object");
     },
-    async saveRules(data) {
+    /** Saves a rule under its name. A rule with the same name is replaced. */
+    async saveRule(name, data) {
       const s = await fresh();
-      await rest("/rest/v1/rule_sets?on_conflict=user_id", { method: "POST", body: { user_id: s.user.id, data }, headers: { Prefer: "resolution=merge-duplicates,return=minimal" } });
+      const n = cleanName(name);
+      if (!n) throw new AuthError("badName");
+      await rest("/rest/v1/saved_rules?on_conflict=user_id,name", { method: "POST", body: { user_id: s.user.id, name: n, data }, headers: { Prefer: "resolution=merge-duplicates,return=minimal" } });
+    },
+    /** Changes the name and/or content of one saved rule. */
+    async updateRule(id, patch) {
+      if (!UUID.test(id)) throw new AuthError("failed");
+      const body = {};
+      if (patch.name !== undefined) { body.name = cleanName(patch.name); if (!body.name) throw new AuthError("badName"); }
+      if (patch.data !== undefined) body.data = patch.data;
+      await rest(`/rest/v1/saved_rules?id=eq.${id}`, { method: "PATCH", body, headers: { Prefer: "return=minimal" } });
+    },
+    async deleteRule(id) {
+      if (!UUID.test(id)) throw new AuthError("failed");
+      await rest(`/rest/v1/saved_rules?id=eq.${id}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
     },
     async profile() {
       const rows = await rest("/rest/v1/profiles?select=plan,created_at&limit=1");

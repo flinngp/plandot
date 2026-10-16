@@ -6,7 +6,7 @@ import { captureSymbol, findSymbolsAsync, sanitizeTemplate } from "./symbols.js"
 import { readTemplate, writeImport, buildRows, buildCalibrationRows, extraColumns, orphanedColumns, applyMapping, TemplateError } from "./template.js";
 import { startTour } from "./tour.js";
 import { rowsToTsv, copyText } from "./batches.js";
-import { markedUpPdf, pinsPng, download } from "./markup.js";
+import { pinsPng, download } from "./markup.js";
 import { tr, translateDom, currentLanguage } from "./i18n.js";
 import { startAnalytics, track, pinBucket } from "./analytics.js";
 import { VERSION } from "./config.js";
@@ -44,12 +44,11 @@ window.planTasks = { state }; // handy when poking around in the console
 // Accounts (switched on by the two values in js/config.js). Signed out, the sample works and own files do not.
 const account = initAccount({
   say: (msg, kind) => say(msg, kind),
-  getSetup: () => setupPayload(),
-  applySetup: (data) => { applySetupData(data); state.sample = false; },
-  hasLocalRules: () => !state.sample && state.rules.some((r) => hasText(r.tags) || r.symbol),
-  paused: () => state.sample,
+  getRules: () => state.rules.filter((r) => hasText(r.tags) || r.symbol).map((r) => ({ name: String(r.name ?? "").trim(), data: rulePayload(r) })),
+  addRules: (list) => addSavedRules(list),
   download: (blob, name, type) => download(blob, name, type),
 });
+
 
 const hasText = (v) => typeof v === "string" && v.trim() !== "";
 const baseName = (n) => n.replace(/\.[^.]+$/, "");
@@ -1202,7 +1201,6 @@ function updateImportBar(need, batches) {
   barBatches = ready ? batches : [];
   $("#ib-sum").textContent = ready ? $("#export-summary").textContent : tr("Still needed: {list}.", { list: need.join(", ") });
   $("#ib-file").disabled = !ready;
-  $("#ib-pdf").disabled = $("#dl-pdf").disabled;
   const copy = $("#ib-copy");
   copy.disabled = !ready || !batches.length;
   const next = batches.findIndex((_, i) => !copiedBatches.has(i));
@@ -1277,7 +1275,6 @@ function updateExport() {
   }
   renderExportPreview(need.length === 0);
   renderBatches(need.length === 0, batches);
-  $("#dl-pdf").disabled = !(state.pdf && inc) || state.busy;
   $("#dl-png").disabled = !(state.pdf && inc) || state.busy;
   $("#dl-calibration").disabled = !(t && !t.missing.length && plan);
   updateImportBar(need, batches);
@@ -1356,12 +1353,6 @@ async function exportImport() {
   say(rows.length === 1 ? tr("Downloaded 1 pin for plan \"{plan}\".", { plan }) : tr("Downloaded {n} pins for plan \"{plan}\".", { n: rows.length, plan }), "ok");
 }
 
-async function exportPdf() {
-  const bytes = await markedUpPdf(state.pdf.bytes, state.pdf.pageNo, included(), colorOf);
-  download(bytes, `${baseName(state.pdf.name)} - marked up.pdf`, "application/pdf");
-  say(tr("Downloaded the marked-up PDF."), "ok");
-}
-
 async function exportPng() {
   const full = await renderFull(state.pdf.page, 3000);
   const blob = await pinsPng(full, state.pdf.width, included(), state.rules, colorOf);
@@ -1414,7 +1405,7 @@ function hasWork() {
 }
 
 function startOver() {
-  if (hasWork() && !window.confirm(tr("Start over? This clears your drawing, template, rules and pins. Choose Save setup first to keep your rules."))) return;
+  if (hasWork() && !window.confirm(tr("Start over? This clears your drawing, template, rules and pins. Save your rules first if you want to keep them."))) return;
   loadRun++;
   detectRun++; // anything still being worked out for the old drawing is thrown away
   try { state.pdf?.doc?.destroy?.(); } catch { /* already gone */ }
@@ -1456,12 +1447,25 @@ const guarded = (fn) => async () => {
 
 // ---------------------------------------------------------------- rule files
 /** The rules and settings as they are written to a setup file, and saved to an account. */
+function rulePayload(r) {
+  const { name, tags, usePattern, title, columns, pinAt } = r;
+  const base = { name, tags, usePattern: !!usePattern, title, pinAt: pinMode({ pinAt }), columns: columns || {} };
+  return ruleKind(r) === "symbol" ? { ...base, kind: "symbol", symbol: r.symbol || null, strict: r.strict ?? 3, rotate: r.rotate !== false, sizes: !!r.sizes } : base;
+}
 function setupPayload() {
-  return { app: "plandot", version: 2, settings: { planName: state.settings.planName, roomPattern: state.settings.roomPattern, roomDistance: state.settings.roomDistance }, rules: state.rules.map((r) => {
-    const { name, tags, usePattern, title, columns, pinAt } = r;
-    const base = { name, tags, usePattern: !!usePattern, title, pinAt: pinMode({ pinAt }), columns: columns || {} };
-    return ruleKind(r) === "symbol" ? { ...base, kind: "symbol", symbol: r.symbol || null, strict: r.strict ?? 3, rotate: r.rotate !== false, sizes: !!r.sizes } : base;
-  }) };
+  return { app: "plandot", version: 2, settings: { planName: state.settings.planName, roomPattern: state.settings.roomPattern, roomDistance: state.settings.roomDistance }, rules: state.rules.map(rulePayload) };
+}
+/** One rule as read from a setup file or an account. Anything unexpected is dropped or replaced by a default. */
+function ruleFromData(r, i) {
+  return { ...newRule(i + 1), name: String(r.name ?? `Rule ${i + 1}`).slice(0, 80), tags: String(r.tags ?? ""), usePattern: !!r.usePattern, title: String(r.title ?? "{tag}"), pinAt: r.pinAt === "text" ? "text" : "dot", columns: typeof r.columns === "object" && r.columns ? r.columns : {}, ...(r.kind === "symbol" ? { kind: "symbol", symbol: sanitizeTemplate(r.symbol), strict: [1, 2, 3, 4, 5].includes(r.strict) ? r.strict : 3, rotate: r.rotate !== false, sizes: !!r.sizes } : {}) };
+}
+/** Saved rules from the account go onto the plan. An untouched empty first rule makes room for them. */
+function addSavedRules(list) {
+  const added = list.map((x, i) => ruleFromData({ ...x.data, name: x.name }, state.rules.length + i));
+  const blank = state.rules.length === 1 && !hasText(state.rules[0].tags) && !state.rules[0].symbol;
+  state.rules = blank ? added : [...state.rules, ...added];
+  state.sample = false;
+  afterRulesChange();
 }
 function saveRules() {
   const payload = setupPayload();
@@ -1471,7 +1475,7 @@ function saveRules() {
 /** Puts a setup (from a file, or saved in an account) on the screen. Throws when it isn't a Plandot setup. */
 function applySetupData(data) {
   if (!["plandot", "plan-tasks"].includes(data?.app) || !Array.isArray(data.rules)) throw new Error("not a Plandot setup file");
-  state.rules = data.rules.map((r, i) => ({ ...newRule(i + 1), name: String(r.name ?? `Rule ${i + 1}`), tags: String(r.tags ?? ""), usePattern: !!r.usePattern, title: String(r.title ?? "{tag}"), pinAt: r.pinAt === "text" ? "text" : "dot", columns: typeof r.columns === "object" && r.columns ? r.columns : {}, ...(r.kind === "symbol" ? { kind: "symbol", symbol: sanitizeTemplate(r.symbol), strict: [1, 2, 3, 4, 5].includes(r.strict) ? r.strict : 3, rotate: r.rotate !== false, sizes: !!r.sizes } : {}) }));
+  state.rules = data.rules.map(ruleFromData);
   if (data.settings) {
     if (hasText(data.settings.planName)) { state.settings.planName = String(data.settings.planName); $("#plan-name").value = state.settings.planName; }
     state.settings.roomPattern = String(data.settings.roomPattern ?? "");
@@ -1511,6 +1515,9 @@ function wire() {
   $("#show-grid").addEventListener("change", (e) => { state.settings.showGrid = e.target.checked; saveSoon(); renderOverlay(); });
   $("#add-rule").addEventListener("click", () => { state.rules.push(newRule(state.rules.length + 1)); afterRulesChange(); });
   $("#save-rules").addEventListener("click", saveRules);
+  for (const id of ["#load-rules-cloud", "#save-rules-cloud"]) $(id).hidden = !account.enabled;
+  $("#load-rules-cloud").addEventListener("click", () => account.openRules());
+  $("#save-rules-cloud").addEventListener("click", () => account.saveRules());
   $("#load-rules-btn").addEventListener("click", () => $("#load-rules").click());
   $("#load-rules").addEventListener("change", (e) => { if (e.target.files[0]) loadRules(e.target.files[0]); e.target.value = ""; });
   $("#draw-area").addEventListener("click", () => {
@@ -1528,7 +1535,6 @@ function wire() {
   $("#all-off").addEventListener("click", () => { state.pins.forEach((p) => (state.edits[p.key] = { ...(state.edits[p.key] || {}), include: false })); runDetect(); });
   $("#dl-import").addEventListener("click", guarded(exportImport));
   $("#ib-file").addEventListener("click", guarded(exportImport));
-  $("#ib-pdf").addEventListener("click", guarded(exportPdf));
   $("#ib-copy").addEventListener("click", copyFromBar);
   watchImportBar();
   $("#change-drawing").addEventListener("click", () => { ui.drawingOpen = true; syncSteps(); $("#file-pdf").focus(); });
@@ -1540,7 +1546,6 @@ function wire() {
   $("#plan-name").addEventListener("blur", () => { clearTimeout(settle); settle = setTimeout(settleSteps, 1200); });
   document.addEventListener("click", () => { if (ui.planEditing) setTimeout(settleSteps, 0); }, true);
   $("#batch-heads").addEventListener("change", () => copiedBatches.clear() || updateExport());
-  $("#dl-pdf").addEventListener("click", guarded(exportPdf));
   $("#dl-png").addEventListener("click", guarded(exportPng));
   $("#dl-calibration").addEventListener("click", guarded(exportCalibration));
   $("#start-over").addEventListener("click", startOver);

@@ -5,31 +5,25 @@ import { tr } from "./i18n.js";
 import { ACCOUNTS } from "./config.js";
 import { createAuth, accountSettings, isEmail, isCode, cleanCode, SESSION_KEY } from "./auth.js";
 
-const OFF = Object.freeze({ enabled: false, signedIn: () => true, allowUpload: () => true, noteChange() {}, refreshText() {} });
+const OFF = Object.freeze({ enabled: false, signedIn: () => true, allowUpload: () => true, openRules() {}, saveRules() {}, noteChange() {}, refreshText() {} });
 
 const RESEND_SECONDS = 60;
-const MAX_SETUP_CHARS = 500000; // the database refuses more than 512 KB; stay under it
-
-/** The same text for the same content whatever the order of keys, so a saved copy can be compared with the screen. */
-const sortKeys = (v) => (Array.isArray(v) ? v.map(sortKeys) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, sortKeys(v[k])])) : v);
-export const canon = (v) => JSON.stringify(sortKeys(v));
+const MAX_RULE_CHARS = 250000; // the database refuses a rule over 256 KB; stay under it
 
 /**
  * @param say             shows a message in the status line: say(text, "ok" | "err")
- * @param getSetup        () => the rules and settings on screen, in the setup-file format
- * @param applySetup      (setup) => puts saved rules on screen
- * @param hasLocalRules   () => are there real rules on screen (not just the empty first rule, not the sample's)?
- * @param paused          () => true while the sample is loaded: its rules are never saved to the account
+ * @param getRules        () => the rules on the plan that have something in them: [{name, data}]
+ * @param addRules        ([{name, data}]) => adds saved rules to the plan
  * @param download        (blob, filename, type) => saves a file
  */
-export function initAccount({ say, getSetup, applySetup, hasLocalRules, paused = () => false, download, doc = document, win = window, fetchFn }) {
+export function initAccount({ say, getRules, addRules, download, doc = document, win = window, fetchFn }) {
   const cfg = accountSettings(ACCOUNTS);
   if (cfg?.error) console.error(`Plandot sign-in is off: ${cfg.error}`);
   if (!cfg || cfg.error) return OFF;
-  return build({ cfg, say, getSetup, applySetup, hasLocalRules, paused, download, doc, win, fetchFn });
+  return build({ cfg, say, getRules, addRules, download, doc, win, fetchFn });
 }
 
-export function build({ cfg, say, getSetup, applySetup, hasLocalRules, paused, download, doc, win, fetchFn, auth: injected }) {
+export function build({ cfg, say, getRules, addRules, download, doc, win, fetchFn, auth: injected }) {
   const el = (id) => doc.getElementById(id);
   const auth = injected || createAuth({ url: cfg.url, key: cfg.key, ...(fetchFn ? { fetchFn } : {}) });
   const btn = el("account-btn");
@@ -42,7 +36,7 @@ export function build({ cfg, say, getSetup, applySetup, hasLocalRules, paused, d
 
   // ---------------------------------------------------------------- boxes (modal dialogs)
   let openBox = null, opener = null;
-  const focusables = (box) => [...box.querySelectorAll("button:not([disabled]), input:not([disabled]), a[href]")].filter((e) => !e.closest("[hidden]"));
+  const focusables = (box) => [...box.querySelectorAll("button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]")].filter((e) => !e.closest("[hidden]"));
   function onKey(e) {
     if (!openBox) return;
     if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeBox(); return; }
@@ -70,9 +64,10 @@ export function build({ cfg, say, getSetup, applySetup, hasLocalRules, paused, d
     if (restoreFocus && opener && doc.contains(opener) && !opener.hidden) opener.focus();
     opener = null;
   }
-  for (const box of [el("signin-modal"), el("account-modal")]) box.addEventListener("mousedown", (e) => { if (e.target === box) closeBox(); });
+  for (const box of [el("signin-modal"), el("account-modal"), el("rules-modal")]) box.addEventListener("mousedown", (e) => { if (e.target === box) closeBox(); });
   el("signin-x").addEventListener("click", () => closeBox());
   el("account-x").addEventListener("click", () => closeBox());
+  el("rules-x").addEventListener("click", () => closeBox());
 
   // ---------------------------------------------------------------- what the page shows for each state
   const messageFor = (err) => ({
@@ -80,6 +75,9 @@ export function build({ cfg, say, getSetup, applySetup, hasLocalRules, paused, d
     badCode: tr("That code didn't work. Check it, or send a new one."),
     rate: tr("Too many attempts. Wait a minute and try again."),
     offline: tr("Can't reach the sign-in service. Check your connection and try again."),
+    badName: tr("A saved rule needs a name."),
+    exists: tr("You already have a saved rule with that name."),
+    limit: tr("You can keep up to 200 saved rules."),
   }[err?.kind] || tr("That didn't work. Try again in a moment."));
   const setError = (id, msg) => { const p = el(id); p.textContent = msg || ""; p.hidden = !msg; };
 
@@ -172,6 +170,7 @@ export function build({ cfg, say, getSetup, applySetup, hasLocalRules, paused, d
 
   // ---------------------------------------------------------------- the account box
   btn.addEventListener("click", () => (auth.signedIn() ? (setError("account-error", ""), showBox(el("account-modal"), el("account-load"))) : openSignIn()));
+  el("account-load").addEventListener("click", () => openRules());
   el("gate-signin").addEventListener("click", () => openSignIn());
 
   let leaving = false; // the person chose to sign out or delete, so the "session ended" message is not wanted
@@ -195,73 +194,122 @@ export function build({ cfg, say, getSetup, applySetup, hasLocalRules, paused, d
   el("account-export").addEventListener("click", async () => {
     setError("account-error", "");
     try {
-      const [rules, profile] = await Promise.all([auth.loadRules(), auth.profile()]);
+      const [rules, profile] = await Promise.all([auth.listRules(), auth.profile()]);
       const u = auth.user();
-      const data = { app: "plandot", exportedAt: new Date().toISOString(), email: u?.email ?? "", plan: profile?.plan ?? "", accountCreated: profile?.created_at ?? "", savedRules: rules?.data ?? null, savedRulesUpdated: rules?.updated_at ?? "" };
+      const data = { app: "plandot", exportedAt: new Date().toISOString(), email: u?.email ?? "", plan: profile?.plan ?? "", accountCreated: profile?.created_at ?? "", savedRules: rules.map((r) => ({ name: r.name, updated: r.updated_at, rule: r.data })) };
       download(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }), "plandot account data.json", "application/json");
     } catch (err) { setError("account-error", messageFor(err)); }
   });
-  el("account-load").addEventListener("click", async () => {
-    setError("account-error", "");
+  // ---------------------------------------------------------------- saved rules
+  const mk = (tag, props = {}, ...kids) => {
+    const e = doc.createElement(tag);
+    for (const [k, v] of Object.entries(props)) {
+      if (k === "class") e.className = v;
+      else if (k === "text") e.textContent = v;
+      else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+      else if (v !== false && v != null) e.setAttribute(k, v === true ? "" : v);
+    }
+    for (const k of kids) if (k != null) e.append(k);
+    return e;
+  };
+  let saved = [], loadingRules = false;
+  const nRules = (n, one, many) => (n === 1 ? tr(one) : tr(many, { n }));
+
+  function showList() { el("rules-list-view").hidden = false; el("rules-edit").hidden = true; }
+  function paintRules() {
+    const ul = el("rules-list");
+    ul.replaceChildren();
+    el("rules-empty").hidden = loadingRules || saved.length > 0;
+    for (const r of saved) {
+      const symbol = r.data.kind === "symbol";
+      const sub = symbol ? tr("Draw box") : String(r.data.tags ?? "").slice(0, 60);
+      ul.append(mk("li", { class: "saved-rule" },
+        mk("div", { class: "sr-main" }, mk("strong", { text: r.name }), mk("span", { class: "sr-sub", text: sub })),
+        mk("div", { class: "sr-actions" },
+          mk("button", { type: "button", class: "btn quiet", text: tr("Add to plan"), "aria-label": `${tr("Add to plan")}: ${r.name}`, onclick: () => { addRules([{ name: r.name, data: structuredClone(r.data) }]); say(tr("Added 1 rule to your plan."), "ok"); } }),
+          mk("button", { type: "button", class: "btn quiet", text: tr("Edit"), "aria-label": `${tr("Edit")}: ${r.name}`, onclick: () => editRule(r) }),
+          mk("button", { type: "button", class: "btn quiet danger-text", text: tr("Delete"), "aria-label": `${tr("Delete")}: ${r.name}`, onclick: () => removeRule(r) }))));
+    }
+    el("rules-all").hidden = saved.length < 2;
+  }
+  async function refreshRules() {
+    loadingRules = true; setError("rules-error", ""); paintRules();
+    try { saved = await auth.listRules(); }
+    catch (err) { saved = []; setError("rules-error", messageFor(err)); }
+    finally { loadingRules = false; paintRules(); }
+  }
+  function openRules() {
+    if (!auth.signedIn()) { openSignIn(); return; }
+    showList();
+    showBox(el("rules-modal"), null);
+    refreshRules();
+  }
+
+  let editing = null;
+  function editRule(r) {
+    editing = r;
+    const symbol = r.data.kind === "symbol";
+    setError("rules-edit-error", "");
+    el("rule-name").value = r.name;
+    el("rule-tags").value = String(r.data.tags ?? "");
+    el("rule-pattern").checked = !!r.data.usePattern;
+    el("rule-title").value = String(r.data.title ?? "{tag}");
+    el("rule-pinat").value = r.data.pinAt === "text" ? "text" : "dot";
+    el("rule-text-fields").hidden = symbol;
+    el("rule-symbol-note").hidden = !symbol;
+    el("rules-list-view").hidden = true;
+    el("rules-edit").hidden = false;
+    el("rule-name").focus();
+  }
+  el("rule-back").addEventListener("click", () => { editing = null; showList(); });
+  el("rules-edit").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!editing) return;
+    const symbol = editing.data.kind === "symbol";
+    const data = symbol ? editing.data : { ...editing.data, tags: el("rule-tags").value, usePattern: el("rule-pattern").checked, title: el("rule-title").value || "{tag}", pinAt: el("rule-pinat").value === "text" ? "text" : "dot" };
+    if (JSON.stringify(data).length > MAX_RULE_CHARS) { setError("rules-edit-error", tr("That rule is too large to save.")); return; }
+    el("rule-save").disabled = true; setError("rules-edit-error", "");
     try {
-      const row = await auth.loadRules();
-      if (!row) { setError("account-error", tr("You have no saved rules yet.")); return; }
-      applySetup(row.data);
-      lastSaved = canon(row.data);
-      ready = true;
-      closeBox(false);
-      say(tr("Loaded your saved rules."), "ok");
-    } catch (err) { setError("account-error", messageFor(err)); }
+      await auth.updateRule(editing.id, { name: el("rule-name").value, data });
+      editing = null;
+      showList();
+      await refreshRules();
+      say(tr("Changes saved."), "ok");
+    } catch (err) { setError("rules-edit-error", messageFor(err)); }
+    finally { el("rule-save").disabled = false; }
+  });
+  async function removeRule(r) {
+    if (!win.confirm(tr("Delete the saved rule \"{name}\"? This cannot be undone.", { name: r.name }))) return;
+    setError("rules-error", "");
+    try { await auth.deleteRule(r.id); await refreshRules(); }
+    catch (err) { setError("rules-error", messageFor(err)); }
+  }
+  el("rules-all").addEventListener("click", () => {
+    addRules(saved.map((r) => ({ name: r.name, data: structuredClone(r.data) })));
+    closeBox();
+    say(nRules(saved.length, "Added 1 rule to your plan.", "Added {n} rules to your plan."), "ok");
   });
 
-  // ---------------------------------------------------------------- saved rules
-  let ready = false, lastSaved = "", timer = 0, warned = false, syncing = null;
-  const usable = () => auth.signedIn() && ready && !paused() && hasLocalRules();
-
-  async function push() {
-    const setup = getSetup();
-    const text = canon(setup);
-    if (text.length > MAX_SETUP_CHARS) { if (!warned) say(tr("Your rules are too large to save to your account. Use Save setup to keep them as a file."), "err"); warned = true; return; }
-    if (text === lastSaved) return;
-    await auth.saveRules(setup);
-    lastSaved = text;
-    warned = false;
-  }
-  function pushFailed(err) {
-    if (err?.kind === "signedOut") return;
-    if (!warned) say(tr("Couldn't reach your saved rules. They are still on this device."), "err");
-    warned = true;
-  }
-
-  /** On sign-in and at start-up: bring saved rules onto the screen, or save the ones on the screen for the first time. */
-  function syncDown() {
-    syncing ||= (async () => {
-      ready = false;
-      try {
-        const row = await auth.loadRules();
-        const local = hasLocalRules() && !paused();
-        if (row) {
-          const saved = canon(row.data);
-          if (!local) { applySetup(row.data); lastSaved = saved; say(tr("Loaded your saved rules."), "ok"); }
-          else if (saved === canon(getSetup())) lastSaved = saved;
-          else if (win.confirm(tr("Replace the rules on this screen with the ones saved in your account?"))) { applySetup(row.data); lastSaved = saved; say(tr("Loaded your saved rules."), "ok"); }
-          else lastSaved = ""; // the rules on screen are kept, and replace the saved ones on the next change
-        } else if (local) {
-          lastSaved = "";
-          await push();
-        }
-        ready = true;
-        warned = false;
-      } catch (err) { pushFailed(err); }
-    })().finally(() => { syncing = null; });
-    return syncing;
-  }
-
-  /** The page calls this after any change to rules or settings. */
-  function noteChange() {
-    if (!usable()) return;
-    clearTimeout(timer);
-    timer = setTimeout(() => { if (usable()) push().catch(pushFailed); }, 1500);
+  /** Saves every rule on the plan that has something in it, each under its own name. */
+  let savingRules = false;
+  async function saveRules() {
+    if (!auth.signedIn()) { openSignIn(); return; }
+    if (savingRules) return;
+    const rules = getRules();
+    if (!rules.length) { say(tr("There are no rules to save yet. Fill in a rule first."), "err"); return; }
+    const names = rules.map((r) => r.name.trim().toLowerCase());
+    if (new Set(names).size !== names.length || rules.some((r) => !r.name.trim())) { say(tr("Give each rule its own name before saving."), "err"); return; }
+    if (rules.some((r) => JSON.stringify(r.data).length > MAX_RULE_CHARS)) { say(tr("A rule is too large to save. Try a smaller symbol."), "err"); return; }
+    savingRules = true;
+    try {
+      const existing = new Set((await auth.listRules()).map((r) => r.name.toLowerCase()));
+      const clash = rules.filter((r) => existing.has(r.name.trim().toLowerCase())).map((r) => r.name.trim());
+      if (clash.length && !win.confirm(tr("Replace the saved rules with these names: {names}?", { names: clash.join(", ") }))) return;
+      for (const r of rules) await auth.saveRule(r.name, r.data);
+      say(nRules(rules.length, "Saved 1 rule to your account.", "Saved {n} rules to your account."), "ok");
+    } catch (err) {
+      if (err?.kind !== "signedOut") say(messageFor(err), "err");
+    } finally { savingRules = false; }
   }
 
   // ---------------------------------------------------------------- reacting to the session
@@ -269,21 +317,19 @@ export function build({ cfg, say, getSetup, applySetup, hasLocalRules, paused, d
   auth.onChange((user) => {
     const now = !!user;
     paint();
-    if (now && !wasSignedIn) syncDown();
     if (!now && wasSignedIn) {
-      ready = false; clearTimeout(timer); lastSaved = "";
+      saved = []; editing = null;
       if (!leaving) { openSignIn(tr("Your session ended. Sign in again to continue.")); }
-      else if (openBox === el("account-modal")) closeBox(false);
+      else if (openBox === el("account-modal") || openBox === el("rules-modal")) closeBox(false);
     }
     wasSignedIn = now;
   });
   win.addEventListener("storage", (e) => { if (e.key === SESSION_KEY || e.key === null) auth.reload(); });
-  win.addEventListener("online", () => { if (auth.signedIn() && !ready) syncDown(); });
 
   paint();
   auth.start().then((user) => {
     paint();
-    if (user) { wasSignedIn = true; syncDown(); }
+    if (user) wasSignedIn = true;
   }).catch(() => paint());
 
   return {
@@ -295,7 +341,9 @@ export function build({ cfg, say, getSetup, applySetup, hasLocalRules, paused, d
       openSignIn();
       return false;
     },
-    noteChange,
+    openRules,
+    saveRules,
+    noteChange() {},
     /** After a language change. */
     refreshText: paint,
     _auth: auth,

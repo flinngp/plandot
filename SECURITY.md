@@ -1,7 +1,7 @@
 # Security
 
 Plandot runs in the browser. Drawings and templates are never uploaded. When sign-in is switched on, the only
-things stored are an email address, a plan and saved rules (see `supabase/schema.sql`).
+things stored are an email address, a plan and named saved rules (see `supabase/schema.sql`).
 
 ## Reporting a problem
 

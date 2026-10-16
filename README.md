@@ -12,7 +12,7 @@ You tell Plandot which text matters ("A1, A2 and A3 are socket outlets"), or box
 
 ```
 drawing.pdf  +  import template.xlsx  +  rules   ->   check the pins   ->   import file (.xlsx)
-                                                                       ->   marked-up PDF, pin image
+                                                                       ->   pin image
 ```
 
 ![The Plandot page with 13 pins on a made-up floor plan](docs/screenshot.png)
@@ -118,7 +118,8 @@ Real drawings and import templates can be confidential or carry personal details
 Sign-in is **off** until `js/config.js` has a Supabase project address and its *publishable* key (`ACCOUNTS.url` and `ACCOUNTS.key`). Never put a secret or `service_role` key there; the page refuses to start with one.
 
 - Uploading a plan or task import file needs sign-in (an emailed code, no password). The sample plan works without it.
-- The account holds the email address, the plan (`free`, `staff` for `@hilti.com` and `@fieldwire.com`, or `paid`) and one set of saved rules. Never drawings.
+- Rules: **Load rules** (top of the Rules section) opens the Saved rules window, where each saved rule can be added to the plan, renamed, edited or deleted. **Save rules** (bottom) saves every filled-in rule on the plan under its own name, asking before it replaces one with the same name. Nothing is saved automatically. The old setup file (Save setup / Open setup) still works and lives in the *Setup file* section.
+- The account holds the email address, the plan (`free`, `staff` for `@hilti.com` and `@fieldwire.com`, or `paid`) and any number (up to 200) of **named saved rules**, one row each in `saved_rules`. Never drawings or templates.
 - Run `supabase/schema.sql` once in the Supabase SQL editor. It creates the tables, row-level security and `delete_my_account()`.
 - In Supabase, set the email template to show `{{ .Token }}`, and use your own mail sender for production.
 - After setting it up, tighten `connect-src` in the `<meta>` policy on each page from `https://*.supabase.co` to your exact project host.
@@ -194,7 +195,7 @@ The guide's screenshots have orange outlines but no number badges (the picture d
 - Clicking a pin row jumps up to the drawing when it is off screen, and a floating "Back to the pins" button returns to the list.
 - Steps 1 and 2 are drop tiles (the real `<input type=file>` sits invisibly over each tile). Once a drawing is loaded, and once a template is loaded with a plan name, each step shrinks to a one-line summary with a green tick and a **Change** link (`syncSteps()` in `js/app.js`). The template step waits until the click that left the plan name has finished before it shrinks, so nothing moves under the pointer.
 - The key above the pin list (`#rulekey`) has one chip per rule with its pin colour, name and count. Clicking a chip leaves that rule's pins out, or puts them back. There are 8 pin colours, used in rule order; from the ninth rule on they repeat, which is why the chip also shows the rule name. There is no limit on the number of rules.
-- The dark import bar under the drawing (`#importbar`) shows the summary and holds Copy rows, Download import file and Download marked-up PDF. It floats along the bottom of the window whenever its own spot is out of sight (`watchImportBar()`), so the last step is always in reach. The zoom buttons move up to clear it.
+- The dark import bar under the drawing (`#importbar`) shows the summary and holds Copy rows and Download import file. It floats along the bottom of the window whenever its own spot is out of sight (`watchImportBar()`), so the last step is always in reach. The zoom buttons move up to clear it.
 - Link previews (WhatsApp, Slack, iMessage and so on) come from the Open Graph tags on all three pages and `docs/preview.png` (1200 x 630, 25 KB). The image address must stay absolute (`https://plandot.uk/...`). These apps cache previews, so a changed image can take a while to appear; a new address (for example `preview.png?v=2`) forces a refresh.
 
 

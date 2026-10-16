@@ -178,7 +178,7 @@ await record("clip-5-reuse", {
     await page.waitForFunction(() => window.planTasks.state.tpl?.parsed);
     await page.setInputFiles("#load-rules", root + "samples/sample-rules.json");
     await page.waitForFunction(() => window.planTasks.state.pins.length > 0);
-    await page.evaluate(() => document.querySelector("#save-rules").scrollIntoView({ block: "center" }));
+    await page.evaluate(() => { const b = document.querySelector("#save-rules"); b.closest("details").open = true; b.scrollIntoView({ block: "center" }); });
     await sleep(800);
   },
   act: async (page) => {

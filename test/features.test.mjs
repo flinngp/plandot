@@ -266,6 +266,7 @@ test("Save setup keeps rules, plan name and room settings, and Open setup brings
   const page = await withSample();
   await page.click("summary:has-text('Search area and room labels')");
   await page.fill("#room-pattern", "\\d-\\d{3}");
+  await page.evaluate(() => { document.querySelector("#save-rules").closest("details").open = true; });
   const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#save-rules")]);
   assert.equal(dl.suggestedFilename(), "plandot setup.json");
   const path = `${tmpdir()}/plandot-setup.json`;
@@ -397,6 +398,7 @@ test("the symbol card offers 'bigger or smaller' and remembers it in the setup f
   await page.waitForFunction(() => !/^Looking/.test(document.querySelector("#status").textContent));
   await page.waitForTimeout(300);
   assert.equal(await page.evaluate(() => window.planTasks.state.pins.length), 5); // the sample has the one size only: nothing new appears
+  await page.evaluate(() => { document.querySelector("#save-rules").closest("details").open = true; });
   const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#save-rules")]);
   const path = `${tmpdir()}/plandot-sizes.json`;
   await dl.saveAs(path);
@@ -525,11 +527,11 @@ test("the tour is a bottom card on a phone and the page still fits", async () =>
   await page.close();
 });
 
-test("the page's security rules let everything work: sample, downloads, marked-up PDF and pin image", async () => {
+test("the page's security rules let everything work: sample, downloads and pin image", async () => {
   const page = await fresh();
   await page.click("#try-sample");
   await page.waitForFunction(() => window.planTasks.state.pins.length === 13 && !window.planTasks.state.busy, null, { timeout: 20000 });
-  for (const id of ["#dl-import", "#dl-pdf", "#dl-png"]) {
+  for (const id of ["#dl-import", "#dl-png"]) {
     const [d] = await Promise.all([page.waitForEvent("download", { timeout: 20000 }), page.click(id)]);
     assert.ok(d.suggestedFilename());
   }
