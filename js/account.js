@@ -84,6 +84,7 @@ export function build({ cfg, say, getRules, addRules, download, doc, win, fetchF
   function paint() {
     const signed = auth.signedIn();
     btn.textContent = signed ? tr("Account") : tr("Sign in");
+    btn.classList.toggle("signed", signed);
     doc.body.classList.toggle("gated", !signed);
     gate.hidden = signed;
     const u = auth.user();
@@ -222,7 +223,8 @@ export function build({ cfg, say, getRules, addRules, download, doc, win, fetchF
     el("rules-empty").hidden = loadingRules || saved.length > 0;
     for (const r of saved) {
       const symbol = r.data.kind === "symbol";
-      const sub = symbol ? tr("Draw box") : String(r.data.tags ?? "").slice(0, 60);
+      const tags = String(r.data.tags ?? "").trim().slice(0, 60);
+      const sub = symbol ? tr("Finds a symbol") : !tags ? tr("No text to find yet") : r.data.usePattern ? tr("Finds text matching: {tags}", { tags }) : tr("Finds: {tags}", { tags });
       ul.append(mk("li", { class: "saved-rule" },
         mk("div", { class: "sr-main" }, mk("strong", { text: r.name }), mk("span", { class: "sr-sub", text: sub })),
         mk("div", { class: "sr-actions" },
@@ -231,6 +233,8 @@ export function build({ cfg, say, getRules, addRules, download, doc, win, fetchF
           mk("button", { type: "button", class: "btn quiet danger-text", text: tr("Delete"), "aria-label": `${tr("Delete")}: ${r.name}`, onclick: () => removeRule(r) }))));
     }
     el("rules-all").hidden = saved.length < 2;
+    el("rules-all").textContent = tr("Add all {n} to plan", { n: saved.length });
+    el("rules-count").textContent = loadingRules || !saved.length ? "" : nRules(saved.length, "1 saved rule", "{n} saved rules");
   }
   async function refreshRules() {
     loadingRules = true; setError("rules-error", ""); paintRules();
@@ -293,22 +297,24 @@ export function build({ cfg, say, getRules, addRules, download, doc, win, fetchF
   /** Saves every rule on the plan that has something in it, each under its own name. */
   let savingRules = false;
   async function saveRules() {
-    if (!auth.signedIn()) { openSignIn(); return; }
-    if (savingRules) return;
+    if (!auth.signedIn()) { openSignIn(); return false; }
+    if (savingRules) return false;
     const rules = getRules();
-    if (!rules.length) { say(tr("There are no rules to save yet. Fill in a rule first."), "err"); return; }
+    if (!rules.length) { say(tr("There are no rules to save yet. Fill in a rule first."), "err"); return false; }
     const names = rules.map((r) => r.name.trim().toLowerCase());
-    if (new Set(names).size !== names.length || rules.some((r) => !r.name.trim())) { say(tr("Give each rule its own name before saving."), "err"); return; }
-    if (rules.some((r) => JSON.stringify(r.data).length > MAX_RULE_CHARS)) { say(tr("A rule is too large to save. Try a smaller symbol."), "err"); return; }
+    if (new Set(names).size !== names.length || rules.some((r) => !r.name.trim())) { say(tr("Give each rule its own name before saving."), "err"); return false; }
+    if (rules.some((r) => JSON.stringify(r.data).length > MAX_RULE_CHARS)) { say(tr("A rule is too large to save. Try a smaller symbol."), "err"); return false; }
     savingRules = true;
     try {
       const existing = new Set((await auth.listRules()).map((r) => r.name.toLowerCase()));
       const clash = rules.filter((r) => existing.has(r.name.trim().toLowerCase())).map((r) => r.name.trim());
-      if (clash.length && !win.confirm(tr("Replace the saved rules with these names: {names}?", { names: clash.join(", ") }))) return;
+      if (clash.length && !win.confirm(tr("Replace the saved rules with these names: {names}?", { names: clash.join(", ") }))) return false;
       for (const r of rules) await auth.saveRule(r.name, r.data);
       say(nRules(rules.length, "Saved 1 rule to your account.", "Saved {n} rules to your account."), "ok");
+      return true;
     } catch (err) {
       if (err?.kind !== "signedOut") say(messageFor(err), "err");
+      return false;
     } finally { savingRules = false; }
   }
 

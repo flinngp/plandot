@@ -210,14 +210,17 @@ test("Save rules: each rule is saved under its own name, replacing one with the 
   await page.waitForFunction(() => document.querySelector("#account-btn").textContent === "Account");
   assert.equal(await visible(page, "#save-rules-cloud"), true);
   assert.equal(await visible(page, "#load-rules-cloud"), true);
+  assert.equal(await page.textContent("#save-rules-cloud"), "Save rules", "no rules filled in yet");
   await page.click("#save-rules-cloud");
   await page.waitForFunction(() => /no rules to save/.test(document.querySelector("#status").textContent));
   assert.equal(svc.table.length, 0, "an empty rule is not saved");
   await page.fill(".rule input[aria-label='Rule name']", "Sockets");
   await page.fill(".rule input[id$='-tags']", "Z9");
+  assert.equal(await page.textContent("#save-rules-cloud"), "Save rule", "one rule says rule, not rules");
   await page.click("#add-rule");
   await page.fill(".rule:nth-of-type(2) input[aria-label='Rule name']", "Sockets");
   await page.fill(".rule:nth-of-type(2) input[id$='-tags']", "Q1");
+  assert.equal(await page.textContent("#save-rules-cloud"), "Save rules");
   await page.click("#save-rules-cloud");
   await page.waitForFunction(() => /own name/.test(document.querySelector("#status").textContent));
   assert.equal(svc.table.length, 0, "two rules with one name are refused");
@@ -228,6 +231,10 @@ test("Save rules: each rule is saved under its own name, replacing one with the 
   assert.equal(svc.table.find((r) => r.name === "Sockets").data.tags, "Z9");
   assert.equal(svc.savedFor, UID);
   assert.match(await status(page), /Saved 2 rules to your account/);
+  assert.equal(await page.$eval("#save-rules-cloud", (b) => b.classList.contains("saved-flash")), true, "the button turns green");
+  assert.match(await page.textContent("#save-rules-cloud"), /Saved/);
+  await page.waitForFunction(() => !document.querySelector("#save-rules-cloud").classList.contains("saved-flash"), null, { timeout: 5000 });
+  assert.equal(await page.textContent("#save-rules-cloud"), "Save rules", "and goes back to normal");
   const post = svc.calls.filter((c) => c.method === "POST" && c.path.startsWith("/rest/v1/saved_rules")).at(-1);
   assert.equal(post.path, "/rest/v1/saved_rules?on_conflict=user_id,name");
   assert.equal(post.headers.prefer, "resolution=merge-duplicates,return=minimal");
@@ -254,6 +261,8 @@ test("Load rules: the list is by name, one rule or all of them go onto the plan,
   await page.waitForSelector("#rules-modal:not([hidden])");
   await page.waitForSelector(".saved-rule");
   assert.deepEqual(await page.$$eval(".saved-rule strong", (e) => e.map((x) => x.textContent)), ["Patio door", "Sockets"]);
+  assert.equal(await page.textContent("#rules-count"), "2 saved rules");
+  assert.deepEqual(await page.$$eval(".sr-sub", (e) => e.map((x) => x.textContent)), ["Finds a symbol", "Finds: Z9"]);
   await page.click("button[aria-label='Add to plan: Sockets']");
   await page.waitForFunction(() => document.querySelector(".rule input[id$='-tags']")?.value === "Z9");
   assert.equal(await page.inputValue(".rule input[aria-label='Rule name']"), "Sockets", "the empty first rule makes room");
@@ -277,7 +286,7 @@ test("an empty list says how to get started; failing to reach the service says s
   await page.click("#account-load");
   await page.waitForSelector("#rules-modal:not([hidden])");
   await page.waitForSelector("#rules-empty:not([hidden])");
-  assert.match(await page.textContent("#rules-empty"), /no saved rules yet/);
+  assert.match(await page.textContent("#rules-empty"), /haven't saved any rules/);
   await ctx.close();
 });
 
@@ -349,6 +358,24 @@ test("signed out, Load rules and Save rules ask you to sign in", async () => {
   await page.fill(".rule input[id$='-tags']", "A1");
   await page.click("#save-rules-cloud");
   await page.waitForSelector("#signin-modal:not([hidden])");
+  await ctx.close();
+});
+
+test("the Sign in button sits in the page header, not the crowded top bar", async () => {
+  const { page, ctx } = await open();
+  assert.equal(await page.$eval("#account-btn", (b) => !!b.closest("header.masthead") && !b.closest("#topnav")), true);
+  assert.equal(await page.$eval("#account-btn", (b) => b.getBoundingClientRect().height >= 44), true);
+  await ctx.close();
+});
+
+test("the rule name looks editable and selects itself when clicked", async () => {
+  const { page, ctx } = await open({ accounts: false });
+  const input = await page.$(".rule-head input");
+  assert.match(await input.getAttribute("title"), /rename/i);
+  assert.equal(await input.getAttribute("placeholder"), "Name this rule");
+  assert.equal(await page.inputValue(".rule input[id$='-tags']"), "", "text to find starts blank");
+  await input.click();
+  assert.equal(await page.evaluate(() => { const e = document.activeElement; return e.selectionStart === 0 && e.selectionEnd === e.value.length; }), true);
   await ctx.close();
 });
 

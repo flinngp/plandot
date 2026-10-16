@@ -438,9 +438,11 @@ body.ib-floating .back-to-pins { bottom: 100px; }
 }
 
 /* ---- accounts: the Sign in button, the notice above the setup, and the boxes ---- */
-.topnav .account-btn { font: 700 13px/1 var(--body); color: var(--accent-dark); background: var(--card); border: 1.5px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer; box-shadow: var(--shadow); }
-.topnav .account-btn:hover { border-color: var(--accent); background: var(--accent-wash); }
-.topnav .account-btn[hidden] { display: none; }
+.account-btn { flex: none; font: 700 14px/1 var(--body); color: #fff; background: var(--accent); border: 0; border-radius: 999px; padding: 11px 20px; min-height: 44px; cursor: pointer; box-shadow: var(--shadow); }
+.account-btn:hover { background: var(--accent-dark); }
+.account-btn[hidden] { display: none; }
+.account-btn.signed { color: var(--accent-dark); background: var(--card); border: 1.5px solid var(--line); }
+.account-btn.signed:hover { border-color: var(--accent); background: var(--accent-wash); }
 .gate { display: flex; flex-direction: column; gap: 10px; align-items: stretch; padding: 14px; margin-bottom: 14px; background: var(--accent-wash); border-radius: var(--radius); color: #1f3399; font-weight: 600; font-size: 13px; line-height: 1.45; }
 .gate .btn { align-self: flex-start; }
 body.gated .filetile { cursor: pointer; opacity: 0.75; }
@@ -465,7 +467,7 @@ body.modal-open { overflow: hidden; }
 .btn.danger { color: var(--err); border-color: #e7b9b4; }
 .btn.danger:hover:not(:disabled) { background: #fdecea; border-color: var(--err); }
 .sitefoot .legal a { color: inherit; }
-@media (max-width: 700px) { .topnav .account-btn { padding: 7px 12px; } }
+@media (max-width: 700px) { .account-btn { padding: 9px 14px; font-size: 13px; } }
 
 /* ---- saved rules */
 .rules-top { margin: 0 0 .5rem; }
@@ -479,3 +481,15 @@ body.modal-open { overflow: hidden; }
 .btn.danger-text { color: var(--err); }
 #rules-edit h3 { margin: 0 0 .25rem; font-size: 1.05rem; }
 #rule-pinat { width: 100%; font-size: 16px; }
+
+/* rule name looks editable; the save button confirms; the saved rules window is plainer */
+.rule-head input { border: 1.5px dashed var(--line); background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23566379' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E") no-repeat right 10px center; padding-right: 30px; border-radius: 8px; }
+.rule-head input:hover, .rule-head input:focus { border-style: solid; border-color: var(--accent); }
+.btn.saved-flash { background: var(--ok); border-color: var(--ok); color: #fff; transition: background .2s, border-color .2s; }
+.sr-count { font-weight: 700; font-size: 14px; margin: 0; }
+.sr-empty { background: var(--soft); border-radius: var(--radius-s); padding: 16px; margin: 0; color: var(--ink-2); line-height: 1.5; }
+.saved-rule { background: var(--soft); border-color: var(--line-soft); }
+.sr-main strong { font-size: 16px; }
+.sr-sub { font-size: 13.5px; }
+.sr-actions .btn:first-child { background: var(--accent); border-color: var(--accent); color: #fff; }
+.sr-actions .btn:first-child:hover:not(:disabled) { background: var(--accent-dark); }

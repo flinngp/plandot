@@ -26,7 +26,6 @@
 </head>
 <body>
 <nav class="topnav" id="topnav" aria-label="More about Plandot">
-  <button type="button" id="account-btn" class="account-btn" aria-haspopup="dialog" hidden>Sign in</button>
   <div class="langmenu"><button type="button" id="lang-btn" class="lang-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="lang-list" aria-label="Language">Language</button><ul id="lang-list" class="lang-list" role="listbox" tabindex="-1" aria-label="Language" hidden></ul></div>
 </nav>
 <a class="skip" href="#viewport" data-i18n>Skip to the drawing</a>
@@ -38,6 +37,7 @@
       <p data-i18n>Turn callouts and symbols on a plan into pins, ready to import.</p>
     </div>
   </div>
+  <button type="button" id="account-btn" class="account-btn" aria-haspopup="dialog" hidden>Sign in</button>
 </header>
 
 <main class="layout">
@@ -96,7 +96,7 @@
       <div id="rules"></div>
       <div class="row">
         <button type="button" class="btn quiet" id="add-rule" data-i18n>Add rule</button>
-        <button type="button" class="btn quiet" id="save-rules-cloud" hidden data-i18n>Save rules</button>
+        <button type="button" class="btn quiet" id="save-rules-cloud" hidden>Save rules</button>
       </div>
 
       <details class="settings">
@@ -259,14 +259,16 @@
     <button type="button" class="modal-x" id="rules-x" aria-label="Close" data-i18n-aria>×</button>
     <h2 id="rules-title" data-i18n>Saved rules</h2>
     <div id="rules-list-view">
-      <p class="hint" data-i18n>Saved rules keep a rule's settings under its name, so you can add it to any plan. Drawings and templates are never stored.</p>
-      <p class="hint" id="rules-empty" hidden data-i18n>You have no saved rules yet. Build rules on a plan, then press Save rules.</p>
+      <p class="hint" data-i18n>Choose a rule to add to your plan. You can also edit or delete rules here. This never changes the plan you are working on.</p>
+      <p class="sr-count" id="rules-count" role="status"></p>
+      <p class="sr-empty" id="rules-empty" hidden data-i18n>You haven't saved any rules yet. Make a rule on your plan, then press Save rule under your rules.</p>
       <ul class="saved-list" id="rules-list"></ul>
       <p class="form-error" id="rules-error" role="alert" hidden></p>
-      <div class="row"><button type="button" class="btn primary" id="rules-all" hidden data-i18n>Add all to plan</button></div>
+      <div class="row"><button type="button" class="btn primary" id="rules-all" hidden>Add all to plan</button></div>
     </div>
     <form id="rules-edit" class="modal-form" novalidate hidden>
       <h3 data-i18n>Edit saved rule</h3>
+      <p class="hint" data-i18n>Changes here only update the saved copy, not the rule on your plan.</p>
       <label for="rule-name" data-i18n>Rule name</label>
       <input id="rule-name" type="text" maxlength="80" autocomplete="off">
       <div id="rule-text-fields">

@@ -69,13 +69,21 @@ function h(tag, props = {}, ...kids) {
 }
 
 // ---------------------------------------------------------------- persistence
+/** "Save rule" for one rule, "Save rules" for more. Only rules with something in them count, as only those are saved. */
+function refreshSaveLabel() {
+  const b = document.getElementById("save-rules-cloud");
+  if (!b || b.classList.contains("saved-flash")) return;
+  const n = state.rules.filter((r) => hasText(r.tags) || r.symbol).length;
+  b.textContent = n === 1 ? tr("Save rule") : tr("Save rules");
+}
+
 function save() {
   recordSoon();
   try {
     const { planName, roomPattern, roomDistance, showGrid } = state.settings;
     localStorage.setItem(STORE_KEY, JSON.stringify({ rules: state.rules, settings: { planName, roomPattern, roomDistance, showGrid } }));
   } catch { /* private mode or blocked storage: the app still works, it just won't remember */ }
-  account.noteChange();
+  refreshSaveLabel();
 }
 function restore() {
   try {
@@ -116,7 +124,7 @@ function applySnapshot(snap) {
   try { localStorage.setItem(STORE_KEY, JSON.stringify({ rules: state.rules, settings: { planName: state.settings.planName, roomPattern: state.settings.roomPattern, roomDistance: state.settings.roomDistance, showGrid: state.settings.showGrid } })); } catch { /* ignore */ }
   cancelSymbolBox(true);
   renderRules(); renderTemplateInfo(); runDetect(); updateUndoButtons();
-  account.noteChange();
+  refreshSaveLabel();
 }
 function undo() {
   recordNow(); // fold in anything typed in the last half second
@@ -329,11 +337,12 @@ function renderRules() {
   state.rules.forEach((rule, i) => box.append(ruleCard(rule, i)));
   hydrateInfo(box);
   updateRuleStatus();
+  refreshSaveLabel();
 }
 
 function ruleCard(rule, index) {
   const cols = state.tpl?.parsed ? extraColumns(state.tpl.parsed) : [];
-  const set = (patch) => { Object.assign(rule, patch); saveSoon(); if ("symbol" in patch) renderRules(); runDetect(); };
+  const set = (patch) => { Object.assign(rule, patch); refreshSaveLabel(); saveSoon(); if ("symbol" in patch) renderRules(); runDetect(); };
   const filled = () => Object.values(rule.columns || {}).filter(hasText).length;
   const moreSummary = h("summary", { text: tr("Other columns") });
   const refreshSummary = () => { moreSummary.textContent = filled() ? tr("Other columns ({n} set)", { n: filled() }) : tr("Other columns"); };
@@ -349,9 +358,10 @@ function ruleCard(rule, index) {
   }
   refreshSummary();
 
-  const name = h("input", { type: "text", value: rule.name, "aria-label": tr("Rule name"), autocomplete: "off" });
+  const name = h("input", { type: "text", value: rule.name, "aria-label": tr("Rule name"), placeholder: tr("Name this rule"), title: tr("Click to rename this rule"), autocomplete: "off", name: `rule-name-${rule.id}`, "data-lpignore": "true" });
+  name.addEventListener("focus", () => name.select());
   name.addEventListener("input", () => { set({ name: name.value }); updatePreviews(); });
-  const tags = h("input", { type: "text", id: `${rule.id}-tags`, value: rule.tags, placeholder: rule.usePattern ? "A[1-3]" : "A1, A2, A3", autocomplete: "off" });
+  const tags = h("input", { type: "text", id: `${rule.id}-tags`, name: `rule-tags-${rule.id}`, "data-lpignore": "true", value: rule.tags, placeholder: rule.usePattern ? "A[1-3]" : "A1, A2, A3", autocomplete: "off" });
   tags.addEventListener("input", () => set({ tags: tags.value }));
   const pattern = h("input", { type: "checkbox", checked: !!rule.usePattern });
   pattern.addEventListener("change", () => { tags.placeholder = pattern.checked ? "A[1-3]" : "A1, A2, A3"; set({ usePattern: pattern.checked }); });
@@ -1517,7 +1527,15 @@ function wire() {
   $("#save-rules").addEventListener("click", saveRules);
   for (const id of ["#load-rules-cloud", "#save-rules-cloud"]) $(id).hidden = !account.enabled;
   $("#load-rules-cloud").addEventListener("click", () => account.openRules());
-  $("#save-rules-cloud").addEventListener("click", () => account.saveRules());
+  let flashTimer = 0;
+  $("#save-rules-cloud").addEventListener("click", async () => {
+    const b = $("#save-rules-cloud");
+    if (!(await account.saveRules())) return;
+    clearTimeout(flashTimer);
+    b.classList.add("saved-flash");
+    b.textContent = `✓ ${tr("Saved")}`;
+    flashTimer = setTimeout(() => { b.classList.remove("saved-flash"); refreshSaveLabel(); }, 2200);
+  });
   $("#load-rules-btn").addEventListener("click", () => $("#load-rules").click());
   $("#load-rules").addEventListener("change", (e) => { if (e.target.files[0]) loadRules(e.target.files[0]); e.target.value = ""; });
   $("#draw-area").addEventListener("click", () => {
@@ -1596,11 +1614,11 @@ await initLanguageMenu({
   onChange: async () => {
     renderPdfInfo(); renderTplInfo(); renderTemplateInfo(); renderRules(); updateAreaInfo(); refresh();
     $("#draw-area").textContent = state.areaMode ? tr("Cancel") : tr("Draw on sheet");
-    account.refreshText();
+    account.refreshText(); refreshSaveLabel();
   },
 });
 translateDom();
-account.refreshText();
+account.refreshText(); refreshSaveLabel();
 hydrateInfo();
 setTourHandler(() => startTour({ force: true }));
 renderFooter();
