@@ -176,20 +176,23 @@ test("the menu bar at the top links to the how to guide and the FAQ, on every pa
   const links = await page.$$eval("#topnav a", (a) => a.map((x) => [x.textContent, x.getAttribute("href")]));
   assert.deepEqual(links.slice(0, 3), [["Take the tour", "#"], ["How to guide", "howto.html"], ["FAQ", "faq.html"]]);
   assert.ok(!/null|undefined/.test(await page.textContent("#topnav")), "stray text in the menu");
-  assert.ok(await page.$eval("#topnav", (n) => n.getBoundingClientRect().bottom <= document.querySelector(".masthead").getBoundingClientRect().top + 1), "the menu sits above the header");
+  assert.ok(await page.$eval("#topnav", (n) => !!n.closest(".masthead")), "on the app the menu sits in the header");
+  assert.equal(await page.$eval(".menu-pop", (p) => p.hidden), true, "the links are tucked behind the Menu button");
+  await page.click(".menu-btn");
   await page.click("#topnav a[href='howto.html']");
   await page.waitForURL(/howto\.html/);
-  await page.waitForSelector("#topnav a");
+  await page.waitForSelector("#topnav .menu-btn");
   assert.equal(await page.getAttribute("#topnav a[href='howto.html']", "aria-current"), "page");
   assert.equal(await page.textContent("#topnav .nav-app"), "Home");
   assert.equal(await page.textContent("h1:not(.brand h1)"), "How to guide");
+  await page.click(".menu-btn");
   await page.click("#topnav a[href='faq.html']");
   await page.waitForURL(/faq\.html/);
-  await page.waitForSelector("#topnav a");
+  await page.waitForSelector("#topnav .menu-btn");
   assert.equal(await page.getAttribute("#topnav a[href='faq.html']", "aria-current"), "page");
   await page.click("#topnav a[href='index.html']");
   await page.waitForURL(/index\.html/);
-  await page.waitForSelector("#topnav a");
+  await page.waitForSelector("#topnav .menu-btn");
   await page.ctx.close();
 });
 
@@ -234,14 +237,13 @@ test("an error offers Copy details, and the text holds the version and browser b
 });
 
 // ---------------------------------------------------------------- phone tagline
-test("the tagline under the logo shows in full on a phone", async () => {
+test("on a phone the header stays on one row: the tagline gives way to the Menu, language and account buttons", async () => {
   for (const w of [320, 360, 390]) {
     const page = await fresh({ width: w, height: 800 });
-    const r = await page.$eval(".brand p", (p) => { const s = getComputedStyle(p); const b = p.getBoundingClientRect(); return { clipped: p.scrollWidth > p.clientWidth + 1, ws: s.whiteSpace, ov: s.textOverflow, right: b.right, vw: innerWidth, h: b.height }; });
-    assert.equal(r.clipped, false, `clipped at ${w}`);
-    assert.notEqual(r.ws, "nowrap");
-    assert.ok(r.right <= r.vw, "runs off the screen");
-    assert.ok(r.h > 18, "wrapped onto more than one line");
+    const r = await page.evaluate(() => { const hd = document.querySelector(".masthead"); return { tagline: getComputedStyle(document.querySelector(".brand p")).display, height: hd.getBoundingClientRect().height, over: document.documentElement.scrollWidth - innerWidth, menuRight: document.querySelector(".menu-btn").getBoundingClientRect().right, vw: innerWidth }; });
+    assert.equal(r.tagline, "none", `tagline at ${w}`);
+    assert.ok(r.height <= 80, `header is ${r.height}px tall at ${w}`);
+    assert.ok(r.over <= 1 && r.menuRight <= r.vw, `runs off the screen at ${w}`);
     await page.ctx.close();
   }
 });

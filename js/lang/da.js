@@ -369,4 +369,5 @@ export default {
  "Load your drawing and import template": "Indlæs din tegning og importskabelon",
  "Make a rule for each kind of callout": "Lav en regel for hver slags henvisning",
  "Check the pins, then download the file": "Tjek pins, og download derefter filen",
+ "Menu": "Menu",
 };

@@ -369,4 +369,5 @@ export default {
  "Load your drawing and import template": "Wczytaj rysunek i szablon importu",
  "Make a rule for each kind of callout": "Utwórz regułę dla każdego rodzaju oznaczenia",
  "Check the pins, then download the file": "Sprawdź pinezki, a potem pobierz plik",
+ "Menu": "Menu",
 };

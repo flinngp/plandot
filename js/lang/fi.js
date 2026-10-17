@@ -369,4 +369,5 @@ export default {
  "Load your drawing and import template": "Lataa piirros ja tuontipohja",
  "Make a rule for each kind of callout": "Tee sääntö jokaiselle merkintätyypille",
  "Check the pins, then download the file": "Tarkista nastat ja lataa sitten tiedosto",
+ "Menu": "Valikko",
 };

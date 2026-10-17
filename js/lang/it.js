@@ -369,4 +369,5 @@ export default {
  "Load your drawing and import template": "Carica il disegno e il modello di importazione",
  "Make a rule for each kind of callout": "Crea una regola per ogni tipo di richiamo",
  "Check the pins, then download the file": "Controlla i pin, poi scarica il file",
+ "Menu": "Menu",
 };

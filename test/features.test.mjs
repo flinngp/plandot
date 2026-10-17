@@ -495,6 +495,7 @@ test("the drawing still opens in a browser whose streams can't be looped over (S
 test("the tour is skippable, remembers that it was closed, and can be taken again from the menu", async () => {
   const page = await fresh();
   assert.equal(await page.locator(".tour-card").count(), 0, "no tour is forced on automated browsers");
+  await page.click(".menu-btn");
   await page.click(".tour-link");
   assert.equal(await page.locator(".tour-card").count(), 1);
   assert.match(await page.textContent(".tour-k"), /1 of 4/);
@@ -506,6 +507,7 @@ test("the tour is skippable, remembers that it was closed, and can be taken agai
   assert.equal(await page.locator(".tour-card").count(), 0);
   assert.equal(await page.evaluate(() => localStorage.getItem("plandot-tour-done")), "1", "closing remembers it");
   // clicking through to the end works, and un-ticking the box means it can show again
+  await page.click(".menu-btn");
   await page.click(".tour-link");
   for (let i = 0; i < 3; i++) await page.click(".tour-next");
   assert.equal(await page.textContent(".tour-next"), "Done");
@@ -518,7 +520,7 @@ test("the tour is skippable, remembers that it was closed, and can be taken agai
 
 test("the tour is a bottom card on a phone and the page still fits", async () => {
   const page = await fresh({ width: 390, height: 800 });
-  await page.click(".help-toggle"); // on a phone the menu links sit behind one Help button
+  await page.click(".menu-btn");
   await page.click(".tour-link");
   const r = await page.evaluate(() => { const c = document.querySelector(".tour-card").getBoundingClientRect(); return { inside: c.left >= 0 && c.right <= innerWidth && c.bottom <= innerHeight, ring: document.querySelector(".tour-ring").hidden, fits: document.documentElement.scrollWidth <= innerWidth }; });
   assert.deepEqual(r, { inside: true, ring: true, fits: true });
@@ -564,7 +566,7 @@ test("the header: language sits in the top bar and the drawing details sit above
     const b = (s) => document.querySelector(s).getBoundingClientRect();
     return { langInNav: !!document.querySelector("#topnav #lang-btn"), tbInPane: !!document.querySelector(".sheetpane .titleblock"), mastLang: !!document.querySelector(".masthead #lang-btn"), tbInToolbar: !!document.querySelector(".toolbar > .titleblock"), noPanText: !document.querySelector(".toolbar .tip") };
   });
-  assert.deepEqual(r, { langInNav: true, tbInPane: true, mastLang: false, tbInToolbar: true, noPanText: true });
+  assert.deepEqual(r, { langInNav: true, tbInPane: true, mastLang: true, tbInToolbar: true, noPanText: true });
   await page.click("#lang-btn"); await page.click("#lang-fr");
   await page.waitForFunction(() => document.querySelector("#topnav .feedback-link").textContent === "Envoyer un avis");
   await page.close();
@@ -718,14 +720,23 @@ test("the pins table on a phone shows only the columns you check", async () => {
   await page.close();
 });
 
-test("on a phone the menu links sit behind one Help button", async () => {
-  const page = await fresh({ width: 390, height: 800 });
-  assert.equal(await page.$eval(".feedback-link, a[href='faq.html']", (a) => getComputedStyle(a).display), "none");
-  await page.click(".help-toggle");
-  assert.equal(await page.$eval("#topnav a[href='faq.html']", (a) => getComputedStyle(a).display !== "none"), true);
-  assert.equal(await page.getAttribute(".help-toggle", "aria-expanded"), "true");
-  await page.close();
-  const wide = await fresh({ width: 1280, height: 800 });
-  assert.equal(await wide.$eval(".help-toggle", (b) => getComputedStyle(b).display), "none");
-  await wide.close();
+test("the menu button holds the links; it opens, closes with Escape or a click elsewhere, and the header controls are one size", async () => {
+  for (const [w, label] of [[1280, true], [390, false]]) {
+    const page = await fresh({ width: w, height: 800 });
+    assert.equal(await page.$eval(".menu-pop", (p) => p.hidden), true);
+    await page.click(".menu-btn");
+    assert.equal(await page.getAttribute(".menu-btn", "aria-expanded"), "true");
+    assert.equal(await page.$eval("#topnav a[href='faq.html']", (a) => getComputedStyle(a).display !== "none"), true);
+    const r = await page.evaluate(() => { const b = (s) => document.querySelector(s).getBoundingClientRect(); const p = b(".menu-pop"); return { inside: p.left >= 0 && p.right <= innerWidth, h: [b("#lang-btn").height, b(".menu-btn").height] }; });
+    assert.equal(r.inside, true, "the list fits the window");
+    assert.equal(r.h[0], r.h[1], "same height controls");
+    assert.equal(await page.$eval(".menu-btn .menu-label", (s) => getComputedStyle(s).display !== "none"), label);
+    await page.keyboard.press("Escape");
+    assert.equal(await page.getAttribute(".menu-btn", "aria-expanded"), "false");
+    await page.click(".menu-btn");
+    await page.mouse.click(5, 400);
+    assert.equal(await page.$eval(".menu-pop", (p) => p.hidden), true);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await page.close();
+  }
 });

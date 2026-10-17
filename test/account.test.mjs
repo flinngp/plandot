@@ -366,10 +366,12 @@ test("signed out, Load rules and Save rules ask you to sign in", async () => {
   await ctx.close();
 });
 
-test("the Sign in button sits in the page header, not the crowded top bar", async () => {
+test("the Sign in button sits in the header next to the Menu, and is compact", async () => {
   const { page, ctx } = await open();
   assert.equal(await page.$eval("#account-btn", (b) => !!b.closest("header.masthead") && !b.closest("#topnav")), true);
-  assert.equal(await page.$eval("#account-btn", (b) => b.getBoundingClientRect().height >= 44), true);
+  const m = await page.evaluate(() => { const a = document.querySelector("#account-btn").getBoundingClientRect(), b = document.querySelector(".menu-btn").getBoundingClientRect(); return { h: a.height, w: a.width, sameRow: Math.abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) < 2, sameHeight: Math.abs(a.height - b.height) < 1 }; });
+  assert.ok(m.h >= 32 && m.h <= 40 && m.w <= 110, `account button is ${m.w}x${m.h}`);
+  assert.ok(m.sameRow && m.sameHeight, "Menu, language and account line up");
   await ctx.close();
 });
 

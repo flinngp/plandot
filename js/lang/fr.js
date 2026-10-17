@@ -369,4 +369,5 @@ export default {
  "Load your drawing and import template": "Chargez votre plan et le modèle d'import",
  "Make a rule for each kind of callout": "Créez une règle pour chaque type de repère",
  "Check the pins, then download the file": "Vérifiez les épingles, puis téléchargez le fichier",
+ "Menu": "Menu",
 };

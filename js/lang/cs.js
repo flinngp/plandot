@@ -369,4 +369,5 @@ export default {
  "Load your drawing and import template": "Načtěte výkres a importní šablonu",
  "Make a rule for each kind of callout": "Vytvořte pravidlo pro každý druh označení",
  "Check the pins, then download the file": "Zkontrolujte piny a stáhněte soubor",
+ "Menu": "Nabídka",
 };

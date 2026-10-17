@@ -184,6 +184,7 @@ function homeLink() {
   return a;
 }
 
+let closeMenu = () => {};
 export function renderNav() {
   const nav = document.getElementById("topnav");
   if (!nav) return;
@@ -192,16 +193,27 @@ export function renderNav() {
   const href = feedbackHref();
   const link = (to, text, extra = {}) => h("a", { href: to, text, ...(here === to ? { "aria-current": "page" } : {}), ...extra });
   nav.setAttribute("aria-label", tr("More about Plandot"));
-  nav.querySelectorAll(":scope > a, :scope > .help-toggle").forEach((a) => a.remove()); // the language menu stays
-  const toggle = h("button", { type: "button", class: "help-toggle", "aria-expanded": String(nav.classList.contains("help-open")), text: tr("Help") });
-  toggle.addEventListener("click", () => { const on = nav.classList.toggle("help-open"); toggle.setAttribute("aria-expanded", String(on)); });
-  nav.prepend(toggle,
-    ...(onApp ? [] : [homeLink()]),
+  nav.querySelectorAll(":scope > a, :scope > .menu-wrap").forEach((a) => a.remove()); // the language menu stays
+  const items = [
     ...(onApp && tourHandler ? [h("a", { href: "#", class: "tour-link", text: tr("Take the tour"), onclick: (e) => { e.preventDefault(); tourHandler(); } })] : []),
     link("howto.html", tr("How to guide")),
     link("faq.html", tr("FAQ")),
-    ...(href ? [h("a", { href, class: "feedback-link", ...(FEEDBACK.url ? { target: "_blank", rel: "noopener" } : {}), text: tr("Send feedback") })] : []));
+    ...(href ? [h("a", { href, class: "feedback-link", ...(FEEDBACK.url ? { target: "_blank", rel: "noopener" } : {}), text: tr("Send feedback") })] : [])];
+  const pop = h("div", { class: "menu-pop", id: "menu-pop", hidden: "" }, ...items);
+  const btn = h("button", { type: "button", class: "menu-btn", "aria-haspopup": "true", "aria-expanded": "false", "aria-controls": "menu-pop" });
+  btn.innerHTML = `${MENU_ICON}<span class="menu-label"></span>`;
+  btn.querySelector(".menu-label").textContent = tr("Menu");
+  const setOpen = (on, focusBack = false) => { pop.hidden = !on; btn.setAttribute("aria-expanded", String(on)); if (!on && focusBack) btn.focus(); };
+  btn.addEventListener("click", () => setOpen(pop.hidden));
+  pop.addEventListener("click", (e) => { if (e.target.closest("a")) setOpen(false); });
+  pop.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); setOpen(false, true); } });
+  btn.addEventListener("keydown", (e) => { if (e.key === "Escape" && !pop.hidden) { e.stopPropagation(); setOpen(false, true); } });
+  closeMenu = () => setOpen(false);
+  nav.prepend(...(onApp ? [] : [homeLink()]), h("div", { class: "menu-wrap" }, btn, pop));
 }
+const MENU_ICON = '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M3 5.5h14M3 10h14M3 14.5h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+document.addEventListener("click", (e) => { if (!e.target.closest?.(".menu-wrap")) closeMenu(); });
+document.addEventListener("focusin", (e) => { if (!e.target.closest?.(".menu-wrap")) closeMenu(); });
 
 export function renderFooter() {
   const foot = document.getElementById("sitefoot");
